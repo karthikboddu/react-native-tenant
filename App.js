@@ -1,12 +1,44 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View ,Button} from 'react-native';
+import { theme } from './src/core/theme';
+import { GlobalProvider } from './src/context/GlobalState';
+import {
+  Provider as PaperProvider,
+  DefaultTheme as PaperDefaultTheme,
+  DarkTheme as PaperDarkTheme
+} from 'react-native-paper';
+
+import Router from './src/Router';
+import { useNetInfo } from "@react-native-community/netinfo";
+import Modals from './src/components/NetInfoModal';
+import FlashMessage from 'react-native-flash-message';
+import AllInOneSDKManager from 'paytm_allinone_react-native';
+import * as Google from 'expo-auth-session/providers/google';
+import * as React from 'react';
+import * as WebBrowser from 'expo-web-browser';
+
+
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
+
+  let netInfo = useNetInfo();
+ 
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <PaperProvider theme={theme}>
+      {netInfo.isConnected ? (
+        <GlobalProvider>
+          <Router />
+        </GlobalProvider>
+      ) : <Modals
+        show={netInfo.isConnected}
+        isRetrying={false}
+      />}
+      <FlashMessage position="bottom" floating />
+    </PaperProvider>
+
   );
 }
 
@@ -17,4 +49,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+    userInfo: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profilePic: {
+    width: 50,
+    height: 50
+  }
 });
