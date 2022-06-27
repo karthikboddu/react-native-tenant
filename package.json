@@ -60,7 +60,7 @@
     "@babel/core": "^7.12.9",
     "@babel/preset-react": "^7.17.12",
     "react-error-overlay": "^6.0.9",
-    "expo-cli": "^5.0.3",
+    "expo-cli": "^5.0.3"
   },
   "private": true
 }
