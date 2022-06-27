@@ -37,16 +37,16 @@ export default function Router(props) {
   const { loading } = useContext(GlobalContext);
   const { allstate } = useContext(GlobalContext);
 
-  // const [loaded] = useFonts({
-  //   "Roboto-Black": require('./assets/fonts/Roboto-Black.ttf'),
-  //   "Roboto-Bold": require('./assets/fonts/Roboto-Bold.ttf'),
-  //   "Roboto-Regular": require('./assets/fonts/Roboto-Regular.ttf'),
-  //   "Montserrat-SemiBold": require('./assets/fonts/Montserrat-SemiBold.ttf'),
-  //   "Montserrat-Bold": require('./assets/fonts/Montserrat-Bold.ttf'),
-  //   "Montserrat-Medium": require('./assets/fonts/Montserrat-Medium.ttf'),
-  //   "Montserrat-Regular": require('./assets/fonts/Montserrat-Regular.ttf')
+  const [loaded] = useFonts({
+    "Roboto-Black": require('./assets/fonts/Roboto-Black.ttf'),
+    "Roboto-Bold": require('./assets/fonts/Roboto-Bold.ttf'),
+    "Roboto-Regular": require('./assets/fonts/Roboto-Regular.ttf'),
+    "Montserrat-SemiBold": require('./assets/fonts/Montserrat-SemiBold.ttf'),
+    "Montserrat-Bold": require('./assets/fonts/Montserrat-Bold.ttf'),
+    "Montserrat-Medium": require('./assets/fonts/Montserrat-Medium.ttf'),
+    "Montserrat-Regular": require('./assets/fonts/Montserrat-Regular.ttf')
 
-  // })
+  })
 
 
   useEffect(() => {

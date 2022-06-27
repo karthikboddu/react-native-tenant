@@ -166,32 +166,36 @@ export const GlobalProvider = ({ children }) => {
         try {
             // signOut()
             const res = await deviceStorage.loadJWT();
-            const refreshToken = await deviceStorage.loadJWT('refresh_token');
-
-            let response = await verifyAccessToken(res);
-            let result = await response.json();
+            console.log(res,"eresrtoken")
             let auth = null;
+            if (res != null) {
 
-            if (result.status == 200) {
-                auth = res;
+                const refreshToken = await deviceStorage.loadJWT('refresh_token');
 
-            } else if (refreshToken != null) {
-                showFlashMessage('Success', 'Session Out !!! , Re authenticating!!', 'success', 'success')
-                let refreshResponse = await verifyRefreshToken(refreshToken);
-                let resJson = await refreshResponse.json();
+                let response = await verifyAccessToken(res);
+                let result = await response.json();
 
-                deviceStorage.saveKey("id_token", resJson.data.accessToken);
-                //                deviceStorage.saveKey("refresh_token", resJson.data.refreshtoken);
-                auth = resJson.data.accessToken;
-            }
-            console.log("6666", res, "\n")
-            if (auth !=null) {
-                const decode = JWT.decode(res, endpoints.jwtSecret);
-                
-                if (decode.type == Constants.userTypeAdmin) {
-                    setIsAdmin(true)
-                    console.log(decode.type,"decoded")
+                if (result.status == 200) {
+                    auth = res;
+
+                } else if (refreshToken != null) {
+                    showFlashMessage('Success', 'Session Out !!! , Re authenticating!!', 'success', 'success')
+                    let refreshResponse = await verifyRefreshToken(refreshToken);
+                    let resJson = await refreshResponse.json();
+
+                    deviceStorage.saveKey("id_token", resJson.data.accessToken);
+                    //                deviceStorage.saveKey("refresh_token", resJson.data.refreshtoken);
+                    auth = resJson.data.accessToken;
                 }
+                console.log("6666", res, "\n")
+                if (auth !=null) {
+                    const decode = JWT.decode(res, endpoints.jwtSecret);
+                    
+                    if (decode.type == Constants.userTypeAdmin) {
+                        setIsAdmin(true)
+                        console.log(decode.type,"decoded")
+                    }
+                }            
             }
             dispatch({
                 type: 'RETRIEVE_TOKEN',
