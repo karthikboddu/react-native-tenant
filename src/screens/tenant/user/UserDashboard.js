@@ -1,8 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import CardListScreen from './CardListScreen'
+import { StyleSheet, Text, View } from 'react-native'
 import colors from '../../../assets/colors/colors'
 import RecentTransactions from '../RecentTransactions'
+import CardListScreen from './CardListScreen'
 
 const UserDashboard = () => {
 

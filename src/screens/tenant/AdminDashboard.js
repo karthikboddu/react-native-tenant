@@ -1,29 +1,14 @@
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    SafeAreaView,
-    Image,
-    FlatList,
-    ScrollView,
-    TouchableOpacity,
-    ActivityIndicator,
-    Button
+    ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View
 } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
-
 import colors from '../../assets/colors/colors';
-import { icons, images, SIZES, COLORS, FONTS } from '../../constants'
+import { COLORS, FONTS, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
-import AllInOneSDKManager from 'paytm_allinone_react-native';
-
-import endpoints from '../../endpoints';
-import HeaderProfileScreen from '../account/HeaderProfileScreen';
 import RecentTransactions from './RecentTransactions';
-import { generatePaytmToken } from '../../services/tenant/tenantService';
-import { useNavigation } from '@react-navigation/native';
-import Main from './Main'
+
+
 
 const AdminDashboard = () => {
     const navigation = useNavigation();
@@ -31,54 +16,33 @@ const AdminDashboard = () => {
     const [selectedBuilding, setSelectedBuilding] = React.useState(null)
     const { tenantBuildingList, getTenantBuildings, clearStateVariable, isAdmin,screenLoading
          } = React.useContext(GlobalContext);
-
+    const [sum, setSum] = React.useState(0);
     React.useEffect(() => {
         //clearStateVariable();
         getTenantBuildings();
         console.log("tenantRoomOrderDetails",tenantBuildingList)
+        total()
     }, [])
 
-    const payNow = async () => {
-
-        let orderId = '7688677868766734531211';
-        let amount = 101;
-        //getPaytmToken(orderId, amt);
-        var raw = JSON.stringify({
-            orderId: orderId,
-            amt: amount,
-        });
-        const token = await generatePaytmToken("", raw);
-        let resJson = await token.json();
-        const txnToken = resJson.data?.body?.txnToken;
-        console.log("gateway response1", resJson.data?.body);
-        try {
-            AllInOneSDKManager.startTransaction(
-                orderId,
-                endpoints.mId,
-                txnToken,
-                amount.toFixed(2),
-                endpoints.callBackUrl + orderId,
-                true,
-                true,
-                endpoints.urlScheme
-            )
-                .then((result) => {
-                    console.log("gateway response", result);
-                })
-                .catch((err) => {
-                    console.log("gateway error", err);
-                });
-        } catch (error) {
-            console.log("try catch error", error)
-        }
+    const total = async () => {
+        var sum = 0;
+        console.log(sum,"sum")
+        tenantBuildingList.forEach( b => {
+            sum = sum + b.total_amount;
+            console.log(sum,"sum")
+        } 
+        )
+        setSum(sum);
+        return sum;
     }
+
 
     function renderAmountOverAll() {
 
         return (
             <View style={styles.titlesWrapper}>
                 {/* <Text style={styles.titlesSubtitle}>Food</Text> */}
-                <Text style={styles.titlesTitle}>Total Income : $55,000</Text>
+                <Text style={styles.titlesTitle}>Total Income : ₹{sum}</Text>
             </View>
         )
 

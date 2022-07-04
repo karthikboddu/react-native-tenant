@@ -1,14 +1,11 @@
 import React from "react";
 import {
-    View,
-    Text,
-    Image,
-    TouchableOpacity
+    Image, Text, TouchableOpacity, View
 } from "react-native";
-import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import MapViewDirections from "react-native-maps-directions";
+import { COLORS, FONTS, GOOGLE_API_KEY, icons, SIZES } from "../../constants";
 
-import { COLORS, FONTS, icons, SIZES, GOOGLE_API_KEY } from "../../constants"
 
 const OrderDelivery = ({ route, navigation }) => {
 

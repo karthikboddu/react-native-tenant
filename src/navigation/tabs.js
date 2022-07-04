@@ -1,32 +1,31 @@
+import { BottomTabBar, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext } from 'react';
 import {
-    View,
     Image,
-    TouchableOpacity
+    TouchableOpacity, View
 } from 'react-native';
-import { createBottomTabNavigator, BottomTabBar } from "@react-navigation/bottom-tabs"
-import { createStackNavigator } from '@react-navigation/stack';
+import { useTheme } from 'react-native-paper';
 import Svg, { Path } from 'react-native-svg';
-//import { isIphoneX } from 'react-native-iphone-x-helper';
-
-import { Home } from "../screens"
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import colors from '../assets/colors/colors';
+import { COLORS, icons } from "../constants";
 import { GlobalContext } from '../context/GlobalState';
-import { COLORS, icons } from "../constants"
 import ProfileScreen from '../screens/account/ProfileScreen';
 import UserLoginActivity from '../screens/account/UserLoginActivity';
-import Dashboard from '../screens/tenant/Dashboard';
-import BuildingDetails from '../screens/tenant/BuildingDetails';
-import TenantRoomDetails from '../screens/tenant/TenantRoomDetails';
-import PaymentDetails from '../screens/tenant/order/PaymentDetails';
-import UserDashboard from '../screens/tenant/user/UserDashboard';
 import AdminDashboard from '../screens/tenant/AdminDashboard';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useTheme, Avatar, Title, Caption } from 'react-native-paper';
-import colors from '../assets/colors/colors';
+import BuildingDetails from '../screens/tenant/BuildingDetails';
+import Dashboard from '../screens/tenant/Dashboard';
+import PaymentDetails from '../screens/tenant/order/PaymentDetails';
+import TenantRoomDetails from '../screens/tenant/TenantRoomDetails';
 import TenantsList from '../screens/tenant/TenantsList';
+import TransactionsList from '../screens/tenant/TransactionsList';
+import UserDashboard from '../screens/tenant/user/UserDashboard';
+
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const HomeStack = createStackNavigator();
+const TransactionsStack = createStackNavigator();
 
 const TabBarCustomButton = ({ accessibilityState, children, onPress }) => {
 
@@ -252,6 +251,29 @@ const Tabs = () => {
             /> */}
 
             <Tab.Screen
+                name="Transactions"
+                component={TransactionsStackScreen}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <Image
+                            source={icons.transactions}
+                            resizeMode="contain"
+                            style={{
+                                width: 25,
+                                height: 25,
+                                tintColor: focused ? COLORS.primary : COLORS.secondary
+                            }}
+                        />
+                    ),
+                    tabBarButton: (props) => (
+                        <TabBarCustomButton
+                            {...props}
+                        />
+                    )
+                }}
+            />            
+
+            <Tab.Screen
                 name="Profile"
                 component={ProfileStackScreen}
                 options={{
@@ -273,9 +295,41 @@ const Tabs = () => {
                     )
                 }}
             />
+
         </Tab.Navigator>
     )
 }
+
+const TransactionsStackScreen = ({ navigation }) => {
+    const { colors } = useTheme();
+
+    return (
+        <TransactionsStack.Navigator
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: colors.background,
+                    shadowColor: colors.background, // iOS
+                    elevation: 0, // Android
+                },
+                headerTintColor: colors.text,
+                headerTitleStyle: {
+                    fontWeight: 'bold',
+                },
+            }}>
+            <TransactionsStack.Screen
+                name="TransactionsList"
+                component={TransactionsList}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "TransactionsList",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+        </TransactionsStack.Navigator>
+    );
+};
+
 
 
 const HomeStackScreen = ({ navigation }) => {
@@ -347,6 +401,16 @@ const HomeStackScreen = ({ navigation }) => {
                 options={({ route }) => ({
                     //title: route.params.title,
                     title: "TenantsList",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <HomeStack.Screen
+                name="TransactionsList"
+                component={TransactionsList}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "TransactionsList",
                     headerBackTitleVisible: false,
                     headerShown: false,
                 })}

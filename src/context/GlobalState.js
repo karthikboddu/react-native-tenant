@@ -1,17 +1,15 @@
-import React, { createContext, useReducer } from 'react';
-import AppReducer from './AppReducer';
-import { getTasksList } from '../services/tasks';
-import { login, logout, verifyAccessToken, verifyRefreshToken, getUserDetailsFromToken, getUserActivityDetailsFromToken,ssoLogin } from '../services/auth';
-import deviceStorage from '../services/deviceStorage';
-import { showFlashMessage } from '../services/FlashMessageService';
-import { listTenantBuildings, listTenantBuildingsById, listFloorsByBuildingsId
-    , listRoomsByFloorId,listRoomDetailsByRoomId,generatePaytmToken
-    ,getTenantRoomDetails,updatePaymentDetails,initTenantRoomPayment,getTenantRoomAllOrderDetails } from '../services/tenant/tenantService';
 import JWT from 'expo-jwt';
+import AllInOneSDKManager from 'paytm_allinone_react-native';
+// import { Popup } from 'popup-ui';
+import React, { createContext, useReducer } from 'react';
 import Constants from '../Constants';
 import endpoints from '../endpoints';
-import AllInOneSDKManager from 'paytm_allinone_react-native';
-// import { Root, Popup, Toast } from 'popup-ui'
+import { getUserActivityDetailsFromToken, getUserDetailsFromToken, login, logout, ssoLogin, verifyAccessToken, verifyRefreshToken } from '../services/auth';
+import deviceStorage from '../services/deviceStorage';
+import { showFlashMessage } from '../services/FlashMessageService';
+import { getTasksList } from '../services/tasks';
+import { generatePaytmToken, getTenantRoomAllOrderDetails, getTenantRoomDetails, initTenantRoomPayment, listFloorsByBuildingsId, listRoomDetailsByRoomId, listRoomsByFloorId, listTenantBuildings, listTenantBuildingsById, updatePaymentDetails } from '../services/tenant/tenantService';
+import AppReducer from './AppReducer';
 
 
 const initialLoginState = {
@@ -458,10 +456,11 @@ export const GlobalProvider = ({ children }) => {
 
             const res = await deviceStorage.loadJWT();
             //await logout();
-
+            setScreenLoading(true)
             let tenantBuildingsFloorRoomsDetails = await listRoomDetailsByRoomId(res, roomId);
 
             let resJson = await tenantBuildingsFloorRoomsDetails.json();
+            setScreenLoading(false)
             console.log(resJson, "Roomid")
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_ROOM_BYROOMID_LIST',
@@ -469,6 +468,7 @@ export const GlobalProvider = ({ children }) => {
             });
         } catch (error) {
             console.log(error)
+            setScreenLoading(false);
             showFlashMessage('Error', error, 'danger', 'danger');
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_ROOM_BYROOMID_LIST_ERR',
@@ -516,7 +516,7 @@ export const GlobalProvider = ({ children }) => {
         }
     }
     
-    async function startPaytmTransaction(orderId,amount,txnToken) {
+    async function startPaytmTransaction(orderId,amount,txnToken, buildingId, oldBuildingAmount) {
         try {
                 AllInOneSDKManager.startTransaction(
                     orderId,
@@ -533,9 +533,9 @@ export const GlobalProvider = ({ children }) => {
                         // successPopup();
                         if (result.status = Constants.txnSuccess) {
                             console.log(result,"Paytm response")
-                            updatePaytmPaymentDetails(orderId, "C", result)
+                            updatePaytmPaymentDetails(orderId, "C", result, buildingId, oldBuildingAmount, amount)
                         } else {
-                            updatePaytmPaymentDetails(orderId, "F", result)
+                            updatePaytmPaymentDetails(orderId, "F", result, buildingId, oldBuildingAmount, amount)
                         }
                         getTenantRoomOrderDetails('P,F',1)
                         dispatch({
@@ -548,7 +548,7 @@ export const GlobalProvider = ({ children }) => {
                         setScreenLoading(false);
                         // failedPopup()
                         getTenantRoomOrderDetails('P,F',1)
-                        updatePaytmPaymentDetails(orderId, "F",'')
+                        updatePaytmPaymentDetails(orderId, "F",'',buildingId, 0, 0)
                         console.log("gateway error", err);
                     });
 
@@ -556,7 +556,7 @@ export const GlobalProvider = ({ children }) => {
             setScreenLoading(false);
             // failedPopup()
             console.log(error.message)
-            updatePaytmPaymentDetails(orderId, "F", '')
+            updatePaytmPaymentDetails(orderId, "F", '',buildingId, 0, 0)
             getTenantRoomOrderDetails('P,F',1)
             showFlashMessage('Error', error.message, 'danger', 'danger');
             dispatch({
@@ -566,12 +566,15 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    async function updatePaytmPaymentDetails(orderId,orderStatus, result) {
+    async function updatePaytmPaymentDetails(orderId,orderStatus, result, exisintgBuildingId, oldBuildingAmount, amt) {
 
             var raw = JSON.stringify({
                 orderId: orderId,
                 status:  orderStatus,
-                paymentResponse : JSON.stringify(result)
+                paymentResponse : JSON.stringify(result),
+                buildingId : exisintgBuildingId,
+                buildingAmount: oldBuildingAmount,
+                amount : amt
               });
               console.log(raw,"Rwa")
               const res = await deviceStorage.loadJWT();

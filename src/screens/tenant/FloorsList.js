@@ -1,18 +1,25 @@
-import React from 'react'
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import colors from '../../assets/colors/colors';
-import Feather from 'react-native-vector-icons/Feather';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Fontisto from 'react-native-vector-icons/Fontisto';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-import TenantRoomDetails from './TenantRoomDetails';
+import React, { useContext } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { TouchableRipple } from 'react-native-paper';
+import Feather from 'react-native-vector-icons/Feather';
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import colors from '../../assets/colors/colors';
+import { GlobalContext } from '../../context/GlobalState';
 
 const FloorsList = ({ data, navigation }) => {
 
     const item = data
     console.log(data, "Data")
+    const { screenLoading} = useContext(GlobalContext);
+    if (screenLoading) {
+        return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#663399" />
+          </View>
+        );
+      }
     return (
         <TouchableRipple
             onPress={() =>

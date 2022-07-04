@@ -1,24 +1,18 @@
-import React, { useState, useEffect } from 'react'
-import deviceStorage from '../../services/deviceStorage';
-import colors from '../../assets/colors/colors';
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import Moment from 'react-moment';
 import {
-    View,
-    Text,
-    StyleSheet,
     ActivityIndicator,
-    FlatList,
-    Alert,
-    SafeAreaView,
-    TouchableOpacity
+    FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { TouchableRipple } from 'react-native-paper';
-import { icons, images, SIZES, COLORS, FONTS } from '../../constants'
+import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import colors from '../../assets/colors/colors';
+import { SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
 import endpoints from '../../endpoints';
-import Moment from 'react-moment';
-import Feather from 'react-native-vector-icons/Feather';
-import { useNavigation } from '@react-navigation/native';
+import deviceStorage from '../../services/deviceStorage';
 
 const TenantsList = (route) => {
 

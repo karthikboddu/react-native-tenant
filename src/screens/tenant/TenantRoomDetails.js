@@ -1,24 +1,45 @@
-import React,{ useState, useContext, useEffect } from 'react';
-
-import { StyleSheet, Text, View,ScrollView,SafeAreaView,TouchableOpacity,Image } from 'react-native'
-import colors from '../../assets/colors/colors';
+import React, { useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { default as Icon, default as MaterialCommunityIcons } from 'react-native-vector-icons/MaterialCommunityIcons';
+import colors from '../../assets/colors/colors';
 import { GlobalContext } from '../../context/GlobalState';
 
 
 
 const TenantRoomDetails = ({ route, navigation }) => { 
     const { item } = route.params;
+    const [loader, setLoader] = useState(false)
 
 
 
-    const {getTenantRoomsDetailsByRoomId,tenantBuildingFloorRoomsDetails} = useContext(GlobalContext);
+    const {getTenantRoomsDetailsByRoomId,tenantBuildingFloorRoomsDetails, screenLoading} = useContext(GlobalContext);
 
     useEffect(() => {
+      setLoader(true)
       getTenantRoomsDetailsByRoomId(route.params?.item)
+      setLoader(false)
       console.log("tennat room details ",tenantBuildingFloorRoomsDetails)
     }, [route.params?.items])
+
+
+
+    if (screenLoading) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#663399" />
+        </View>
+      );
+    }
+  
+    if (loader) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="small" color="#663399" />
+        </View>
+      );
+    }
 
     return (
         <ScrollView>
@@ -43,35 +64,76 @@ const TenantRoomDetails = ({ route, navigation }) => {
                 </SafeAreaView>
 
                 {/* Titles */}
-                {/* <View style={styles.titlesWrapper}>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Image source={item.image} style={styles.itemImage} />
-                </View> */}
+                <View style={styles.titlesWrapper}>
+                    <Text style={styles.title}>Tenant Details</Text>
+                    {/* <Image source={item.image} style={styles.itemImage} /> */}
+                </View>
+                
 
                 {/* Price */}
-                <View style={styles.priceWrapper}>
+                {/* <View style={styles.priceWrapper}>
                     <Text style={styles.priceText}>{data.amount}</Text>
-                </View>
+                </View> */}
 
                 {/* Pizza info */}
                 <View style={styles.infoWrapper}>
+
+                    {data.contractDetails && (            
                     <View style={styles.infoLeftWrapper}>
+                        {data.contractDetails.map(m => (
+                        <View key={m._id}>
                         <View style={styles.infoItemWrapper}>
-                            <Text style={styles.infoItemTitle}>Address</Text>
+                            <Text style={styles.infoItemTitle}>Name</Text>
                             <Text style={styles.infoItemText}>
-                                {data.address}
+                                {m.tenantDetails[0] ? m.tenantDetails[0].full_name : ""}
                             </Text>
                         </View>
+                        <View style={styles.infoItemWrapper}>
+                            <Icon name="map-marker-radius" color="#777777" size={20} />
+                            <Text style={styles.infoItemText}>
+                              {m.tenantDetails[0] ? m.tenantDetails[0].address : ""}
+                            </Text>
+                        </View>
+                        <View style={styles.infoItemWrapper}>
+                            <Icon name="phone" color="#777777" size={20}/>
+                            <Text style={styles.infoItemText}>
+                              {m.tenantDetails[0] ? m.tenantDetails[0].mobile_no : ""}
+                            </Text>
+                        </View>
+                        <View style={styles.infoItemWrapper}>
+                            <Icon name="email" color="#777777" size={20}/>
+                            <Text style={styles.infoItemText}>
+                              {m.tenantDetails[0] ? m.tenantDetails[0].email : ""}
+                            </Text>
+                        </View>
+                        <View style={styles.infoItemWrapper}>
+                            <FontAwesome name="hourglass-end" color="#777777" size={20} />
+                            <Text style={styles.infoItemText}>
+                              {m.tenantDetails[0] ? m.tenantDetails[0].end_at : ""}
+                            </Text>
+                        </View>
+                        <View style={styles.infoItemWrapper}>
+                        <Text style={styles.infoItemTitle}>Status</Text>
+                            <Text style={styles.infoItemText}>
+                              {m.tenantDetails[0] ? (m.tenantDetails[0].status ? "Active" : "In Active") : ""}
+                            </Text>
+                        </View>
+
                         <View style={styles.infoItemWrapper}>
                             <Text style={styles.infoItemTitle}>Room No</Text>
                             <Text style={styles.infoItemText}>{data.room_name}</Text>
                         </View>
                         <View style={styles.infoItemWrapper}>
-                            <Text style={styles.infoItemTitle}>Rooms</Text>
-                            <Text style={styles.infoItemText}>{data.deliveryTime}</Text>
+                            <Text style={styles.infoItemTitle}>Room Rent</Text>
+                            <Text style={styles.infoItemText}>
+                              ₹{m.actual_price}
+                            </Text>
                         </View>
+                        </View> 
+                        ))}
                     </View>
-
+                    )
+                    }  
                 </View>
             </View>
             ))}
@@ -135,16 +197,21 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
       },
       infoItemWrapper: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 10
       },
       infoItemTitle: {
         fontFamily: 'Montserrat-Medium',
         fontSize: 14,
         color: colors.textLight,
+        paddingRight: 20,
       },
       infoItemText: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 18,
+        fontSize: 14,
         color: colors.textDark,
+        paddingLeft: 50
       },
       itemImage: {
         resizeMode: 'contain',

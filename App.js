@@ -1,21 +1,16 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View ,Button} from 'react-native';
-import { theme } from './src/core/theme';
-import { GlobalProvider } from './src/context/GlobalState';
-import {
-  Provider as PaperProvider,
-  DefaultTheme as PaperDefaultTheme,
-  DarkTheme as PaperDarkTheme
-} from 'react-native-paper';
-
-import Router from './src/Router';
 import { useNetInfo } from "@react-native-community/netinfo";
-import Modals from './src/components/NetInfoModal';
-import FlashMessage from 'react-native-flash-message';
-import AllInOneSDKManager from 'paytm_allinone_react-native';
-import * as Google from 'expo-auth-session/providers/google';
-import * as React from 'react';
 import * as WebBrowser from 'expo-web-browser';
+import * as React from 'react';
+import { StyleSheet } from 'react-native';
+import FlashMessage from 'react-native-flash-message';
+import {
+  Provider as PaperProvider
+} from 'react-native-paper';
+import Modals from './src/components/NetInfoModal';
+import { GlobalProvider } from './src/context/GlobalState';
+import { theme } from './src/core/theme';
+import Router from './src/Router';
+
 
 
 

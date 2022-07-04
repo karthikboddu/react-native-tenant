@@ -1,20 +1,17 @@
 import * as React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
   SafeAreaView,
-  ScrollView,
+  ScrollView, StyleSheet, Text, View
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-
 import colors from '../../assets/colors/colors';
-import { icons, images, SIZES, COLORS, FONTS } from '../../constants'
+import { COLORS } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
-
 import HeaderProfileScreen from '../account/HeaderProfileScreen';
-import UserDashboard from './user/UserDashboard';
 import AdminDashboard from './AdminDashboard';
+import UserDashboard from './user/UserDashboard';
+
+
 
 // Feather.loadFont();
 // MaterialCommunityIcons.loadFont();

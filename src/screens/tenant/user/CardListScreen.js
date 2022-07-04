@@ -1,13 +1,13 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useContext } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import Moment from 'react-moment';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from 'react-native-shadow-cards';
 import Swiper from 'react-native-swiper/src';
-import { GlobalContext } from '../../../context/GlobalState';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../../assets/colors/colors';
-import Moment from 'react-moment';
 import { Loading } from '../../../components/common';
-import { useNavigation } from '@react-navigation/native';
+import { GlobalContext } from '../../../context/GlobalState';
 
 const CardListScreen = () => {
 

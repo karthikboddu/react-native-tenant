@@ -1,22 +1,13 @@
-import React,{ useState, useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  Image,
-  FlatList,
-  ScrollView,
-  Animated,
-  ActivityIndicator
+  ActivityIndicator, Animated, FlatList, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
-import FloorsList from './FloorsList';
-import { icons, images, SIZES, COLORS, FONTS } from '../../constants';
+import { COLORS, FONTS, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
+import FloorsList from './FloorsList';
 
 
 const BuildingDetails = ({ route, navigation }) => {
@@ -168,6 +159,14 @@ const BuildingDetails = ({ route, navigation }) => {
   }
 
   const renderRoomsItems = () => {
+
+    if (loader) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="small" color="#663399" />
+        </View>
+      );
+    }
     return (
 
       <View style={styles.popularWrapper}>

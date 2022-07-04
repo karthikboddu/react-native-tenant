@@ -1,56 +1,42 @@
-import * as React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  Image,
-  FlatList,
-  ScrollView,
-  TouchableOpacity,
-  Button,
-  TextInput,
-  Alert,
-  Platform
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import Feather from 'react-native-vector-icons/Feather';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import colors from '../../../assets/colors/colors';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { GlobalContext } from '../../../context/GlobalState';
-import { Loading } from '../../../components/common';
-import { generatePaytmToken } from '../../../services/tenant/tenantService';
-import { TouchableRipple } from 'react-native-paper';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { useNavigation } from '@react-navigation/native';
-import Overlay from '../../../components/Overlay';
-import { useTheme } from 'react-native-paper';
-
+import { LinearGradient } from 'expo-linear-gradient';
 import moment from 'moment';
 // import { Root } from 'popup-ui';
+import React, { useContext, useEffect, useState } from 'react';
+import {
+  Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View
+} from 'react-native';
+import { TouchableRipple, useTheme } from 'react-native-paper';
+import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import colors from '../../../assets/colors/colors';
+import { Loading } from '../../../components/common';
+import Overlay from '../../../components/Overlay';
+import { GlobalContext } from '../../../context/GlobalState';
+import { generatePaytmToken } from '../../../services/tenant/tenantService';
+
 
 
 const PaymentDetails = () => {
   const navigation = useNavigation();
 
-  const [loader, setLoader] = React.useState(false);
-  const [price, setPrice] = React.useState(0);
-  const [roomId, setRoomId] = React.useState(0);
+  const [loader, setLoader] = useState(false);
+  const [price, setPrice] = useState(0);
+  const [roomId, setRoomId] = useState(0);
   const { startPaytmTransaction, paytmTransactionResponse
     , screenLoading, setScreenLoading, getTenantRoomOrderDetails, tenantRoomOrderDetails,
-    initTenantRoomOrderPayment,popupLoading,setPopup } = React.useContext(GlobalContext);
-  React.useEffect(() => {
+    initTenantRoomOrderPayment,popupLoading,setPopup } = useContext(GlobalContext);
+  useEffect(() => {
     //clearStateVariable();
     getTenantRoomOrderDetails('P,F', 1);
     initRoomPayment(tenantRoomOrderDetails.price, tenantRoomOrderDetails.floor_room_id)
     setPrice(tenantRoomOrderDetails.price)
     setRoomId(tenantRoomOrderDetails.floor_room_id)
-    console.log(popupLoading,"popupLoading")
 
   }, [])
 
-  const [data, setData] = React.useState({
+  const [data, setData] = useState({
     amount: '',
     type: '',
     check_textInputChange: false,
@@ -58,13 +44,22 @@ const PaymentDetails = () => {
     isValidUser: true,
     isValidPassword: true,
   });
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     amount: '',
     type: '',
     message: '',
     error: '',
     loading: false
   })
+
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([
+    {label: 'ROOM RENT', value: 'ROOM_RENT'},
+    {label: 'WATER BILL', value: 'WATER_BILL'},
+    {label: 'CURRENT BILL', value: 'CURRENT_BILL'},
+    {label: 'OTHERS', value: 'OTHERS'}
+  ]);
 
   const { colors } = useTheme();
 
@@ -117,8 +112,8 @@ const PaymentDetails = () => {
   }
 
   const loginHandle = async (amount, type) => {
-    console.log(amount, "---", type)
-    if (amount.length == 0 || type.length == 0) {
+    console.log(amount, "---", value)
+    if (amount.length == 0 || value.length == 0) {
       Alert.alert('Wrong Input!', 'Username or password field cannot be empty.', [
         { text: 'Okay' }
       ]);
@@ -144,14 +139,16 @@ const PaymentDetails = () => {
     var raw = JSON.stringify({
       orderId: orderId,
       amt: amount,
-      roomContractId: roomCId
+      roomContractId: roomCId,
+      buildingId : tenantRoomOrderDetails.buildingDetails[0]._id ? tenantRoomOrderDetails.buildingDetails[0]._id : null,
+      buildingAmount : tenantRoomOrderDetails.buildingDetails[0].total_amount ? tenantRoomOrderDetails.buildingDetails[0].total_amount : 0
     });
     console.log(raw, "paytmPayload")
     const token = await generatePaytmToken("", raw);
     let resJson = await token.json();
     const txnToken = resJson.data?.body?.txnToken;
     console.log("gateway response1", resJson);
-    startPaytmTransaction(resJson.data?.orderId, amount, txnToken);
+    startPaytmTransaction(resJson.data?.orderId, amount, txnToken, resJson.data?.buildingId, resJson.data?.buildingAmount);
     getTenantRoomOrderDetails('P,F', 1);
   }
 
@@ -179,7 +176,7 @@ const PaymentDetails = () => {
 
 
       // <Root>
-      <ScrollView>
+       <ScrollView>
       <View style={styles.container}>
         <Overlay isShow={screenLoading} />
 
@@ -198,7 +195,7 @@ const PaymentDetails = () => {
         
         <View style={styles.popularWrapper}>
 
-          <Text style={styles.popularTitle}>Recent</Text>
+          {/* <Text style={styles.popularTitle}>Recent</Text> */}
           {tenantRoomOrderDetails.orderDetails && (
             <View>
               {tenantRoomOrderDetails.orderDetails.map((item) => (
@@ -270,6 +267,7 @@ const PaymentDetails = () => {
             </View>
           )}
         </View>
+        <View style={styles.popularWrapper}>
         <Text style={[styles.text_footer, {
           color: colors.text
         }]}>Enter amount</Text>
@@ -300,9 +298,10 @@ const PaymentDetails = () => {
             autoCapitalize="characters"
             onChangeText={(val) => handleTypeChange(val)}
             onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
-          />
+        />
 
         </View>
+                              
 
         <View style={styles.button}>
           <TouchableOpacity
@@ -324,9 +323,10 @@ const PaymentDetails = () => {
             </LinearGradient>
           </TouchableOpacity>
         </View>
+        </View>
 
       </View>
-      </ScrollView>
+       </ScrollView>
       // </Root>
   )
 }
@@ -523,6 +523,12 @@ const styles = StyleSheet.create({
   textSign: {
     fontSize: 18,
     fontWeight: 'bold'
-  }
+  },
+  dropdown: {
+    justifyContent: 'center',
+    paddingTop: '20',
+    backgroundColor: '#ecf0f1',
+    padding: 8,
+  },
 
 })

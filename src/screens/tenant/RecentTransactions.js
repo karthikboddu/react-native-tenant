@@ -1,31 +1,25 @@
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
+import Moment from 'react-moment';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  FlatList,
-  Alert,
-  SafeAreaView,
-  TouchableOpacity
+  ActivityIndicator, Alert, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View
 } from 'react-native';
-
-import colors from '../../assets/colors/colors';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { TouchableRipple } from 'react-native-paper';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-
-import { icons, images, SIZES, COLORS, FONTS } from '../../constants'
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import colors from '../../assets/colors/colors';
+import { SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
-import Overlay from '../../components/Overlay';
 import endpoints from '../../endpoints';
 import deviceStorage from '../../services/deviceStorage';
-import Moment from 'react-moment';
 
-const RecentTransactions = ({ navigation }) => {
+
+
+const RecentTransactions = ({  }) => {
   const [page, setPage] = React.useState(1);
   const [loader, setLoader] = React.useState();
   const [loading, setLoading] = React.useState(true);
+  const navigation = useNavigation();
 
   const [data, setData] = React.useState([]);
   const { screenLoading, setScreenLoading, isAdmin } = React.useContext(GlobalContext);
@@ -39,6 +33,13 @@ const RecentTransactions = ({ navigation }) => {
         getTenantRoomAllOrderDetails('P,C,F', page);
       }
     }
+    const willFocusSubscription = navigation.addListener('focus', () => {
+      if (isAdmin) {
+        getRecentAllTenantsRoomOrderDetails('P,C,F', page)
+      } else {
+        getTenantRoomAllOrderDetails('P,C,F', page);
+      }
+    }); return willFocusSubscription;
     return () => isSubscribed = false
   }, [])
 
@@ -123,7 +124,7 @@ const RecentTransactions = ({ navigation }) => {
           onPress={getNextPageData}
           //On Click of button calling getData function to load more data
           style={styles.loadMoreBtn}>
-          <Text style={styles.btnText}>Load More</Text>
+          <Text style={styles.btnText}>View  All Transactions</Text>
           {loading ? (
             <ActivityIndicator color="white" style={{ marginLeft: 8 }} />
           ) : null}
@@ -134,12 +135,12 @@ const RecentTransactions = ({ navigation }) => {
 
   const getNextPageData = () => {
 
-    if (isAdmin) {
-      getRecentAllTenantsRoomOrderDetails('P,C,F', page)
-    } else {
-      getTenantRoomAllOrderDetails('P,C,F', page);
-    }
-
+    navigation.navigate('TransactionsList')
+    // if (isAdmin) {
+    //   getRecentAllTenantsRoomOrderDetails('P,C,F', page)
+    // } else {
+    //   getTenantRoomAllOrderDetails('P,C,F', page);
+    // }
   }
 
   function renderRecentTransactions() {
