@@ -8,10 +8,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import colors from '../../assets/colors/colors';
 import { GlobalContext } from '../../context/GlobalState';
 
-const FloorsList = ({ data, navigation }) => {
+const FloorsList = ({ data,buildingId, navigation }) => {
 
     const item = data
-    console.log(data, "Data")
+    console.log(buildingId, "Data")
     const { screenLoading} = useContext(GlobalContext);
     if (screenLoading) {
         return (
@@ -24,7 +24,7 @@ const FloorsList = ({ data, navigation }) => {
         <TouchableRipple
             onPress={() =>
                 navigation.navigate('TenantRoomDetails', {
-                    item: item._id,
+                    item: item._id, buildingItemId : buildingId
                 })
             }
         >

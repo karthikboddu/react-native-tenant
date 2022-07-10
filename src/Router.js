@@ -1,31 +1,25 @@
-import React, { useEffect, useContext } from 'react';
-import { GlobalContext } from './context/GlobalState';
-import {
-  Provider as PaperProvider,
-  DefaultTheme as PaperDefaultTheme,
-  DarkTheme as PaperDarkTheme
-} from 'react-native-paper';
-import {
-  NavigationContainer,
-  DefaultTheme as NavigationDefaultTheme,
-  DarkTheme as NavigationDarkTheme
-} from '@react-navigation/native';
-import {
-  DrawerContent,
-  RootStackScreen,
-  Restaurant
-} from './screens'
-
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import {
+  DarkTheme as NavigationDarkTheme, DefaultTheme as NavigationDefaultTheme, NavigationContainer
+} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { View, ActivityIndicator, StatusBar } from 'react-native';
 import { useFonts } from 'expo-font';
+import React, { useContext, useEffect } from 'react';
+import { ActivityIndicator, StatusBar, View } from 'react-native';
+import {
+  DarkTheme as PaperDarkTheme, DefaultTheme as PaperDefaultTheme
+} from 'react-native-paper';
+import { GlobalContext } from './context/GlobalState';
 import Tabs from './navigation/tabs';
+import {
+  DrawerContent
+} from './screens';
+import SignInScreen from './screens/account/SignInScreen';
+
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
-import SignInScreen from './screens/account/SignInScreen';
 
 export default function Router(props) {
 

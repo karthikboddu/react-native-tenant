@@ -172,7 +172,7 @@ const BuildingDetails = ({ route, navigation }) => {
       <View style={styles.popularWrapper}>
         <Text style={styles.popularTitle}>List of rooms</Text>
         {tenantBuildingFloorRoomsList.map((item) => (
-          <FloorsList key={item.created_at} data={item} navigation={navigation} />
+          <FloorsList key={item.created_at} data={item} buildingId = {route.params?.items} navigation={navigation} />
         ))}
       </View>
     )

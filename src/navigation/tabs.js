@@ -11,17 +11,19 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import colors from '../assets/colors/colors';
 import { COLORS, icons } from "../constants";
 import { GlobalContext } from '../context/GlobalState';
+import { SignInScreen } from "../screens";
 import ProfileScreen from '../screens/account/ProfileScreen';
+import SignUpScreen from '../screens/account/SignUpScreen';
 import UserLoginActivity from '../screens/account/UserLoginActivity';
 import AdminDashboard from '../screens/tenant/AdminDashboard';
 import BuildingDetails from '../screens/tenant/BuildingDetails';
 import Dashboard from '../screens/tenant/Dashboard';
 import PaymentDetails from '../screens/tenant/order/PaymentDetails';
 import TenantRoomDetails from '../screens/tenant/TenantRoomDetails';
+import TenantSignUp from "../screens/tenant/TenantSignUp";
 import TenantsList from '../screens/tenant/TenantsList';
 import TransactionsList from '../screens/tenant/TransactionsList';
 import UserDashboard from '../screens/tenant/user/UserDashboard';
-
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const HomeStack = createStackNavigator();
@@ -411,6 +413,36 @@ const HomeStackScreen = ({ navigation }) => {
                 options={({ route }) => ({
                     //title: route.params.title,
                     title: "TransactionsList",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <HomeStack.Screen
+                name="SignUpScreen"
+                component={SignUpScreen}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "SignUpScreen",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <HomeStack.Screen
+                name="SignInScreen"
+                component={SignInScreen}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "SignInScreen",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <HomeStack.Screen
+                name="TenantSignUp"
+                component={TenantSignUp}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "TenantSignUp",
                     headerBackTitleVisible: false,
                     headerShown: false,
                 })}

@@ -1,12 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import {
-  Dimensions,
-  View,
-  LayoutAnimation,
-  UIManager,
-  Animated,
-  Easing,
-  Text,
+  ActivityIndicator, Animated, Dimensions,
+  View
 } from 'react-native';
 
 const Overlay = ({ isShow = false }) => {
@@ -55,9 +50,11 @@ const Overlay = ({ isShow = false }) => {
             opacity: fadeAnim,
           }}
         >
-          <Text style={{ color: '#FFF', fontSize: 22, textAlign: 'center' }}>
+              
+        <ActivityIndicator size="large" color="#000" />
+          {/* <Text style={{ color: '#FFF', fontSize: 22, textAlign: 'center' }}>
             Loading Please Wait...
-          </Text>
+          </Text> */}
         </Animated.View>
       </View>
     );

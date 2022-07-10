@@ -233,6 +233,27 @@ async function  getRecentAllTenantsRoomOrderDetails (params, page) {
     }
   }
 
+
+  async function createTenantAndToRoom(accessToken, payload) {
+
+    try {
+        console.log(payload,"payload")
+        let response = await fetch(`${API_URL}` + `${endpoints.addTenantToRoom}`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': accessToken
+            },
+            body: payload
+        });
+        return response;
+    } catch (e) {
+        Alert.alert('Sorry, something went wrong.', e.message);
+        throw handler(e);
+    }
+}
+
 export {
     listTenantBuildings,
     listTenantBuildingsById,
@@ -244,5 +265,6 @@ export {
     updatePaymentDetails,
     initTenantRoomPayment,
     getTenantRoomAllOrderDetails,
-    getRecentAllTenantsRoomOrderDetails
-}
+    getRecentAllTenantsRoomOrderDetails,
+    createTenantAndToRoom
+};

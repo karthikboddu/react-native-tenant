@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { default as Icon, default as MaterialCommunityIcons } from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
+import Button from '../../components/Button';
 import { GlobalContext } from '../../context/GlobalState';
 
 
@@ -11,16 +12,16 @@ import { GlobalContext } from '../../context/GlobalState';
 const TenantRoomDetails = ({ route, navigation }) => { 
     const { item } = route.params;
     const [loader, setLoader] = useState(false)
+    const [showBox, setShowBox] = useState(true);
 
 
-
-    const {getTenantRoomsDetailsByRoomId,tenantBuildingFloorRoomsDetails, screenLoading} = useContext(GlobalContext);
+    const {getTenantRoomsDetailsByRoomId,tenantBuildingFloorRoomsDetails, screenLoading, unLinkTenantRoomContract} = useContext(GlobalContext);
 
     useEffect(() => {
       setLoader(true)
       getTenantRoomsDetailsByRoomId(route.params?.item)
       setLoader(false)
-      console.log("tennat room details ",tenantBuildingFloorRoomsDetails)
+      console.log("tennat room details ",route.params)
     }, [route.params?.items])
 
 
@@ -41,6 +42,48 @@ const TenantRoomDetails = ({ route, navigation }) => {
       );
     }
 
+    if (tenantBuildingFloorRoomsDetails.length < 1) {
+      return (
+        <View style={styles.titlesWrapper}>
+          <Text style={styles.title}>Room is empty.</Text>
+        </View>
+      )
+    } 
+
+  const submitUnLinkTenantRoomContract = (roomTenantId, roomContractId) => {
+      const payload = JSON.stringify({
+        tenantId : roomTenantId,
+        contractId : roomContractId,
+        status : false
+      })
+ 
+      unLinkTenantRoomContract(payload);
+      getTenantRoomsDetailsByRoomId(route.params?.item)
+  }
+
+  const showConfirmDialog = (tenantId, contractId) => {
+    console.log("clicked")
+    return Alert.alert(
+      "Are your sure?",
+      "Are you sure you want to remove this beautiful box?",
+      [
+        // The "Yes" button
+        {
+          text: "Yes",
+          onPress: () => {
+            submitUnLinkTenantRoomContract(tenantId,contractId);
+            setShowBox(false);
+          },
+        },
+        // The "No" button
+        // Does nothing but dismiss the dialog when tapped
+        {
+          text: "No",
+        },
+      ]
+    );
+  };
+
     return (
         <ScrollView>
         {tenantBuildingFloorRoomsDetails.map( data => (
@@ -53,13 +96,15 @@ const TenantRoomDetails = ({ route, navigation }) => {
                                 <Feather name="chevron-left" size={12} color={colors.textDark} />
                             </View>
                         </TouchableOpacity>
+                        <TouchableOpacity onPress={() => showConfirmDialog(data.contractDetails[0].tenantDetails[0]._id, data.contractDetails[0]._id)}>
                         <View style={styles.headerRight}>
                             <MaterialCommunityIcons
-                                name="star"
-                                size={12}
+                                name="delete"
+                                size={20}
                                 color={colors.white}
                             />
                         </View>
+                        </TouchableOpacity>
                     </View>
                 </SafeAreaView>
 
@@ -74,10 +119,21 @@ const TenantRoomDetails = ({ route, navigation }) => {
                 {/* <View style={styles.priceWrapper}>
                     <Text style={styles.priceText}>{data.amount}</Text>
                 </View> */}
+                {data.contractDetails.length < 1 && (
+                  <View style={styles.titlesWrapper}>
+                    <Text style={styles.title}>Room is empty</Text>
+                    <Button
+                     onPress={() =>
+                                      navigation.navigate('TenantSignUp', {
+                    roomId: route.params?.item, buildingId : route.params?.buildingItemId, buildingFloorId : data.building_floor_id
+                    })}
+                    >Add tenant to room</Button>
+                    {/* <Image source={item.image} style={styles.itemImage} /> */}
+                </View>
+                )}
 
-                {/* Pizza info */}
                 <View style={styles.infoWrapper}>
-
+                  
                     {data.contractDetails && (            
                     <View style={styles.infoLeftWrapper}>
                         {data.contractDetails.map(m => (

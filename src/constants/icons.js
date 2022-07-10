@@ -29,6 +29,7 @@ export const backButton = `${cdnUrl}/assets/icons/arrow_back.png`;
 export const backgroundDot = `${cdnUrl}/assets/background_dot.png`;
 export const logo = `${cdnUrl}/assets/logo.png`;
 export const transactions = require('../assets/icons/transaction.png')
+export const gmail = require('../assets/icons/gmail.png');
 export default {
     back,
     car,
@@ -59,5 +60,6 @@ export default {
     backButton,
     backgroundDot,
     logo,
-    transactions
+    transactions,
+    gmail
 }

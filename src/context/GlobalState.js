@@ -8,7 +8,12 @@ import { getUserActivityDetailsFromToken, getUserDetailsFromToken, login, logout
 import deviceStorage from '../services/deviceStorage';
 import { showFlashMessage } from '../services/FlashMessageService';
 import { getTasksList } from '../services/tasks';
-import { generatePaytmToken, getTenantRoomAllOrderDetails, getTenantRoomDetails, initTenantRoomPayment, listFloorsByBuildingsId, listRoomDetailsByRoomId, listRoomsByFloorId, listTenantBuildings, listTenantBuildingsById, updatePaymentDetails } from '../services/tenant/tenantService';
+import { unlinkTenantRoomContract } from '../services/tenant/roomService';
+import {
+    createTenantAndToRoom, generatePaytmToken, getTenantRoomAllOrderDetails, getTenantRoomDetails,
+    initTenantRoomPayment, listFloorsByBuildingsId, listRoomDetailsByRoomId,
+    listRoomsByFloorId, listTenantBuildings, listTenantBuildingsById, updatePaymentDetails
+} from '../services/tenant/tenantService';
 import AppReducer from './AppReducer';
 
 
@@ -35,6 +40,8 @@ const initialLoginState = {
     tenantRoomOrderDetailsAll: [],
     initRoomOrderPayment : [],
     popupLoading: false,
+    updateTenantRoomContract : [],
+    createTenantAddToRoomContractList : [],
 };
 
 export const GlobalContext = createContext(initialLoginState);
@@ -455,13 +462,13 @@ export const GlobalProvider = ({ children }) => {
         try {
 
             const res = await deviceStorage.loadJWT();
-            //await logout();
+
             setScreenLoading(true)
             let tenantBuildingsFloorRoomsDetails = await listRoomDetailsByRoomId(res, roomId);
 
             let resJson = await tenantBuildingsFloorRoomsDetails.json();
             setScreenLoading(false)
-            console.log(resJson, "Roomid")
+
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_ROOM_BYROOMID_LIST',
                 payload: resJson.data
@@ -530,7 +537,7 @@ export const GlobalProvider = ({ children }) => {
                 )
                     .then((result) => {
                         setScreenLoading(false);
-                        // successPopup();
+                        //successPopup();
                         if (result.status = Constants.txnSuccess) {
                             console.log(result,"Paytm response")
                             updatePaytmPaymentDetails(orderId, "C", result, buildingId, oldBuildingAmount, amount)
@@ -546,7 +553,7 @@ export const GlobalProvider = ({ children }) => {
                     })
                     .catch((err) => {
                         setScreenLoading(false);
-                        // failedPopup()
+                        //failedPopup()
                         getTenantRoomOrderDetails('P,F',1)
                         updatePaytmPaymentDetails(orderId, "F",'',buildingId, 0, 0)
                         console.log("gateway error", err);
@@ -659,6 +666,57 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
+    async function unLinkTenantRoomContract(payload) {
+        try {
+
+            const res = await deviceStorage.loadJWT();
+            console.log(payload,"payload")
+            let updateTenantRoomContract = await unlinkTenantRoomContract(res, payload);
+
+            let resJson = await updateTenantRoomContract.json();
+            setScreenLoading(false);
+            getTenantRoomOrderDetails('P,F', 1);
+
+            dispatch({
+                type: 'PATCH_UPDATE_TENANT_ROOM_CONTRACT',
+                payload: resJson.data
+            });
+        } catch (error) {
+            console.log(error)
+            showFlashMessage('Error', error, 'danger', 'danger');
+            dispatch({
+                type: 'PATCH_UPDATE_TENANT_ROOM_CONTRACT_ERR',
+                payload: error
+            });
+        }
+    }
+
+
+    async function createTenantAddToRoomOrderPayment(payload) {
+        try {
+            
+            const res = await deviceStorage.loadJWT();
+
+            let tenantDetails = await createTenantAndToRoom(res, payload);
+
+            let resJson = await tenantDetails.json();
+            setScreenLoading(false);
+            getTenantRoomOrderDetails('P,F', 1);
+
+            dispatch({
+                type: 'POST_CREATE_TENANT_ORDER_ROOM_PAYMENT',
+                payload: resJson.data
+            });
+        } catch (error) {
+            console.log(error)
+            showFlashMessage('Error', error, 'danger', 'danger');
+            dispatch({
+                type: 'POST_CREATE_TENANT_ORDER_ROOM_PAYMENT_ERR',
+                payload: error
+            });
+        }
+    }
+
 
     return (<GlobalContext.Provider value={{
         error: state.error,
@@ -703,7 +761,11 @@ export const GlobalProvider = ({ children }) => {
         initRoomOrderPayment: state.initRoomOrderPayment,
         initTenantRoomOrderPayment,
         tenantRoomOrderDetailsAll : state.tenantRoomOrderDetailsAll,
-        getTenantRoomOrderAllDetails
+        getTenantRoomOrderAllDetails,
+        updateTenantRoomContract: state.updateTenantRoomContract,
+        unLinkTenantRoomContract,
+        createTenantAddToRoomContractList: state.createTenantAddToRoomContractList,
+        createTenantAddToRoomOrderPayment
     }}>
         {children}
     </GlobalContext.Provider>);

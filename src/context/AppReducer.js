@@ -128,7 +128,22 @@ export default (state, action) => {
           return {
             ...state,
             tenantRoomOrderDetailsAll:   [...state.tenantRoomOrderDetailsAll, action.payload]
-          };                           
+          };   
+    case 'PATCH_UPDATE_TENANT_ROOM_CONTRACT':
+            return {
+                    ...state,
+                    updateTenantRoomContract: action.payload,
+                  };  
+    case 'POST_CREATE_TENANT_ORDER_ROOM_PAYMENT':
+            return {
+                  ...state,
+                  createTenantAddToRoomContractList: action.payload,
+                  };
+    case 'POST_CREATE_TENANT_ORDER_ROOM_PAYMENT_ERR':
+            return {
+                  ...state,
+                  createTenantAddToRoomContractList: action.payload,
+                  };                                                                          
 
     default:
       return state;

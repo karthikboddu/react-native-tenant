@@ -95,7 +95,9 @@ const TenantsList = (route) => {
             }
             return (
 
-                <TouchableRipple key={item._id}>
+                <TouchableRipple key={item._id} onPress={() =>                 navigation.navigate('TenantRoomDetails', {
+                    item: item.floor_room_id,
+                })}>
                     <View
                         style={[
                             styles.popularCardWrapper

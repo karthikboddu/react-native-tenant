@@ -1,27 +1,24 @@
-import React, {useContext} from 'react';
-import { 
-    View, 
-    Text, 
-    TouchableOpacity, 
-    TextInput,
-    Platform,
-    StyleSheet ,
-    StatusBar,
-    Button,
-    Alert
+import { useNavigation } from '@react-navigation/native';
+import * as Google from 'expo-auth-session/providers/google';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useContext } from 'react';
+import {
+    Alert, Image, Platform,
+    StyleSheet, Text, TextInput, TouchableOpacity, View
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
-import {LinearGradient} from 'expo-linear-gradient';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Feather from 'react-native-vector-icons/Feather';
-import Overlay from '../../components/Overlay'
 import { useTheme } from 'react-native-paper';
+import Feather from 'react-native-vector-icons/Feather';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import colors from '../../assets/colors/colors';
+import { Loading } from '../../components/common';
+import Overlay from '../../components/Overlay';
+import { icons } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
-import {Loading} from '../../components/common'
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
 
-const SignInScreen = ({navigation}) => {
+const SignInScreen = ({}) => {
+
+    const navigation = useNavigation();
 
     const [data, setData] = React.useState({
         username: '',
@@ -304,7 +301,7 @@ const SignInScreen = ({navigation}) => {
                 </LinearGradient>
                 </TouchableOpacity>
 
-                {/* <TouchableOpacity
+                <TouchableOpacity
                     onPress={() => navigation.navigate('SignUpScreen')}
                     style={[styles.signIn, {
                         borderColor: '#212426',
@@ -315,7 +312,7 @@ const SignInScreen = ({navigation}) => {
                     <Text style={[styles.textSign, {
                         color: '#212426'
                     }]}>Sign Up</Text>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
                 <TouchableOpacity
                     onPress={accessTokenGoogle ? getUserData : () => { promptAsync({useProxy: false, showInRecents: true}) }}
                     style={[styles.signIn, {
@@ -324,6 +321,7 @@ const SignInScreen = ({navigation}) => {
                         marginTop: 15
                     }]}
                 >
+                    <Image source={icons.gmail} style={styles.itemImage} />
                     <Text style={[styles.textSign, {
                         color: '#212426'
                     }]}>Google Sign In</Text>
@@ -339,7 +337,7 @@ export default SignInScreen;
 const styles = StyleSheet.create({
     container: {
       flex: 1, 
-      backgroundColor: '#212426'
+      backgroundColor: colors.primary
     },
     header: {
         flex: 1,

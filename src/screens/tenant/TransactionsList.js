@@ -1,15 +1,13 @@
-import { BottomSheetModal, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
-import moment from 'moment';
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useState } from "react";
 import Moment from 'react-moment';
 import {
-  ActivityIndicator, Alert, Button, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View
+  ActivityIndicator, Alert, FlatList, Modal, Pressable, StyleSheet,
+  Text, TouchableOpacity, View
 } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 import { ScrollView } from 'react-native-gesture-handler';
-import { TouchableRipple, useTheme } from 'react-native-paper';
-import Feather from 'react-native-vector-icons/Feather';
+import { TouchableRipple } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import colors from '../../assets/colors/colors';
@@ -17,10 +15,6 @@ import { SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
 import endpoints from '../../endpoints';
 import deviceStorage from '../../services/deviceStorage';
-import { generatePaytmToken } from "../../services/tenant/tenantService";
-
-
-
 
 
 
@@ -33,205 +27,73 @@ const TransactionsList = () => {
   const [loader, setLoader] = React.useState();
   const [loading, setLoading] = React.useState(true);
   const navigation = useNavigation();
-  const bottomSheetModalRef = useRef(null);
-  const snapPoints = useMemo(() => ["25%", "50%"], []);
-  // callbacks
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.present();
-  }, []);
-  const handleSheetChanges = useCallback((index) => {
-    console.log('handleSheetChanges', index);
-  }, []);
 
-  // const [data, setData] = React.useState([]);
+  const [data, setData] = React.useState([]);
   const [date, setDate] = React.useState('');
   const [startDate, setStartDate] = React.useState(new Date());
 
-  const { startPaytmTransaction, paytmTransactionResponse
-    , screenLoading, setScreenLoading, getTenantRoomOrderDetails, tenantRoomOrderDetails,
-    initTenantRoomOrderPayment,popupLoading,setPopup, isAdmin } = React.useContext(GlobalContext);
+  const { screenLoading, isAdmin } = React.useContext(GlobalContext);
 
-
+  const [modalVisible, setModalVisible] = useState(false);
 
   const [price, setPrice] = useState(0);
   const [roomId, setRoomId] = useState(0);
 
+  const monthsData = [
+    {label: 'January', value: '1'},
+    {label: 'Febraury', value: '2'},
+    {label: 'March', value: '3'},
+    {label: 'April', value: '4'},
+    {label: 'May', value: '5'},
+    {label: 'June', value: '6'},
+    {label: 'July', value: '7'},
+    {label: 'August', value: '8'},
+    {label: 'September', value: '9'},
+    {label: 'October', value: '10'},
+    {label: 'November', value: '11'},
+    {label: 'December', value: '12'},
+  ];
 
+  const yearsData = [
+    {label: '2022', value: '2022'},
+  ];
 
+  const _renderItem = item => {
+    return (
+    <View style={styles.item}>
+        <Text style={styles.textItem}>{item.label}</Text>
+        {/* <Image style={styles.icon} source={require('./assets/tick.png')} /> */}
+    </View>
+    );
+  };
+
+  const [dropdown, setDropdown] = useState(null);
+  const [year, setYear] = useState(null);
 
   React.useEffect(() => {
     //clearStateVariable();
     let isSubscribed = true
     if (isSubscribed) {
-
-
-      getTenantRoomOrderDetails('P,F', 1);
-      initRoomPayment(tenantRoomOrderDetails.price, tenantRoomOrderDetails.floor_room_id)
-      setPrice(tenantRoomOrderDetails.price)
-      setRoomId(tenantRoomOrderDetails.floor_room_id)
-
-      // if (isAdmin) {
-      //   getRecentAllTenantsRoomOrderDetails('P,C,F', page)
-      // } else {
-      //   getTenantRoomAllOrderDetails('P,C,F', page);
-      // }
+      if (isAdmin) {
+        getRecentAllTenantsRoomOrderDetails('P,C,F', page)
+      } else {
+        getTenantRoomAllOrderDetails('P,C,F', page);
+      }
     }
     const willFocusSubscription = navigation.addListener('focus', () => {
-      // if (isAdmin) {
-      //   getRecentAllTenantsRoomOrderDetails('P,C,F', page)
-      // } else {
-      //   getTenantRoomAllOrderDetails('P,C,F', page);
-      // }
+      if (isAdmin) {
+        getRecentAllTenantsRoomOrderDetails('P,C,F', page)
+      } else {
+        getTenantRoomAllOrderDetails('P,C,F', page);
+      }
     }); return willFocusSubscription;
     return () => isSubscribed = false
+    
   }, [])
-
-
-
-  const [data, setData] = useState({
-    amount: '',
-    type: '',
-    check_textInputChange: false,
-    secureTextEntry: true,
-    isValidUser: true,
-    isValidPassword: true,
-  });
-  const [state, setState] = useState({
-    amount: '',
-    type: '',
-    message: '',
-    error: '',
-    loading: false
-  })
-
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    {label: 'ROOM RENT', value: 'ROOM_RENT'},
-    {label: 'WATER BILL', value: 'WATER_BILL'},
-    {label: 'CURRENT BILL', value: 'CURRENT_BILL'},
-    {label: 'OTHERS', value: 'OTHERS'}
-  ]);
-
-  const { colors } = useTheme();
-
-  const textInputChange = (val) => {
-    if (val.trim().length >= 4) {
-      setData({
-        ...data,
-        amount: val,
-        check_textInputChange: true,
-        isValidUser: true
-      });
-    } else {
-      setData({
-        ...data,
-        amount: val,
-        check_textInputChange: false,
-        isValidUser: false
-      });
-    }
-  }
-
-  const handleTypeChange = (val) => {
-    if (val.trim().length >= 6) {
-      setData({
-        ...data,
-        type: val,
-        isValidPassword: true
-      });
-    } else {
-      setData({
-        ...data,
-        type: val,
-        isValidPassword: false
-      });
-    }
-  }
-
-  const handleValidUser = (val) => {
-    if (val.trim().length >= 4) {
-      setData({
-        ...data,
-        isValidUser: true
-      });
-    } else {
-      setData({
-        ...data,
-        isValidUser: false
-      });
-    }
-  }
-
-  const loginHandle = async (amount, type) => {
-    console.log(amount, "---", value)
-    if (amount.length == 0 || value.length == 0) {
-      Alert.alert('Wrong Input!', 'Username or password field cannot be empty.', [
-        { text: 'Okay' }
-      ]);
-      return;
-    }
-
-    //setScreenLoading(true)
-    //console.log(allstate.isLoading,"allstate")
-    await initRoomPayment(amount, roomId, type);
-
-
-  }
-
-
-
-  const payNow = async (amount, orderId, roomCId) => {
-    setScreenLoading(true);
-    const min = 1;
-    const max = 10000;
-    const rand = min + Math.random() * (max - min);
-
-    //getPaytmToken(orderId, amt);
-    var raw = JSON.stringify({
-      orderId: orderId,
-      amt: amount,
-      roomContractId: roomCId,
-      buildingId : tenantRoomOrderDetails.buildingDetails[0]._id ? tenantRoomOrderDetails.buildingDetails[0]._id : null,
-      buildingAmount : tenantRoomOrderDetails.buildingDetails[0].total_amount ? tenantRoomOrderDetails.buildingDetails[0].total_amount : 0
-    });
-    console.log(raw, "paytmPayload")
-    const token = await generatePaytmToken("", raw);
-    let resJson = await token.json();
-    const txnToken = resJson.data?.body?.txnToken;
-    console.log("gateway response1", resJson);
-    startPaytmTransaction(resJson.data?.orderId, amount, txnToken, resJson.data?.buildingId, resJson.data?.buildingAmount);
-    getTenantRoomOrderDetails('P,F', 1);
-  }
-
-  const initRoomPayment = async (amt, roomId, type = '') => {
-
-    setScreenLoading(true);
-    const yourDate = new Date()
-    const NewDate = moment(yourDate, 'DD-MM-YYYY')
-
-    //getPaytmToken(orderId, amt);
-    var raw = JSON.stringify({
-      roomId: roomId,
-      amount: amt,
-      paymentForDate: NewDate,
-      type: type ? type : 'ROOM_RENT'
-    });
-    console.log(raw, "paytmPayload")
-
-    initTenantRoomOrderPayment(raw);
-    // getTenantRoomOrderDetails('P,F', 1);
-  }
-
-
-
-
-
-
 
   React.useEffect(() => {
     return () => {
-      // setData([]);
+      setData([]);
     }
   }, []);
 
@@ -260,6 +122,7 @@ const TransactionsList = () => {
         }
       }).then((response) => response.json())
         .then((json) => {
+          setPage(page + 1)
           setLoading(false);
           setData([...data, ...json?.data])
         }).catch((error) => {
@@ -311,13 +174,47 @@ const TransactionsList = () => {
           //On Click of button calling getData function to load more data
           style={styles.loadMoreBtn}>
           <Text style={styles.btnText}>Load More</Text>
-          {screenLoading ? (
+          {loading ? (
             <ActivityIndicator color="white" style={{ marginLeft: 8 }} />
           ) : null}
         </TouchableOpacity>
       </View>
     );
   };
+
+  function renderModal() {
+    return (
+      <View style={styles.centeredView}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Hello World!</Text>
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => setModalVisible(!modalVisible)}
+            >
+              <Text style={styles.textStyle}>Hide Modal</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+      <Pressable
+        style={[styles.button, styles.buttonOpen]}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.textStyle}>Show Modal</Text>
+      </Pressable>
+    </View>
+    )
+  }
 
   const getNextPageData = () => {
 
@@ -326,70 +223,6 @@ const TransactionsList = () => {
     } else {
       getTenantRoomAllOrderDetails('P,C,F', page);
     }
-  }
-
-
-  function renderPaymentForm () {
-    return (
-
-      <View style={styles.popularWrapper}>
-      <Text style={[styles.text_footer, {
-        color: colors.text
-      }]}>Enter amount</Text>
-      <View style={styles.action}>
-        <TextInput
-          placeholder="amount"
-          placeholderTextColor="#666666"
-          style={[styles.textInput, {
-            color: colors.text
-          }]}
-          autoCapitalize="none"
-          onChangeText={(val) => textInputChange(val)}
-          onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
-        />
-
-      </View>
-
-      <Text style={[styles.text_footer, {
-        color: colors.text
-      }]}>Type Name</Text>
-      <View style={styles.action}>
-        <TextInput
-          placeholder="type"
-          placeholderTextColor="#666666"
-          style={[styles.textInput, {
-            color: colors.text
-          }]}
-          autoCapitalize="characters"
-          onChangeText={(val) => handleTypeChange(val)}
-          onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
-      />
-
-      </View>
-                            
-
-      <View style={styles.button}>
-        <TouchableOpacity
-          style={styles.signIn}
-          onPress={() => { loginHandle(data.amount, data.type) }}
-        >
-          <LinearGradient
-            colors={['#212426', '#212426']}
-            style={styles.signIn}
-          >
-            {!screenLoading ?
-              <Text style={[styles.textSign, {
-                color: '#fff'
-              }]}>Create Payment</Text>
-              :
-              <Loading size={'large'} />
-            }
-
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
-      </View>
-    );
   }
 
   function renderRecentTransactions() {
@@ -412,17 +245,25 @@ const TransactionsList = () => {
                 styles.popularCardWrapperAmount
               ]}>
 
-              <View style={styles.popularTitlesWrapper}>
-                <Text style={styles.infoItemTitle}>Type</Text>
-                <Text style={styles.popularTitlesTitle}>
-                  {item.room_payment_type}
-                </Text>
-              </View>
+              <View style={styles.popularTitlesWrapperFirst}>
+              {item.tenant && (
+
+
+                <View style={styles.popularTitlesWrapper}>
+                  <Text style={styles.infoItemTitle}>Name</Text>
+                  {item.tenant.map(t => (
+                    <Text style={styles.popularTitlesTitle} key={t._id}>
+                      {t.full_name}
+                    </Text>
+                  ))}
+                </View>
+
+              )}
+
 
 
 
               <View style={styles.popularTitlesWrapper1}>
-                <Text style={styles.infoItemTitle}>Amount</Text>
                 <Text style={styles.popularTitlesTitle}>
                   {item.paymeny_status != 'C' ?
                     <MaterialIcons
@@ -443,6 +284,18 @@ const TransactionsList = () => {
                 </Text>
               </View>
 
+              </View>
+
+              <View style={styles.popularTitlesWrapperFirst}>
+
+ 
+              <View style={styles.popularTitlesWrapper}>
+                <Text style={styles.infoItemTitle}>Type</Text>
+                <Text style={styles.popularTitlesTitle}>
+                  {item.room_payment_type}
+                </Text>
+              </View>
+              
               <View style={styles.popularTitlesWrapper}>
                 <Text style={styles.popularTitlesTitle}>
                   <Ionicons
@@ -453,29 +306,13 @@ const TransactionsList = () => {
 
                 </Text>
                 <Text style={styles.popularTitlesTitle}>
-                  <Moment format="D MMM YYYY" key={item._id} element={Text}>{item.updated_at}</Moment>
+                  <Moment fromNow key={item._id} element={Text}>{item.updated_at}</Moment>
                 </Text>
               </View>
-            
-            </View>
-            <View
-                      style={[
-                        styles.roomsListIcon
-                      ]}>
-                      <TouchableOpacity
-                        onPress={() => { payNow(item.total_amount, item._id, item.room_contract_id) }}
-                      >
-                        {!screenLoading ?
-                          <View style={styles.orderWrapper}>
-                            <Text style={styles.orderText}>Pay now</Text>
-                            <Feather name="chevron-right" size={18} color={colors.black} />
-                          </View>
-                          :
-                          <Loading size={'small'} />
-                        }
 
-                      </TouchableOpacity>
-                    </View>  
+              </View>
+            </View>
+
           </View>
         </TouchableRipple>
 
@@ -486,7 +323,7 @@ const TransactionsList = () => {
 
       <View>
         <FlatList
-          data={tenantRoomOrderDetails.orderDetails}
+          data={data}
 
           onEndReachedThreshold={0.5}
           // onEndReached={() => setPage(page + 1)}
@@ -494,7 +331,7 @@ const TransactionsList = () => {
           keyExtractor={item => item ? `${item._id}` : 0}
           renderItem={renderItem}
           contentContainerStyle={{ paddingVertical: SIZES.padding * 2 }}
-          ListFooterComponent={renderPaymentForm}
+          ListFooterComponent={renderFooter}
         />
       </View>
     )
@@ -505,44 +342,73 @@ const TransactionsList = () => {
 
 
   return (
-    <BottomSheetModalProvider>
+
       <View style={styles.container}>
         <ScrollView
 
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}>
+
+
           <View style={styles.popularWrapper}>
 
             <Text style={styles.popularTitle}>Recent Transaction</Text>
-            {renderRecentTransactions()}
-          </View>
+            <View style={styles.dropDownWrapper}>
+            <Dropdown
+                    style={styles.dropdown}
+                    containerStyle={styles.shadow}
+                    data={monthsData}
+
+                    labelField="label"
+                    valueField="value"
+                    label="Dropdown"
+                    placeholder="Select Month"
+                    value={dropdown}
+                    onChange={item => {
+                    setDropdown(item.value);
+                        console.log('selected', item);
+                    }}
+
+                    renderItem={item => _renderItem(item)}
+                    textError="Error"
+                />
 
 
-          <View style={styles.container}>
-            <Button
-              onPress={handlePresentModalPress}
-              title="Present Modal"
-              color="black"
-            />
-            <BottomSheetModal
-              ref={bottomSheetModalRef}
-              index={1}
-              snapPoints={snapPoints}
-              onChange={handleSheetChanges}
-            >
-              <View style={styles.contentContainer}>
-                <Text>Awesome 🎉</Text>
+              <Dropdown
+                    style={styles.dropdown}
+                    containerStyle={styles.shadow}
+                    data={yearsData}
+
+                    labelField="label"
+                    valueField="value"
+                    label="Dropdown"
+                    placeholder="Select Year"
+                    value={dropdown}
+                    onChange={item => {
+                    setYear(item.value);
+                        console.log('selected', item);
+                    }}
+
+                    renderItem={item => _renderItem(item)}
+                    textError="Error"
+                />
               </View>
-            </BottomSheetModal>
-          </View>
 
+            {renderRecentTransactions()}
+            
+          </View>
+          {/* {renderModal()} */}
+
+           
+
+         
         </ScrollView>
 
 
 
 
       </View>
-    </BottomSheetModalProvider>
+      
   )
 }
 
@@ -582,12 +448,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Bold',
     fontSize: 16,
     color: '#000',
-    marginBottom: 10
+    alignItems : 'center',
+    marginBottom: 10,
+    marginTop : 20
   },
   popularCardWrapper: {
     backgroundColor: colors.white,
     borderRadius: 25,
-    paddingTop: 20,
+    paddingTop: 10,
     paddingLeft: 20,
     marginBottom: 10,
     flexDirection: 'row',
@@ -600,15 +468,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 10,
     elevation: 2,
-    height: 140,
+    height: 70,
   },
   popularCardWrapperAmount: {
     borderRadius: 25,
-    paddingTop: 20,
 
-    paddingLeft: 20,
+    paddingLeft: 10,
     flexDirection: 'column',
-    overflow: 'hidden',
     height: 130,
   },
   popularTopWrapper: {
@@ -620,19 +486,29 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-SemiBold',
     fontSize: 14,
   },
+  popularTitlesWrapperFirst: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  popularTitlesWrapperSecond: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  }, 
   popularTitlesWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginRight: 30
   },
   popularTitlesWrapper1: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginRight: 30
   },
   popularTitlesTitle: {
     fontFamily: 'Montserrat-SemiBold',
-    fontSize: 14,
+    fontSize: 10,
     color: colors.textDark,
   },
   popularTitlesWeight: {
@@ -705,9 +581,9 @@ const styles = StyleSheet.create({
   },
   infoItemTitle: {
     fontFamily: 'Montserrat-Medium',
-    fontSize: 14,
+    fontSize: 11,
     color: colors.textLight,
-    paddingRight: 50,
+    paddingRight: 10,
   },
   loadMoreBtn: {
     padding: 10,
@@ -722,50 +598,86 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: 'center',
   },
-  action: {
-    flexDirection: 'row',
-    marginTop: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f2f2f2',
-    paddingBottom: 5
-  },
-  actionError: {
-    flexDirection: 'row',
-    marginTop: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#FF0000',
-    paddingBottom: 5
-  },
-  textInput: {
+
+  centeredView: {
     flex: 1,
-    marginTop: -12,
-    paddingLeft: 10,
-    color: '#05375a',
+    justifyContent: "flex-end",
+    marginTop: 22
   },
-  errorMsg: {
-    color: '#FF0000',
-    fontSize: 14,
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    height : 300,
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
   },
   button: {
-    alignItems: 'center',
-    marginTop: 50
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
   },
-  signIn: {
-    width: '100%',
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10
+  buttonOpen: {
+    backgroundColor: "#F194FF",
   },
-  textSign: {
-    fontSize: 18,
-    fontWeight: 'bold'
+  buttonClose: {
+    backgroundColor: "#2196F3",
   },
-  dropdown: {
-    justifyContent: 'center',
-    paddingTop: '20',
-    backgroundColor: '#ecf0f1',
-    padding: 8,
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
   },
 
+  dropdown: {
+    alignItems :'center',
+    backgroundColor: colors.primary,
+    borderBottomColor: 'gray',
+    borderBottomWidth: 0.5,
+    marginTop: 20,
+    borderRadius : 10,
+    width : 150,
+    marginLeft : 20
+},
+icon: {
+    marginRight: 5,
+    width: 18,
+    height: 18,
+},
+item: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+},
+textItem: {
+    flex: 1,
+    fontSize: 16,
+},
+shadow: {
+    shadowColor: '#000',
+    shadowOffset: {
+    width: 0,
+    height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+},
+dropDownWrapper : {
+  flexDirection: 'row',
+}
 })
