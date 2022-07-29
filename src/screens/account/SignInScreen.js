@@ -1,27 +1,25 @@
-import React, {useContext} from 'react';
-import { 
-    View, 
-    Text, 
-    TouchableOpacity, 
-    TextInput,
-    Platform,
-    StyleSheet ,
-    StatusBar,
-    Button,
-    Alert
+import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { useNavigation } from '@react-navigation/native';
+//import * as Google from 'expo-auth-session/providers/google';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useContext } from 'react';
+import {
+    Alert, Image, Keyboard, Platform,
+    StyleSheet, Text, TextInput, TouchableOpacity, View
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
-import {LinearGradient} from 'expo-linear-gradient';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Feather from 'react-native-vector-icons/Feather';
-import Overlay from '../../components/Overlay'
 import { useTheme } from 'react-native-paper';
+import Feather from 'react-native-vector-icons/Feather';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import colors from '../../assets/colors/colors';
+import { Loading } from '../../components/common';
+import Overlay from '../../components/Overlay';
 import { GlobalContext } from '../../context/GlobalState';
-import {Loading} from '../../components/common'
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
 
-const SignInScreen = ({navigation}) => {
+
+const SignInScreen = ({}) => {
+
+    const navigation = useNavigation();
 
     const [data, setData] = React.useState({
         username: '',
@@ -41,8 +39,21 @@ const SignInScreen = ({navigation}) => {
     const { colors } = useTheme();
     
 
-    const { allstate,signIn,ssoLogIn, setScreenLoading,screenLoading } = useContext(GlobalContext);
-    console.log(screenLoading,"screenLoading")
+    const { allstate,signIn,ssoLogIn, setScreenLoading,screenLoading,
+        tenantSettingsList, getTenantSettigsDetails } = useContext(GlobalContext);
+
+    React.useEffect(() => {
+        // if (response?.type === 'success') {
+        //   const { authentication } = response;
+        //   console.log(response,"response")
+        //   setAccessTokenGoogle(response.authentication.accessToken);
+        //   getUserData(response.authentication.accessToken);
+        // }
+          GoogleSignin.configure({
+            webClientId: '1001121940569-vfo0mbrajoacn3svhle635ivveq1urjv.apps.googleusercontent.com'
+          });
+      }, []);        
+
     const textInputChange = (val) => {
         if( val.trim().length >= 4 ) {
             setData({
@@ -111,6 +122,7 @@ const SignInScreen = ({navigation}) => {
             return;
         }
         //setScreenLoading(true)
+        Keyboard.dismiss();
         //console.log(allstate.isLoading,"allstate")
         await signIn(payload);
         
@@ -122,20 +134,27 @@ const SignInScreen = ({navigation}) => {
     const [message, setMessage] = React.useState();
   
 
-    const [request, response, promptAsync] = Google.useAuthRequest({
-      expoClientId: '1001121940569-kdsf6o47d8vo49vi5on6nuv1q417us31.apps.googleusercontent.com',
-      iosClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
-      androidClientId: '1001121940569-22nrked9nmmfktjhmp0uk9kljk7kjm1i.apps.googleusercontent.com',
-      webClientId: '1001121940569-vfo0mbrajoacn3svhle635ivveq1urjv.apps.googleusercontent.com',
-    });
-    React.useEffect(() => {
-        if (response?.type === 'success') {
-          const { authentication } = response;
-          console.log(response,"response")
-          setAccessTokenGoogle(response.authentication.accessToken);
-          getUserData(response.authentication.accessToken);
-          }
-      }, [response]);
+    //const [request, response, promptAsync] = Google.useAuthRequest({
+    //   expoClientId: tenantSettingsList.googleSettings.expoClientId,
+    //   iosClientId: tenantSettingsList.googleSettings.iosClientId,
+    //  androidClientId: tenantSettingsList.googleSettings ? tenantSettingsList.googleSettings.androidClientId : '123',
+    //  webClientId: tenantSettingsList.googleSettings ? tenantSettingsList.googleSettings.webClientId : '123',
+   // });
+    console.log(tenantSettingsList)
+
+    async function onGoogleButtonPress() {
+        // Get the users ID token
+        const {user} = await GoogleSignin.signIn();      
+        // Create a Google credential with the token
+        // const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+        console.log(user,"*******")
+        if (user) {
+            setAccessTokenGoogle(user);
+            sooLoginHandle(user.name,user.id, user.email, user.photo);
+        }
+        // Sign-in the user with the credential
+        // return auth().signInWithCredential(googleCredential);
+      }
 
     async function getUserData(token) {
         let userInfoResponse = await fetch("https://www.googleapis.com/userinfo/v2/me", {
@@ -187,8 +206,8 @@ const SignInScreen = ({navigation}) => {
     return (
         
       <View style={styles.container}>
-      <Overlay isShow={screenLoading} />
-          {/* <StatusBar backgroundColor='#009387' barStyle="light-content"/> */}
+     <Overlay isShow={screenLoading} />
+       {/*     <StatusBar backgroundColor='#009387' barStyle="light-content"/> */}
         <View style={styles.header}>
             <Text style={styles.text_header}>Welcome!</Text>
         </View>
@@ -303,8 +322,8 @@ const SignInScreen = ({navigation}) => {
                     
                 </LinearGradient>
                 </TouchableOpacity>
-
-                {/* <TouchableOpacity
+                {false ? (
+                <TouchableOpacity
                     onPress={() => navigation.navigate('SignUpScreen')}
                     style={[styles.signIn, {
                         borderColor: '#212426',
@@ -315,19 +334,17 @@ const SignInScreen = ({navigation}) => {
                     <Text style={[styles.textSign, {
                         color: '#212426'
                     }]}>Sign Up</Text>
-                </TouchableOpacity> */}
-                <TouchableOpacity
-                    onPress={accessTokenGoogle ? getUserData : () => { promptAsync({useProxy: false, showInRecents: true}) }}
-                    style={[styles.signIn, {
-                        borderColor: '#212426',
-                        borderWidth: 1,
-                        marginTop: 15
-                    }]}
-                >
-                    <Text style={[styles.textSign, {
-                        color: '#212426'
-                    }]}>Google Sign In</Text>
                 </TouchableOpacity>
+                ) : null}
+                {true ? (
+                    <GoogleSigninButton
+                style={{ width: 192, height: 70 }}
+                size={GoogleSigninButton.Size.Wide}
+                color={GoogleSigninButton.Color.Dark}
+                onPress={() => onGoogleButtonPress().then(() => console.log('Signed in with Google!'))}
+                />
+              
+                ) : null}
             </View>
         </Animatable.View>
       </View>
@@ -339,7 +356,7 @@ export default SignInScreen;
 const styles = StyleSheet.create({
     container: {
       flex: 1, 
-      backgroundColor: '#212426'
+      backgroundColor: colors.primary
     },
     header: {
         flex: 1,

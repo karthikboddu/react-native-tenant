@@ -1,10 +1,10 @@
-import axios from 'axios';
+//import axios from 'axios';
 import { Alert } from 'react-native';
 import endpoints from '../endpoints';
 import deviceStorage from './deviceStorage';
 
 const API_URL = endpoints.apiUrl;
-
+/*
 function register(payload) {
 
     try {
@@ -21,7 +21,7 @@ function register(payload) {
     } catch (error) {
         console.log('Register Error: ' + error.message);
     }
-}
+}*/
 
 async function login(payload) {
 
@@ -75,7 +75,6 @@ async function verifyAccessToken(token) {
         const payload = {
             accessToken: token
         }
-        console.log(payload,"payload")
         let response = await fetch(`${API_URL}` + `${endpoints.verifyAccessToken}`, {
             method: 'POST',
             headers: {
@@ -120,7 +119,27 @@ async function getUserDetailsFromToken(accessToken) {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
                 'x-access-token': accessToken
-            }
+            },
+        });
+        return response;
+    } catch (error) {
+        Alert.alert('Sorry, something went wrong, getUserDetailsFromToken.', error.message);
+        throw handler(error);
+    }
+
+}
+
+async function updateUserDetailsFromToken(accessToken, payload) {
+
+    try {
+        let response = await fetch(`${API_URL}` + `${endpoints.updatetUserDetails}`, {
+            method: 'PATCH',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': accessToken
+            },
+            body : payload
         });
         return response;
     } catch (error) {
@@ -150,12 +169,12 @@ async function getUserActivityDetailsFromToken(accessToken) {
 }
 
 export {
-    register,
     login,
     ssoLogin,
     logout,
     verifyAccessToken,
     verifyRefreshToken,
     getUserDetailsFromToken,
-    getUserActivityDetailsFromToken
-}
+    getUserActivityDetailsFromToken,
+    updateUserDetailsFromToken
+};

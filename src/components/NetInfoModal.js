@@ -1,11 +1,9 @@
-import React from 'react'
+import React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal
+  Modal, StyleSheet, Text, TouchableOpacity, View
 } from 'react-native';
+import colors from '../assets/colors/colors';
+
 
 const Button = ({ children, ...props }) => (
   <TouchableOpacity style={styles.button} {...props}>
@@ -27,7 +25,7 @@ const Modals = ({ show, onRetry, isRetrying }) => {
 
 
   return (
-    <View>
+    <View style={styles.container}>
       <Modal isVisible={show} style={styles.modal} animationInTiming={600}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Connection Error</Text>
@@ -46,12 +44,16 @@ const Modals = ({ show, onRetry, isRetrying }) => {
 export default Modals
 
 const styles = StyleSheet.create({
+  container : {
+    display: 'flex',
+    alignItems : 'center'
+  },
   modal: {
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     margin: 0,
   },
   modalContainer: {
-    backgroundColor: '#000',
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingTop: 20,
     paddingBottom: 40,

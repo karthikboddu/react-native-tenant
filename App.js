@@ -9,9 +9,7 @@ import {
 import Modals from './src/components/NetInfoModal';
 import { GlobalProvider } from './src/context/GlobalState';
 import { theme } from './src/core/theme';
-import Router from './src/Router';
-
-
+import Router from './src/navigation/Router';
 
 
 WebBrowser.maybeCompleteAuthSession();

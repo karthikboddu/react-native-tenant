@@ -60,13 +60,13 @@ const TenantsList = (route) => {
         }
     }, []);
 
-    if (screenLoading) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color="#663399" />
-            </View>
-        );
-    }
+    // if (screenLoading) {
+    //     return (
+    //         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    //             <ActivityIndicator size="large" color="#663399" />
+    //         </View>
+    //     );
+    // }
 
     const renderFooter = () => {
         return (
@@ -95,7 +95,9 @@ const TenantsList = (route) => {
             }
             return (
 
-                <TouchableRipple key={item._id}>
+                <TouchableRipple key={item._id} onPress={() =>                 navigation.navigate('TenantRoomDetails', {
+                    item: item.floor_room_id,
+                })}>
                     <View
                         style={[
                             styles.popularCardWrapper

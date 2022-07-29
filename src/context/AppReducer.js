@@ -42,6 +42,11 @@ export default (state, action) => {
         ...state,
         userDetails: action.payload,
       };
+    case 'PATCH_USER_DETAILS':
+        return {
+          ...state,
+          userDetails: action.payload,
+        };      
     case 'SET_LOADING':
       return {
         ...state,
@@ -52,11 +57,16 @@ export default (state, action) => {
         ...state,
         screenLoading: action.payload,
       };
-    case 'SET_POPUP':
+    case 'SET_SKELETON_LOADING':
         return {
           ...state,
-          popupLoading: action.payload,
+          skeletonLoading: action.payload,
         };      
+    case 'SET_POPUP':
+      return {
+        ...state,
+        popupLoading: action.payload,
+      };
     case 'GET_USERACTIVITY':
       return {
         ...state,
@@ -83,10 +93,10 @@ export default (state, action) => {
         tenantBuildingFloorRoomsList: action.payload,
       };
     case 'GET_TENANTBUILDINGFLOOR_ROOM_BYROOMID_LIST':
-        return {
-          ...state,
-          tenantBuildingFloorRoomsDetails: action.payload,
-        };      
+      return {
+        ...state,
+        tenantBuildingFloorRoomsDetails: action.payload,
+      };
 
     case 'CLEAR_STATE':
       return {
@@ -97,39 +107,75 @@ export default (state, action) => {
       };
 
     case 'GET_TENANT_PAYTM_TOKEN':
+      return {
+        ...state,
+        txnToken: action.payload,
+      };
+    case 'SET_USERTYPE_ADMIN':
+      return {
+        ...state,
+        isAdmin: action.payload,
+      };
+    case 'START_PAYTM_TRANSACTION':
+      return {
+        ...state,
+        paytmTransactionResponse: action.payload,
+      };
+
+    case 'GET_TENANT_ORDER_ROOM_LIST':
+      return {
+        ...state,
+        tenantRoomOrderDetails: action.payload
+      };
+
+    case 'POST_INIT_TENANT_ORDER_ROOM_PAYMENT':
+      return {
+        ...state,
+        initRoomOrderPayment: action.payload,
+      };
+    case 'GET_TENANT_ORDER_ROOM_ALL_LIST':
+      return {
+        ...state,
+        tenantRoomOrderDetailsAll: [...state.tenantRoomOrderDetailsAll, action.payload]
+      };
+    case 'PATCH_UPDATE_TENANT_ROOM_CONTRACT':
+      return {
+        ...state,
+        updateTenantRoomContract: action.payload,
+      };
+    case 'POST_CREATE_TENANT_ORDER_ROOM_PAYMENT':
+      return {
+        ...state,
+        createTenantAddToRoomContractList: action.payload,
+      };
+    case 'POST_CREATE_TENANT_ORDER_ROOM_PAYMENT_ERR':
+      return {
+        ...state,
+        createTenantAddToRoomContractList: action.payload,
+      };
+
+    case 'GET_TENANT_SETTINGS_LIST':
+      return {
+        ...state,
+        tenantSettingsList: action.payload
+      };
+        
+      case 'POST_CREATE_ORDER_ROOM_PAYMENT_COMPLETE':
         return {
           ...state,
-          txnToken: action.payload,
-        };   
-    case 'SET_USERTYPE_ADMIN':
+          createOrderDetailsAndComplete: action.payload
+        }; 
+        
+    case 'GET_CREATE_TENANT_CONVERSATIONS':
           return {
             ...state,
-            isAdmin: action.payload,
-          };  
-    case 'START_PAYTM_TRANSACTION':
+            tenantConversations: action.payload
+          }; 
+    case 'GET_TENANT_LAST_CONVERSATIONS':
             return {
               ...state,
-              paytmTransactionResponse: action.payload,
-            };   
-            
-    case 'GET_TENANT_ORDER_ROOM_LIST':
-            return {
-                ...state,
-                tenantRoomOrderDetails: action.payload
-              };  
-              
-    case 'POST_INIT_TENANT_ORDER_ROOM_PAYMENT':
-            return {
-                    ...state,
-                    initRoomOrderPayment: action.payload,
-                  }; 
-    case 'GET_TENANT_ORDER_ROOM_ALL_LIST':
-          console.log(state,"state.tenantRoomOrderDetailsAll")
-          return {
-            ...state,
-            tenantRoomOrderDetailsAll:   [...state.tenantRoomOrderDetailsAll, action.payload]
-          };                           
-
+              tenantLastConversations: action.payload
+            };                   
     default:
       return state;
   }

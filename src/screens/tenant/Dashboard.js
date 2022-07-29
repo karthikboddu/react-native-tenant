@@ -1,8 +1,5 @@
 import * as React from 'react';
-import {
-  SafeAreaView,
-  ScrollView, StyleSheet, Text, View
-} from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
 import { COLORS } from '../../constants';
@@ -11,10 +8,6 @@ import HeaderProfileScreen from '../account/HeaderProfileScreen';
 import AdminDashboard from './AdminDashboard';
 import UserDashboard from './user/UserDashboard';
 
-
-
-// Feather.loadFont();
-// MaterialCommunityIcons.loadFont();
 
 const Dashboard = ({ navigation }) => {
 

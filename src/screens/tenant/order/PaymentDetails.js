@@ -1,18 +1,20 @@
+import { BottomSheetModal, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import moment from 'moment';
 // import { Root } from 'popup-ui';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import Moment from 'react-moment';
 import {
-  Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View
+  Alert, FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View
 } from 'react-native';
-import { TouchableRipple, useTheme } from 'react-native-paper';
+import { TouchableRipple } from 'react-native-paper';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import colors from '../../../assets/colors/colors';
 import { Loading } from '../../../components/common';
-import Overlay from '../../../components/Overlay';
+import { SIZES } from "../../../constants";
 import { GlobalContext } from '../../../context/GlobalState';
 import { generatePaytmToken } from '../../../services/tenant/tenantService';
 
@@ -22,16 +24,22 @@ const PaymentDetails = () => {
   const navigation = useNavigation();
 
   const [loader, setLoader] = useState(false);
+  const [amount, setAmount] = useState(0);
+  const [orderId, setOrderId] = useState(0);
+  const [roomContractId, setRoomContractId] = useState(0);
+
   const [price, setPrice] = useState(0);
   const [roomId, setRoomId] = useState(0);
   const { startPaytmTransaction, paytmTransactionResponse
     , screenLoading, setScreenLoading, getTenantRoomOrderDetails, tenantRoomOrderDetails,
-    initTenantRoomOrderPayment,popupLoading,setPopup } = useContext(GlobalContext);
+    initTenantRoomOrderPayment, popupLoading, setPopup } = useContext(GlobalContext);
+
+
   useEffect(() => {
     //clearStateVariable();
     getTenantRoomOrderDetails('P,F', 1);
-    initRoomPayment(tenantRoomOrderDetails.price, tenantRoomOrderDetails.floor_room_id)
-    setPrice(tenantRoomOrderDetails.price)
+    initRoomPayment(tenantRoomOrderDetails.balance_amount, tenantRoomOrderDetails.floor_room_id)
+    setPrice(tenantRoomOrderDetails.balance_amount)
     setRoomId(tenantRoomOrderDetails.floor_room_id)
 
   }, [])
@@ -55,13 +63,28 @@ const PaymentDetails = () => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([
-    {label: 'ROOM RENT', value: 'ROOM_RENT'},
-    {label: 'WATER BILL', value: 'WATER_BILL'},
-    {label: 'CURRENT BILL', value: 'CURRENT_BILL'},
-    {label: 'OTHERS', value: 'OTHERS'}
+    { label: 'ROOM RENT', value: 'ROOM_RENT' },
+    { label: 'WATER BILL', value: 'WATER_BILL' },
+    { label: 'CURRENT BILL', value: 'CURRENT_BILL' },
+    { label: 'OTHERS', value: 'OTHERS' }
   ]);
 
-  const { colors } = useTheme();
+
+  const bottomSheetModalRef = useRef(null);
+  const snapPoints = useMemo(() => ["25%", "50%"], []);
+
+  // callbacks
+  const handlePresentModalPress = useCallback((amount, orderId, roomCId) => {
+    setAmount(amount);
+    setOrderId(orderId);
+    setRoomContractId(roomCId)
+    bottomSheetModalRef.current?.present();
+    
+  }, []);
+
+  const handleSheetChanges = useCallback((index) => {
+    console.log('handleSheetChanges', index);
+  }, []);
 
   const textInputChange = (val) => {
     if (val.trim().length >= 4) {
@@ -112,8 +135,8 @@ const PaymentDetails = () => {
   }
 
   const loginHandle = async (amount, type) => {
-    console.log(amount, "---", value)
-    if (amount.length == 0 || value.length == 0) {
+    console.log(type,"type")
+    if (amount.length == 0 || type.length == 0) {
       Alert.alert('Wrong Input!', 'Username or password field cannot be empty.', [
         { text: 'Okay' }
       ]);
@@ -121,10 +144,8 @@ const PaymentDetails = () => {
     }
 
     //setScreenLoading(true)
-    //console.log(allstate.isLoading,"allstate")
+
     await initRoomPayment(amount, roomId, type);
-
-
   }
 
 
@@ -140,15 +161,19 @@ const PaymentDetails = () => {
       orderId: orderId,
       amt: amount,
       roomContractId: roomCId,
-      buildingId : tenantRoomOrderDetails.buildingDetails[0]._id ? tenantRoomOrderDetails.buildingDetails[0]._id : null,
-      buildingAmount : tenantRoomOrderDetails.buildingDetails[0].total_amount ? tenantRoomOrderDetails.buildingDetails[0].total_amount : 0
+      buildingId: tenantRoomOrderDetails.buildingDetails[0]._id ? tenantRoomOrderDetails.buildingDetails[0]._id : null,
+      buildingAmount: tenantRoomOrderDetails.buildingDetails[0].total_amount ? tenantRoomOrderDetails.buildingDetails[0].total_amount : 0
     });
+
     console.log(raw, "paytmPayload")
+
     const token = await generatePaytmToken("", raw);
     let resJson = await token.json();
     const txnToken = resJson.data?.body?.txnToken;
     console.log("gateway response1", resJson);
+
     startPaytmTransaction(resJson.data?.orderId, amount, txnToken, resJson.data?.buildingId, resJson.data?.buildingAmount);
+
     getTenantRoomOrderDetails('P,F', 1);
   }
 
@@ -158,7 +183,7 @@ const PaymentDetails = () => {
     const yourDate = new Date()
     const NewDate = moment(yourDate, 'DD-MM-YYYY')
 
-    //getPaytmToken(orderId, amt);
+
     var raw = JSON.stringify({
       roomId: roomId,
       amount: amt,
@@ -171,103 +196,10 @@ const PaymentDetails = () => {
     // getTenantRoomOrderDetails('P,F', 1);
   }
 
+  function renderPaymentForm() {
+    return (
 
-  return (
-
-
-      // <Root>
-       <ScrollView>
-      <View style={styles.container}>
-        <Overlay isShow={screenLoading} />
-
-        {/* Header */}
-        <SafeAreaView>
-
-          <View style={styles.headerWrapper}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <View style={styles.headerLeft}>
-                <Feather name="chevron-left" size={12} color={colors.textDark} />
-              </View>
-            </TouchableOpacity>
-
-          </View>
-        </SafeAreaView>
-        
-        <View style={styles.popularWrapper}>
-
-          {/* <Text style={styles.popularTitle}>Recent</Text> */}
-          {tenantRoomOrderDetails.orderDetails && (
-            <View>
-              {tenantRoomOrderDetails.orderDetails.map((item) => (
-                <TouchableRipple key={item._id}>
-                  <View
-                    style={[
-                      styles.popularCardWrapper
-                    ]}>
-
-
-
-                    <View
-                      style={[
-                        styles.popularCardWrapperAmount
-                      ]}>
-                      <View style={styles.popularTitlesWrapper}>
-                        <Text style={styles.infoItemTitle}>Name</Text>
-                        <Text style={styles.popularTitlesTitle}>
-                          {item.room_payment_type}
-                        </Text>
-                      </View>
-
-
-
-                      <View style={styles.popularTitlesWrapper}>
-                        <Text style={styles.infoItemTitle}>Amount</Text>
-                        <Text style={styles.popularTitlesTitle}>
-                          {item.payment_status != 'P' ?
-                            <MaterialIcons
-                              name="pending"
-                              size={20}
-                              color={colors.pending}
-                            /> :
-                            <Ionicons
-                              name="cloud-done-sharp"
-                              size={20}
-                              color={colors.done}
-                            />
-                          }
-                        </Text>
-
-                        <Text style={styles.popularTitlesTitle}>
-                          ₹ {item.total_amount}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View
-                      style={[
-                        styles.roomsListIcon
-                      ]}>
-                      <TouchableOpacity
-                        onPress={() => { payNow(item.total_amount, item._id, item.room_contract_id) }}
-                      >
-                        {!screenLoading ?
-                          <View style={styles.orderWrapper}>
-                            <Text style={styles.orderText}>Pay now</Text>
-                            <Feather name="chevron-right" size={18} color={colors.black} />
-                          </View>
-                          :
-                          <Loading size={'small'} />
-                        }
-
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </TouchableRipple>
-              ))}
-            </View>
-          )}
-        </View>
-        <View style={styles.popularWrapper}>
+      <View style={styles.popularWrapper}>
         <Text style={[styles.text_footer, {
           color: colors.text
         }]}>Enter amount</Text>
@@ -280,7 +212,6 @@ const PaymentDetails = () => {
             }]}
             autoCapitalize="none"
             onChangeText={(val) => textInputChange(val)}
-            onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
           />
 
         </View>
@@ -297,11 +228,10 @@ const PaymentDetails = () => {
             }]}
             autoCapitalize="characters"
             onChangeText={(val) => handleTypeChange(val)}
-            onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
-        />
+          />
 
         </View>
-                              
+
 
         <View style={styles.button}>
           <TouchableOpacity
@@ -323,10 +253,195 @@ const PaymentDetails = () => {
             </LinearGradient>
           </TouchableOpacity>
         </View>
-        </View>
+      </View>
+    );
+  }
+
+
+  function renderRecentTransactions() {
+    const renderItem = ({ item }) => {
+      if (!item) {
+        return (<></>);
+      }
+      return (
+
+        <TouchableRipple key={item._id}>
+          <View
+            style={[
+              styles.popularCardWrapper
+            ]}>
+
+
+
+            <View
+              style={[
+                styles.popularCardWrapperAmount
+              ]}>
+
+              <View style={styles.popularTitlesWrapper}>
+                <Text style={styles.infoItemTitle}>Type</Text>
+                <Text style={styles.popularTitlesTitle}>
+                  {item.room_payment_type}
+                </Text>
+              </View>
+
+
+
+              <View style={styles.popularTitlesWrapper1}>
+                <Text style={styles.infoItemTitle}>Amount</Text>
+                <Text style={styles.popularTitlesTitle}>
+                  {item.paymeny_status != 'C' ?
+                    <MaterialIcons
+                      name="pending"
+                      size={20}
+                      color={colors.pending}
+                    /> :
+                    <Ionicons
+                      name="cloud-done-sharp"
+                      size={20}
+                      color={colors.done}
+                    />
+                  }
+                </Text>
+
+                <Text style={styles.popularTitlesTitle}>
+                  ₹ {item.total_amount}
+                </Text>
+              </View>
+
+              <View style={styles.popularTitlesWrapper}>
+                <Text style={styles.popularTitlesTitle}>
+                  <Ionicons
+                    name="time-outline"
+                    size={20}
+                    color={colors.done}
+                  />
+
+                </Text>
+                <Text style={styles.popularTitlesTitle}>
+                  <Moment format="D MMM YYYY" key={item._id} element={Text}>{item.updated_at}</Moment>
+                </Text>
+              </View>
+
+            </View>
+            <View
+              style={[
+                styles.roomsListIcon
+              ]}>
+              <TouchableOpacity
+                onPress={() => { handlePresentModalPress(item.total_amount, item._id, item.room_contract_id) }}
+              >
+                {!screenLoading ?
+                  <View style={styles.orderWrapper}>
+                    <Text style={styles.orderText}>Pay now</Text>
+                    <Feather name="chevron-right" size={18} color={colors.black} />
+                  </View>
+                  :
+                  <Loading size={'small'} />
+                }
+
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableRipple>
+
+      )
+    }
+
+    return (
+
+      <View>
+        <FlatList
+          data={tenantRoomOrderDetails.orderDetails}
+
+          onEndReachedThreshold={0.5}
+          // onEndReached={() => setPage(page + 1)}
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={item => item ? `${item._id}` : 0}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingVertical: SIZES.padding * 2 }}
+          
+        />
+      </View>
+    )
+
+  }
+
+
+
+  return (
+
+
+    // <Root>
+    <BottomSheetModalProvider>
+      <View style={styles.container}>
+        <ScrollView
+
+          contentInsetAdjustmentBehavior="automatic"
+          showsVerticalScrollIndicator={false}>
+
+
+          <View style={styles.headerWrapper}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <View style={styles.headerLeft}>
+                <Feather name="chevron-left" size={12} color={colors.textDark} />
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.popularWrapper}>
+
+            <Text style={styles.popularTitle}>Recent Transaction</Text>
+            {renderRecentTransactions()}
+            {renderPaymentForm()}
+          </View>
+
+
+          <View style={styles.container}>
+
+            <BottomSheetModal
+              ref={bottomSheetModalRef}
+              index={1}
+              snapPoints={snapPoints}
+              onChange={handleSheetChanges}
+            >
+              <View style={styles.contentContainer}>
+                <Text style={styles.contentText}>Choose the payment method</Text>
+              </View>
+              <View style={styles.contentContainer}>
+                <Text style={styles.amountContentText}>Amount to be paid :   ₹ {amount}</Text>
+              </View>
+              <View style={styles.paymentContainer}>
+              <View style={styles.contentContainer}>
+                <Text style={styles.amountContentText}>Click here for paytm  : </Text>
+              </View>
+              <View
+              style={[
+                styles.roomsListIcon
+              ]}>
+              <TouchableOpacity
+                onPress={() => { payNow(amount, orderId, roomContractId) }}
+              >
+                {!screenLoading ?
+                  <View style={styles.orderWrapper}>
+                    <Text style={styles.orderText}>Pay now</Text>
+                    <Feather name="chevron-right" size={18} color={colors.black} />
+                  </View>
+                  :
+                  <Loading size={'small'} />
+                }
+
+              </TouchableOpacity>
+            </View>
+            </View>
+            </BottomSheetModal>
+          </View>
+
+        </ScrollView>
+
 
       </View>
-       </ScrollView>
+    </BottomSheetModalProvider>
       // </Root>
   )
 }
@@ -359,18 +474,21 @@ const styles = StyleSheet.create({
   },
   popularWrapper: {
     paddingHorizontal: 20,
-    marginBottom: 30
+    marginBottom: 30,
+    height: 'auto'
   },
   popularTitle: {
     fontFamily: 'Montserrat-Bold',
     fontSize: 16,
     color: '#000',
+    marginBottom: 10
   },
   popularCardWrapper: {
     backgroundColor: colors.white,
     borderRadius: 25,
     paddingTop: 20,
     paddingLeft: 20,
+    marginBottom: 10,
     flexDirection: 'row',
     overflow: 'hidden',
     shadowColor: colors.black,
@@ -381,7 +499,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 10,
     elevation: 2,
-    height: 100,
+    height: 140,
   },
   popularCardWrapperAmount: {
     borderRadius: 25,
@@ -390,7 +508,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     flexDirection: 'column',
     overflow: 'hidden',
-    height: 100,
+    height: 130,
   },
   popularTopWrapper: {
     flexDirection: 'row',
@@ -402,6 +520,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   popularTitlesWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  popularTitlesWrapper1: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -483,6 +606,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Medium',
     fontSize: 14,
     color: colors.textLight,
+    paddingRight: 50,
   },
 
   action: {
@@ -530,5 +654,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#ecf0f1',
     padding: 8,
   },
+  contentContainer: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 16,
+    color: '#000',
+    marginBottom: 10
+  },
+  contentText : {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 16,
+    color: '#000',
+    flexDirection: 'row',
+    alignItems:'center',
+    justifyContent: 'center',
+    textAlign : 'center',
+    marginTop: 50
+  },
+  amountContentText : {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 16,
+    color: '#000',
+    flexDirection: 'row',
+    alignItems:'center',
+    justifyContent: 'center',
+    marginLeft: 50,
+    marginTop: 20
+  },
+  paymentContainer: {
+    flexDirection: 'row'
+  }
 
 })

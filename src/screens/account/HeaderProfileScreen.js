@@ -1,18 +1,12 @@
-import React,{useContext} from 'react';
-import {View, SafeAreaView, StyleSheet, ScrollView,Image} from 'react-native';
+import React, { useContext } from 'react';
+import { StyleSheet, View } from 'react-native';
 import {
   Avatar,
-  Title,
-  Caption,
-  Text,
-  TouchableRipple,
+  Title
 } from 'react-native-paper';
-
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { COLORS } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Feather from 'react-native-vector-icons/Feather';
-import { icons, images, SIZES, COLORS, FONTS } from '../../constants'
+
 
 const HeaderProfileScreen = ({ navigation }) => {
 
@@ -31,11 +25,13 @@ const HeaderProfileScreen = ({ navigation }) => {
             source={{uri: userDetails.photoUrl }}
             size={40}
             style={styles.profileImage}
+            onPress={() => navigation.navigate('ProfileScreen')}
           /> ) : ( 
           <Avatar.Image 
             source={require('../../assets/avatar.png')}
             size={40}
             style={styles.profileImage}
+            onPress={() => navigation.navigate('ProfileScreen')}
           />)}
           <View style={{marginLeft: 20}}>
             <Title style={[styles.caption, {

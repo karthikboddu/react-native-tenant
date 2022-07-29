@@ -11,13 +11,23 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import colors from '../assets/colors/colors';
 import { COLORS, icons } from "../constants";
 import { GlobalContext } from '../context/GlobalState';
+import { SignInScreen } from "../screens";
+import EditProfileScreen from "../screens/account/EditProfileScreen";
 import ProfileScreen from '../screens/account/ProfileScreen';
+import SignUpScreen from '../screens/account/SignUpScreen';
 import UserLoginActivity from '../screens/account/UserLoginActivity';
+import ChatScreen from '../screens/chat/ChatScreen';
+import Messages from "../screens/chat/Messages";
+import AddNotes from "../screens/notes/AddNotes";
+import EditNotes from "../screens/notes/EditNotes";
+import NotesHome from "../screens/notes/NotesHome";
 import AdminDashboard from '../screens/tenant/AdminDashboard';
 import BuildingDetails from '../screens/tenant/BuildingDetails';
 import Dashboard from '../screens/tenant/Dashboard';
+import EditOrderDetails from "../screens/tenant/order/EditOrderDetails";
 import PaymentDetails from '../screens/tenant/order/PaymentDetails';
 import TenantRoomDetails from '../screens/tenant/TenantRoomDetails';
+import TenantSignUp from "../screens/tenant/TenantSignUp";
 import TenantsList from '../screens/tenant/TenantsList';
 import TransactionsList from '../screens/tenant/TransactionsList';
 import UserDashboard from '../screens/tenant/user/UserDashboard';
@@ -26,6 +36,10 @@ const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const HomeStack = createStackNavigator();
 const TransactionsStack = createStackNavigator();
+const NotesStack = createStackNavigator();
+const MessageStack = createStackNavigator();
+
+
 
 const TabBarCustomButton = ({ accessibilityState, children, onPress }) => {
 
@@ -271,7 +285,52 @@ const Tabs = () => {
                         />
                     )
                 }}
-            />            
+            />
+
+            <Tab.Screen
+                name="Notes"
+                component={NotesStackScreen}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <Image
+                            source={icons.notes}
+                            resizeMode="contain"
+                            style={{
+                                width: 25,
+                                height: 25,
+                                tintColor: focused ? COLORS.primary : COLORS.secondary
+                            }}
+                        />
+                    ),
+                    tabBarButton: (props) => (
+                        <TabBarCustomButton
+                            {...props}
+                        />
+                    )
+                }}
+            />
+            <Tab.Screen
+                name="Message"
+                component={MessageStackScreen}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <Image
+                            source={icons.chat}
+                            resizeMode="contain"
+                            style={{
+                                width: 25,
+                                height: 25,
+                                tintColor: focused ? COLORS.primary : COLORS.secondary
+                            }}
+                        />
+                    ),
+                    tabBarButton: (props) => (
+                        <TabBarCustomButton
+                            {...props}
+                        />
+                    )
+                }}
+            />
 
             <Tab.Screen
                 name="Profile"
@@ -299,6 +358,99 @@ const Tabs = () => {
         </Tab.Navigator>
     )
 }
+
+const MessageStackScreen = ({ navigation }) => {
+    const { colors } = useTheme();
+
+    return (
+        <MessageStack.Navigator
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: colors.background,
+                    shadowColor: colors.background, // iOS
+                    elevation: 0, // Android
+                },
+                headerTintColor: colors.text,
+                headerTitleStyle: {
+                    fontWeight: 'bold',
+                },
+            }}>
+
+            <MessageStack.Screen
+                        name="Message screen"
+                        component={Messages}
+                        options={({ route }) => ({
+                            //title: route.params.title,
+                            title: "Messages",
+                            headerBackTitleVisible: false,
+                            headerShown: false,
+                        })}
+            />
+            <MessageStack.Screen
+                name="ChatScreen"
+                component={ChatScreen}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "ChatScreen",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+        </MessageStack.Navigator>
+    );
+};
+
+const NotesStackScreen = ({ navigation }) => {
+    const { colors } = useTheme();
+
+    return (
+        <NotesStack.Navigator
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: colors.background,
+                    shadowColor: colors.background, // iOS
+                    elevation: 0, // Android
+                },
+                headerTintColor: colors.text,
+                headerTitleStyle: {
+                    fontWeight: 'bold',
+                },
+            }}>
+
+            <NotesStack.Screen
+                name="Home Note"
+                component={NotesHome}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "NotesHome",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <NotesStack.Screen
+                name="AddNotes"
+                component={AddNotes}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "AddNotes",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <NotesStack.Screen
+                name="EditNotes"
+                component={EditNotes}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "EditNotes",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+        </NotesStack.Navigator>
+    );
+};
+
 
 const TransactionsStackScreen = ({ navigation }) => {
     const { colors } = useTheme();
@@ -334,7 +486,7 @@ const TransactionsStackScreen = ({ navigation }) => {
 
 const HomeStackScreen = ({ navigation }) => {
     const { colors } = useTheme();
-    const { userDetails } = useContext(GlobalContext);
+    const { userDetails, isAdmin } = useContext(GlobalContext);
 
     return (
         <HomeStack.Navigator
@@ -349,23 +501,27 @@ const HomeStackScreen = ({ navigation }) => {
                     fontWeight: 'bold',
                 },
             }}>
+            {isAdmin ? (
+                <HomeStack.Screen
+                    name="AdminDashboard"
+                    component={AdminDashboard}
+                    options={{
+                        headerShown: false,
+                    }}
+                />) : (
+                <HomeStack.Screen
+                    name="UserDashboard"
+                    component={UserDashboard}
+                    options={{
+                        headerShown: false,
+                    }}
+                />
+            )}
+
+
             <HomeStack.Screen
                 name="Dashboard"
                 component={Dashboard}
-                options={{
-                    headerShown: false,
-                }}
-            />
-            <HomeStack.Screen
-                name="UserDashboard"
-                component={UserDashboard}
-                options={{
-                    headerShown: false,
-                }}
-            />
-            <HomeStack.Screen
-                name="AdminDashboard"
-                component={AdminDashboard}
                 options={{
                     headerShown: false,
                 }}
@@ -380,6 +536,13 @@ const HomeStackScreen = ({ navigation }) => {
             <HomeStack.Screen
                 name="PaymentDetails"
                 component={PaymentDetails}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <HomeStack.Screen
+                name="EditOrderDetails"
+                component={EditOrderDetails}
                 options={{
                     headerShown: false,
                 }}
@@ -415,6 +578,36 @@ const HomeStackScreen = ({ navigation }) => {
                     headerShown: false,
                 })}
             />
+            <HomeStack.Screen
+                name="SignUpScreen"
+                component={SignUpScreen}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "SignUpScreen",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <HomeStack.Screen
+                name="SignInScreen"
+                component={SignInScreen}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "SignInScreen",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <HomeStack.Screen
+                name="TenantSignUp"
+                component={TenantSignUp}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "TenantSignUp",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
         </HomeStack.Navigator>
     );
 };
@@ -438,6 +631,8 @@ const ProfileStackScreen = ({ navigation }) => {
                 component={ProfileScreen}
                 options={{
                     title: '',
+                    headerShown: false,
+                    headerBackTitleVisible: true,
                     headerLeft: () => (
                         <View style={{ marginLeft: 10 }}>
                             {/* <Icon.Button
@@ -462,17 +657,20 @@ const ProfileStackScreen = ({ navigation }) => {
                     ),
                 }}
             />
-            {/*   <ProfileStack.Screen
-        name="EditProfile"
-        options={{
-          title: 'Edit Profile',
-        }}
-        component={EditProfileScreen}
-      /> */}
+            <ProfileStack.Screen
+                name="EditProfile"
+                options={{
+                    title: 'Edit Profile',
+                    headerShown: false,
+                    headerBackTitleVisible: true,
+                }}
+                component={EditProfileScreen}
+            />
             <ProfileStack.Screen
                 name="UserLoginActivity"
                 options={({ route }) => ({
                     title: 'User Login Activity',
+                    headerShown: false,
                     headerBackTitleVisible: false,
                 })}
                 component={UserLoginActivity}

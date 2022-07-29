@@ -1,102 +1,153 @@
-import React, {useState,useContext} from 'react';
+import storage from '@react-native-firebase/storage';
+import * as ImagePicker from 'expo-image-picker';
+import React, { useContext, useState } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  ImageBackground,
-  TextInput,
-  StyleSheet,
+  ImageBackground, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View
 } from 'react-native';
-
-import {useTheme} from 'react-native-paper';
-
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import ActionButton from 'react-native-action-button';
+import { useTheme } from 'react-native-paper';
 import Feather from 'react-native-vector-icons/Feather';
-
-import BottomSheet from 'reanimated-bottom-sheet';
-import Animated from 'react-native-reanimated';
-import ImagePicker from 'react-native-image-crop-picker';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import colors from '../../assets/colors/colors';
+import { Loading } from '../../components/common';
 import { GlobalContext } from '../../context/GlobalState';
 
-const EditProfileScreen = () => {
 
-  const [image, setImage] = useState('https://api.adorable.io/avatars/80/abott@adorable.png');
-  const {colors} = useTheme();
-  const {userDetails,getUserDetails}  = useContext(GlobalContext);
+const EditProfileScreen = ({navigation}) => {
+
+  const [image, setImage] = useState(null);
+  const { colors } = useTheme();
+  const { userDetails, updateUserDetails, screenLoading, setScreenLoading, getUserDetails } = useContext(GlobalContext);
+  const [uploading, setUploading] = useState(false);
+  const [transferred, setTransferred] = useState(0);
+
+  React.useEffect(() => {
+    setImage(userDetails.photoUrl)
+  }, []);
+
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  };
+
   const takePhotoFromCamera = () => {
     ImagePicker.openCamera({
-      compressImageMaxWidth: 300,
-      compressImageMaxHeight: 300,
+      width: 1200,
+      height: 780,
       cropping: true,
-      compressImageQuality: 0.7
-    }).then(image => {
+    }).then((image) => {
       console.log(image);
-      setImage(image.path);
-      this.bs.current.snapTo(1);
+      const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
+      setImage(imageUri);
     });
-  }
+  };
 
-  const choosePhotoFromLibrary = () => {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 300,
-      cropping: true,
-      compressImageQuality: 0.7
-    }).then(image => {
-      console.log(image);
-      setImage(image.path);
-      this.bs.current.snapTo(1);
+  const uploadImage = async () => {
+    if (image == null) {
+      return null;
+    }
+    const uploadUri = image;
+    let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+
+    // Add timestamp to File Name
+    const extension = filename.split('.').pop();
+    const name = filename.split('.').slice(0, -1).join('.');
+    filename = name + Date.now() + '.' + extension;
+
+    setUploading(true);
+    setScreenLoading(true);
+    setTransferred(0);
+
+    const storageRef = storage().ref(`photos/${filename}`);
+    const task = storageRef.putFile(uploadUri);
+
+    // Set transferred state
+    task.on('state_changed', (taskSnapshot) => {
+      console.log(
+        `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
+      );
+
+      setTransferred(
+        Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
+        100,
+      );
     });
-  }
 
-  renderInner = () => (
-    <View style={styles.panel}>
-      <View style={{alignItems: 'center'}}>
-        <Text style={styles.panelTitle}>Upload Photo</Text>
-        <Text style={styles.panelSubtitle}>Choose Your Profile Picture</Text>
-      </View>
-      <TouchableOpacity style={styles.panelButton} onPress={takePhotoFromCamera}>
-        <Text style={styles.panelButtonTitle}>Take Photo</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.panelButton} onPress={choosePhotoFromLibrary}>
-        <Text style={styles.panelButtonTitle}>Choose From Library</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.panelButton}
-        onPress={() => this.bs.current.snapTo(1)}>
-        <Text style={styles.panelButtonTitle}>Cancel</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    try {
+      await task;
 
-  renderHeader = () => (
-    <View style={styles.header}>
-      <View style={styles.panelHeader}>
-        <View style={styles.panelHandle} />
-      </View>
-    </View>
-  );
+      const url = await storageRef.getDownloadURL();
 
-  bs = React.createRef();
-  fall = new Animated.Value(1);
+      setUploading(false);
+      setImage(null);
+
+      const payload = {
+        photoUrl: url
+      }
+      updateUserDetails(JSON.stringify(payload))
+      if (!screenLoading) {
+        console.log("end")
+        navigation.goBack();
+        getUserDetails()
+      }
+
+
+      return url;
+
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+
+  };
+
+  // bs = React.createRef();
+  // fall = new Animated.Value(1);
 
   return (
     <View style={styles.container}>
-      <BottomSheet
-        ref={this.bs}
-        snapPoints={[330, 0]}
-        renderContent={this.renderInner}
-        renderHeader={this.renderHeader}
-        initialSnap={1}
-        callbackNode={this.fall}
-        enabledGestureInteraction={true}
-      />
-      <Animated.View style={{margin: 20,
-        opacity: Animated.add(0.1, Animated.multiply(this.fall, 1.0)),
-    }}>
-        <View style={{alignItems: 'center'}}>
-          <TouchableOpacity onPress={() => this.bs.current.snapTo(0)}>
+
+        <SafeAreaView>
+          <View style={styles.headerWrapper}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <View style={styles.headerLeft}>
+                <Feather name="chevron-left" size={12} color={colors.textDark} />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+
+      <ActionButton buttonColor="#2e64e5">
+        <ActionButton.Item
+          buttonColor="#9b59b6"
+          title="Take Photo"
+          onPress={takePhotoFromCamera}>
+          <Ionicons name="camera-outline" style={styles.actionButtonIcon} />
+        </ActionButton.Item>
+        <ActionButton.Item
+          buttonColor="#3498db"
+          title="Choose Photo"
+          onPress={pickImage}>
+          <Ionicons name="images" style={styles.actionButtonIcon} />
+        </ActionButton.Item>
+      </ActionButton>
+
+        <View style={{ alignItems: 'center' }}>
+          <TouchableOpacity onPress={() =>{}}>
             <View
               style={{
                 height: 100,
@@ -109,8 +160,8 @@ const EditProfileScreen = () => {
                 source={{
                   uri: image,
                 }}
-                style={{height: 100, width: 100}}
-                imageStyle={{borderRadius: 15}}>
+                style={{ height: 100, width: 100 }}
+                imageStyle={{ borderRadius: 15 }}>
                 <View
                   style={{
                     flex: 1,
@@ -134,8 +185,8 @@ const EditProfileScreen = () => {
               </ImageBackground>
             </View>
           </TouchableOpacity>
-          <Text style={{marginTop: 10, fontSize: 18, fontWeight: 'bold'}}>
-            John Doe
+          <Text style={{ marginTop: 10, fontSize: 18, fontWeight: 'bold' }}>
+            {userDetails.full_name}
           </Text>
         </View>
 
@@ -145,6 +196,7 @@ const EditProfileScreen = () => {
             placeholder="First Name"
             placeholderTextColor="#666666"
             autoCorrect={false}
+            editable={false}
             value={userDetails.username}
             style={[
               styles.textInput,
@@ -160,6 +212,8 @@ const EditProfileScreen = () => {
             placeholder="Last Name"
             placeholderTextColor="#666666"
             autoCorrect={false}
+            editable={false}
+            value={userDetails.lastName}
             style={[
               styles.textInput,
               {
@@ -175,6 +229,7 @@ const EditProfileScreen = () => {
             placeholderTextColor="#666666"
             keyboardType="number-pad"
             autoCorrect={false}
+            editable={false}
             style={[
               styles.textInput,
               {
@@ -190,6 +245,7 @@ const EditProfileScreen = () => {
             placeholderTextColor="#666666"
             keyboardType="email-address"
             autoCorrect={false}
+            editable={false}
             value={userDetails.email}
             style={[
               styles.textInput,
@@ -205,6 +261,7 @@ const EditProfileScreen = () => {
             placeholder="Country"
             placeholderTextColor="#666666"
             autoCorrect={false}
+            editable={false}
             style={[
               styles.textInput,
               {
@@ -219,6 +276,7 @@ const EditProfileScreen = () => {
             placeholder="City"
             placeholderTextColor="#666666"
             autoCorrect={false}
+            editable={false}
             style={[
               styles.textInput,
               {
@@ -227,10 +285,12 @@ const EditProfileScreen = () => {
             ]}
           />
         </View>
-        <TouchableOpacity style={styles.commandButton} onPress={() => {}}>
-          <Text style={styles.panelButtonTitle}>Submit</Text>
+        <TouchableOpacity style={styles.commandButton} onPress={() => uploadImage()}>
+          {!screenLoading ?
+            <Text style={styles.panelButtonTitle}>Submit</Text>
+            :
+            <Loading size={'small'} />}
         </TouchableOpacity>
-      </Animated.View>
     </View>
   );
 };
@@ -244,7 +304,7 @@ const styles = StyleSheet.create({
   commandButton: {
     padding: 15,
     borderRadius: 10,
-    backgroundColor: '#FF6347',
+    backgroundColor: colors.primary,
     alignItems: 'center',
     marginTop: 10,
   },
@@ -262,13 +322,33 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#FFFFFF',
     shadowColor: '#333333',
-    shadowOffset: {width: -1, height: -3},
+    shadowOffset: { width: -1, height: -3 },
     shadowRadius: 2,
     shadowOpacity: 0.4,
     // elevation: 5,
     paddingTop: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+  },
+  headerWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  headerLeft: {
+    borderColor: colors.textLight,
+    borderWidth: 2,
+    padding: 12,
+    borderRadius: 10,
+  },
+  headerRight: {
+    backgroundColor: colors.primary,
+    padding: 12,
+    borderRadius: 10,
+    borderColor: colors.primary,
+    borderWidth: 2,
   },
   panelHeader: {
     alignItems: 'center',
@@ -293,7 +373,7 @@ const styles = StyleSheet.create({
   panelButton: {
     padding: 13,
     borderRadius: 10,
-    backgroundColor: '#FF6347',
+    backgroundColor: colors.primary,
     alignItems: 'center',
     marginVertical: 7,
   },

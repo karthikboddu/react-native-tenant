@@ -1,13 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import {
-  Dimensions,
-  View,
-  LayoutAnimation,
-  UIManager,
-  Animated,
-  Easing,
-  Text,
+  ActivityIndicator, Animated, Dimensions,
+  View
 } from 'react-native';
+import LottieView from 'lottie-react-native';
 
 const Overlay = ({ isShow = false }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -55,9 +51,12 @@ const Overlay = ({ isShow = false }) => {
             opacity: fadeAnim,
           }}
         >
-          <Text style={{ color: '#FFF', fontSize: 22, textAlign: 'center' }}>
+              
+         {/* <ActivityIndicator size="large" color="#000" />
+         <Text style={{ color: '#FFF', fontSize: 22, textAlign: 'center' }}>
             Loading Please Wait...
-          </Text>
+          </Text> */}
+           <LottieView source={require('../assets/97930-loading.json')} autoPlay loop />
         </Animated.View>
       </View>
     );
