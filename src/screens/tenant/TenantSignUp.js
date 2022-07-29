@@ -324,6 +324,9 @@ const TenantSignUp = ({route}) => {
         // if (createTenantAddToRoomContractList?.status) {
             // navigation.navigate('TenantRoomDetails')
         // }
+        if (!screenLoading) {
+            navigation.goBack();
+        }
 
     }
 

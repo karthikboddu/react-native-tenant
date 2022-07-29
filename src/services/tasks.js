@@ -1,6 +1,7 @@
-import axios from 'axios';
+//import axios from 'axios';
 //const API_URL =  'http://192.168.0.126:8000';
 const API_URL = 'https://nodejs-authtest.herokuapp.com';
+/*
 export async function addTasks(data) {
 
     return await axios.post(`${API_URL}/api/addExpensesItem`,data, {
@@ -8,7 +9,7 @@ export async function addTasks(data) {
     }
     )
 }
-
+*/
 
 export async function getTasksList(){
 

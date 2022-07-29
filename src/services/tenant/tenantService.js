@@ -84,9 +84,9 @@ async function listRoomsByFloorId(accessToken,floorId) {
 }
 
 
-async function listRoomDetailsByRoomId(accessToken,roomId) {
+async function listRoomDetailsByRoomId(accessToken,roomId, query) {
     try {
-        let url = `${API_URL}` + `${endpoints.fetchRoomsDetailsByRoomId}`;
+        let url = `${API_URL}` + `${endpoints.fetchRoomsDetailsByRoomId}` + query;
         let response = await fetch(url.replace('#',roomId), {
             method: 'GET',
             headers: {
@@ -204,29 +204,21 @@ async function getTenantRoomAllOrderDetails( accessToken, params, page) {
     }
 }
 
-async function  getRecentAllTenantsRoomOrderDetails (params, page) {
+async function getRecentAllTenantsRoomOrderDetails (params, page) {
 
     try {
-      console.log(page, "----page")
-      setLoading(true);
+
+
       const res = await deviceStorage.loadJWT();
-      await fetch(`${API_URL}` + `${endpoints.recentAllTenantsRoomOrderDetails}` + `?paymentStatus=` + `${params}` + `&page=` + `${page}` + `&size=` + `${5}`, {
+      let response = await fetch(`${API_URL}` + `${endpoints.recentAllTenantsRoomOrderDetails}` + `?page=` + `${page}` + `&size=` + `${5}` + params, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
           'x-access-token': res
         }
-      }).then((response) => response.json())
-        .then((json) => {
-          console.log(page, "page")
-          setPage(page + 1)
-          console.log(page, "page")
-          setLoading(false);
-          setData([...data, ...json?.data])
-        }).catch((error) => {
-          console.log(error)
-        })
+      });
+      return response;
     } catch (e) {
       console.log(e)
       Alert.alert('Sorry, something went wrong.', e.message);
@@ -254,6 +246,26 @@ async function  getRecentAllTenantsRoomOrderDetails (params, page) {
     }
 }
 
+
+async function getTenantSettings(accessToken) {
+
+    try {
+
+        let response = await fetch(`${API_URL}` + `${endpoints.settings}`, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': accessToken
+            }
+        });
+        return response;
+    } catch (e) {
+        Alert.alert('Sorry, something went wrong.', e.message);
+        throw handler(e);
+    }
+}
+
 export {
     listTenantBuildings,
     listTenantBuildingsById,
@@ -266,5 +278,6 @@ export {
     initTenantRoomPayment,
     getTenantRoomAllOrderDetails,
     getRecentAllTenantsRoomOrderDetails,
-    createTenantAndToRoom
+    createTenantAndToRoom,
+    getTenantSettings
 };

@@ -1,52 +1,31 @@
-import React,{useContext} from 'react';
-import {View, SafeAreaView, StyleSheet, ScrollView} from 'react-native';
+import React, { useContext } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
 import {
-  Avatar,
-  Title,
-  Caption,
-  Text,
-  TouchableRipple,
+  Avatar, Caption,
+  Text, Title, TouchableRipple
 } from 'react-native-paper';
-
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { GlobalContext } from '../../context/GlobalState';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { default as Icon, default as MaterialCommunityIcons } from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
+import { GlobalContext } from '../../context/GlobalState';
 
-// import Share from 'react-native-share';
-
-// import files from '../assets/filesBase64';
 
 const ProfileScreen = ({ navigation }) => {
 
   const {userDetails,getUserDetails}  = useContext(GlobalContext);
      React.useEffect(() => {
-    //clearStateVariable();
     		getUserDetails();
-    },[])
-  const myCustomShare = async() => {
-    const shareOptions = {
-      message: 'Order your next meal from FoodFinder App. I\'ve already ordered more than 10 meals on it.',
-      url: require('../../assets/avatar.png'),
-      // urls: [files.image1, files.image2]
-    }
+      },[])
 
-    try {
-      // const ShareResponse = await Share.open(shareOptions);
-      // console.log(JSON.stringify(ShareResponse));
-    } catch(error) {
-      console.log('Error => ', error);
-    }
-  };
   const { signOut,setDarkTheme } = React.useContext(GlobalContext);
 
   return (
     <ScrollView>
     <SafeAreaView style={styles.container}>
 
-      <View style={styles.userInfoSection}>
-        <View style={{flexDirection: 'row', marginTop: 15}}>
+      <View style={styles.userInfoSectionProfile}>
+        <View style={{ marginTop: 15, flexDirection : 'row'}}>
           {userDetails.photoUrl ? (
           <Avatar.Image 
             source={{uri: userDetails.photoUrl }}
@@ -64,6 +43,15 @@ const ProfileScreen = ({ navigation }) => {
             <Caption style={styles.caption}>@{userDetails.username}</Caption>
           </View>
         </View>
+        <View style={{ justifyContent:'flex-start' ,marginLeft:60, marginTop:10}}>
+                            <MaterialCommunityIcons.Button
+                                name="account-edit"
+                                size={25}
+                                backgroundColor={colors.background}
+                                color={colors.black}
+                                onPress={() => navigation.navigate('EditProfile')}
+      />
+        </View>        
       </View>
 
       <View style={styles.userInfoSection}>
@@ -81,19 +69,6 @@ const ProfileScreen = ({ navigation }) => {
         </View>
       </View>
 
-      <View style={styles.infoBoxWrapper}>
-          <View style={[styles.infoBox, {
-            borderRightColor: '#dddddd',
-            borderRightWidth: 1
-          }]}>
-            <Title>₹140.50</Title>
-            <Caption>Wallet</Caption>
-          </View>
-          <View style={styles.infoBox}>
-            <Title>12</Title>
-            <Caption>Orders</Caption>
-          </View>
-      </View>
 
       <View style={styles.menuWrapper}>
         <TouchableRipple onPress={() => {}}>
@@ -108,7 +83,7 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.menuItemText}>Payment</Text>
           </View>
         </TouchableRipple>
-        <TouchableRipple onPress={myCustomShare}>
+        <TouchableRipple onPress={{}}>
           <View style={styles.menuItem}>
             <Icon name="share-outline" color={colors.primary} size={25}/>
             <Text style={styles.menuItemText}>Tell Your Friends</Text>
@@ -153,6 +128,11 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  userInfoSectionProfile: {
+    paddingHorizontal: 30,
+    marginBottom: 25,
+    flexDirection: 'row',
   },
   userInfoSection: {
     paddingHorizontal: 30,

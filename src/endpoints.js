@@ -4,7 +4,8 @@ const endpoints = {
     ssoLogin : '/api/tenant/SSOLogin',
     verifyAccessToken : '/api/auth/verifyAccessToken',
     refreshToken : '/api/auth/refresh-token',
-    getUserDetails: '/api/user/userDetais',
+    getUserDetails: '/api/user/userDetails',
+    updatetUserDetails: '/api/tenant/tenant',
     getUserLoginInfo: '/api/user/userLoginInfo',
     tenantBuildings : '/api/building/buildings',
     tenantBuildingsById : '/api/building/buildings/#',
@@ -20,9 +21,12 @@ const endpoints = {
     updateTenantRoomContract : '/api/room/roomContracts',
     tenantsList : '/api/tenant/tenants',
     addTenantToRoom : '/api/tenant/tenants',
-    mId : 'nikYWM52585118708761',
-    callBackUrl : 'https://securegw-stage.paytm.in/theia/paytmCallback?ORDER_ID=',
-    urlScheme : 'paytmnikYWM52585118708761',
+    settings : '/api/tenant/settings',
+    createOrderAndComplete : '/api/order/createOrderAndComplete',
+    saveConversations : '/api/chat/chats',
+    listConversationsByTenantId : '/api/chat/chats/#',
+    listAllLastConversationsByTenantId : '/api/chat/conversations',
+    listNotes : '/api/tutorials',
     jwtSecret : "karthik-secret-key"
 
 }

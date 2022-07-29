@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-  ActivityIndicator, Animated, FlatList, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View
-} from 'react-native';
+import ContentLoader, { Rect } from 'react-content-loader/native';
+import { FlatList, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
 import { COLORS, FONTS, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
@@ -11,8 +9,6 @@ import FloorsList from './FloorsList';
 
 
 const BuildingDetails = ({ route, navigation }) => {
-
-  const scrollX = new Animated.Value(0);
 
   const [roomsList, setRoomsList] = useState([])
   const [building, setBuilding] = useState([])
@@ -23,19 +19,17 @@ const BuildingDetails = ({ route, navigation }) => {
   const [selectedFloors, setSelectedFloors] = useState(null)
 
   let { items } = route.params;
-  let floorDetailsData = [];
-  let roomDetailsData = [];
+
 
   const { tenantBuildingListById, getTenantBuildingsById,
     tenantBuildingFloorList, getTenantFloorsBuildingId,
     tenantBuildingFloorRoomsList, getTenantRoomsByFloorId,
-    clearStateVariable,screenLoading } = useContext(GlobalContext);
+    clearStateVariable, screenLoading } = useContext(GlobalContext);
 
   useEffect(() => {
     //clearStateVariable();
     getTenantBuildingsById(route.params?.items);
     setBuilding(tenantBuildingListById);
-    console.log(tenantBuildingListById, "route.param123 \n", items)
     getTenantFloorsBuildingId(route.params?.items)
     setFloorList([]);
     setRoomsList([])
@@ -52,46 +46,6 @@ const BuildingDetails = ({ route, navigation }) => {
     setLoader(false);
     setSelectedFloors(item)
   }
-
-  const renderIngredientsItem = ({ item }) => {
-
-    return (
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={() =>
-          setFloorId(item.id)
-        }>
-        <View
-          style={[
-            styles.ingredientItemWrapper,
-            {
-              marginLeft: item.id === '1' ? 20 : 0,
-            },
-          ]}
-        >
-          <Image source={item.image} style={styles.ingredientImage} />
-          <Text style={styles.ingredientImageText} >{item.name}</Text>
-          <Text style={{ color: '#000' }}>₹10,000</Text>
-
-          <View
-            style={[
-              styles.floorListIcon,
-              {
-                backgroundColor: colors.primary,
-              },
-            ]}>
-            <Feather
-              name="chevron-right"
-              size={15}
-              style={{ alignSelf: 'center' }}
-              color={item.selected ? colors.black : colors.white}
-            />
-          </View>
-
-        </View>
-      </TouchableOpacity>
-    );
-  };
 
   function renderFloorList() {
     const renderItem = ({ item }) => {
@@ -160,36 +114,57 @@ const BuildingDetails = ({ route, navigation }) => {
 
   const renderRoomsItems = () => {
 
-    if (loader) {
-      return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="small" color="#663399" />
-        </View>
-      );
-    }
     return (
 
       <View style={styles.popularWrapper}>
         <Text style={styles.popularTitle}>List of rooms</Text>
         {tenantBuildingFloorRoomsList.map((item) => (
-          <FloorsList key={item.created_at} data={item} buildingId = {route.params?.items} navigation={navigation} />
+          <FloorsList key={item.created_at} data={item} buildingId={route.params?.items} navigation={navigation} />
         ))}
       </View>
     )
   }
 
-  if (screenLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#663399" />
-      </View>
-    );
-  }
 
-  if (loader) {
+  const renderSkeletonLoader = () => {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="small" color="#663399" />
+      <View>
+        {/* Titles */}
+        <View style={styles.loaderTitleWrapper}>
+          <ContentLoader
+            speed={50}
+            width={400}
+            height={150}
+            viewBox="0 0 400 150"
+            backgroundColor="#f1e9e9"
+            foregroundColor="#fafafa"
+
+          >
+            <Rect x="25" y="15" rx="5" ry="5" width="122" height="10" />
+            <Rect x="24" y="101" rx="5" ry="5" width="120" height="10" />
+            <Rect x="24" y="131" rx="5" ry="5" width="120" height="10" />
+            <Rect x="24" y="161" rx="5" ry="5" width="120" height="10" />
+            <Rect x="255" y="20" rx="15" ry="15" width="91" height="98" />
+          </ContentLoader>
+          <ContentLoader
+            speed={50}
+            width={400}
+            height={150}
+            viewBox="0 0 400 150"
+            backgroundColor="#f1e9e9"
+            foregroundColor="#fafafa"
+
+          >
+            <Rect x="25" y="15" rx="5" ry="5" width="122" height="10" />
+            <Rect x="24" y="101" rx="5" ry="5" width="120" height="10" />
+          </ContentLoader>
+        </View>
+
+        {/* Price */}
+        <View style={styles.loaderPriceWrapper}>
+
+        </View>
+
       </View>
     );
   }
@@ -205,68 +180,66 @@ const BuildingDetails = ({ route, navigation }) => {
                 <Feather name="chevron-left" size={12} color={colors.textDark} />
               </View>
             </TouchableOpacity>
-            <View style={styles.headerRight}>
-              <MaterialCommunityIcons
-                name="star"
-                size={12}
-                color={colors.white}
-              />
-            </View>
           </View>
         </SafeAreaView>
 
+        {screenLoading ? (
+          <>
+            {renderSkeletonLoader()}
+          </>
+        ) : (
+          <>
+            {tenantBuildingListById.map((items) => (
 
-
-        {tenantBuildingListById.map((items) => (
-
-          <View key={items._id}>
-            {/* Titles */}
-            <View style={styles.titlesWrapper}>
-              <Text style={styles.title}>{items.building_name}</Text>
-              <Image
-                source={{ uri: items.building_image }}
-                style={styles.itemImage}
-              />
-            </View>
-
-            {/* Price */}
-            <View style={styles.priceWrapper}>
-              <Text style={styles.priceText}>$ {items.total_amount}</Text>
-            </View>
-
-            {/* Pizza info */}
-
-
-            <View style={styles.infoWrapper}>
-              <View style={styles.infoLeftWrapper}>
-                <View style={styles.infoItemWrapper}>
-                  <Text style={styles.infoItemTitle}>Address</Text>
-                  <Text style={styles.infoItemText}>
-                    {items.building_address}
-                  </Text>
+              <View key={items._id}>
+                {/* Titles */}
+                <View style={styles.titlesWrapper}>
+                  <Text style={styles.title}>{items.building_name}</Text>
+                  <Image
+                    source={{ uri: items.building_image }}
+                    style={styles.itemImage}
+                  />
                 </View>
-                <View style={styles.infoItemWrapper}>
-                  <Text style={styles.infoItemTitle}>No of Floors</Text>
-                  <Text style={styles.infoItemText}>{items.no_of_floors}</Text>
+
+                {/* Price */}
+                <View style={styles.priceWrapper}>
+                  <Text style={styles.priceText}>$ {items.total_amount}</Text>
                 </View>
-                <View style={styles.infoItemWrapper}>
-                  <Text style={styles.infoItemTitle}>Rooms</Text>
-                  <Text style={styles.infoItemText}>{items.no_of_rooms}</Text>
+
+                {/* Pizza info */}
+
+
+                <View style={styles.infoWrapper}>
+                  <View style={styles.infoLeftWrapper}>
+                    <View style={styles.infoItemWrapper}>
+                      <Text style={styles.infoItemTitle}>Address</Text>
+                      <Text style={styles.infoItemText}>
+                        {items.building_address}
+                      </Text>
+                    </View>
+                    <View style={styles.infoItemWrapper}>
+                      <Text style={styles.infoItemTitle}>No of Floors</Text>
+                      <Text style={styles.infoItemText}>{items.no_of_floors}</Text>
+                    </View>
+                    <View style={styles.infoItemWrapper}>
+                      <Text style={styles.infoItemTitle}>Rooms</Text>
+                      <Text style={styles.infoItemText}>{items.no_of_rooms}</Text>
+                    </View>
+                  </View>
+
                 </View>
               </View>
-
-            </View>
-          </View>
-        ))}
-
+            ))}
+          </>
+        )}
 
         {renderFloorList()}
 
-        {/* Popular */}
+        
         {renderRoomsItems()}
 
-        {/* Place an order */}
-        <TouchableOpacity onPress={() => navigation.navigate('TenantsList', {items: route.params?.items}) }>
+        
+        <TouchableOpacity onPress={() => navigation.navigate('TenantsList', { items: route.params?.items })}>
           <View style={styles.orderWrapper}>
             <Text style={styles.orderText}>View All Tenants </Text>
             <Feather name="chevron-right" size={18} color={colors.black} />
@@ -418,5 +391,14 @@ const styles = new StyleSheet.create({
     height: 26,
     borderRadius: 26,
     marginBottom: 20,
+  },
+  infoLoaderWrapper: {
+
+  },
+  loaderPriceWrapper: {
+
+  },
+  loaderTitleWrapper: {
+
   }
 });

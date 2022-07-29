@@ -4,17 +4,24 @@ import AllInOneSDKManager from 'paytm_allinone_react-native';
 import React, { createContext, useReducer } from 'react';
 import Constants from '../Constants';
 import endpoints from '../endpoints';
-import { getUserActivityDetailsFromToken, getUserDetailsFromToken, login, logout, ssoLogin, verifyAccessToken, verifyRefreshToken } from '../services/auth';
+import {
+    getUserActivityDetailsFromToken, getUserDetailsFromToken,
+    login, logout, ssoLogin, updateUserDetailsFromToken, verifyAccessToken, verifyRefreshToken
+} from '../services/auth';
+import {
+    listAllTenantLastConversations, listTenantConversations, saveTenantConversations
+} from '../services/chatService';
 import deviceStorage from '../services/deviceStorage';
 import { showFlashMessage } from '../services/FlashMessageService';
 import { getTasksList } from '../services/tasks';
+import { saveOrderDetailsAndComplete } from '../services/tenant/orderService';
 import { unlinkTenantRoomContract } from '../services/tenant/roomService';
 import {
-    createTenantAndToRoom, generatePaytmToken, getTenantRoomAllOrderDetails, getTenantRoomDetails,
-    initTenantRoomPayment, listFloorsByBuildingsId, listRoomDetailsByRoomId,
+    createTenantAndToRoom, generatePaytmToken, getRecentAllTenantsRoomOrderDetails, getTenantRoomDetails, getTenantSettings, initTenantRoomPayment, listFloorsByBuildingsId, listRoomDetailsByRoomId,
     listRoomsByFloorId, listTenantBuildings, listTenantBuildingsById, updatePaymentDetails
 } from '../services/tenant/tenantService';
 import AppReducer from './AppReducer';
+
 
 
 const initialLoginState = {
@@ -42,6 +49,11 @@ const initialLoginState = {
     popupLoading: false,
     updateTenantRoomContract : [],
     createTenantAddToRoomContractList : [],
+    tenantSettingsList: [],
+    createOrderDetailsAndComplete : [],
+    skeletonLoading: false,
+    tenantConversations : [],
+    tenantLastConversations : []
 };
 
 export const GlobalContext = createContext(initialLoginState);
@@ -79,6 +91,7 @@ export const GlobalProvider = ({ children }) => {
                 if (res.data) {
                     deviceStorage.saveKey("id_token", res.data.accessToken);
                     deviceStorage.saveKey("refresh_token", res.data.refreshtoken);
+                    deviceStorage.saveKey("tenant_token", res.data.accessToken);
                     // const decode = JWT.decode(res.data.refreshtoken, endpoints.jwtSecret);
                     const decode = 'user';
                     console.log(res.data, "response")
@@ -133,6 +146,7 @@ export const GlobalProvider = ({ children }) => {
                     });
                 }
             } else {
+                setScreenLoading(false);
                 dispatch({
                     type: 'SIGN_IN',
                     payload: null
@@ -171,7 +185,7 @@ export const GlobalProvider = ({ children }) => {
         try {
             // signOut()
             const res = await deviceStorage.loadJWT();
-            console.log(res,"eresrtoken")
+
             let auth = null;
             if (res != null) {
 
@@ -192,13 +206,11 @@ export const GlobalProvider = ({ children }) => {
                     //                deviceStorage.saveKey("refresh_token", resJson.data.refreshtoken);
                     auth = resJson.data.accessToken;
                 }
-                console.log("6666", res, "\n")
                 if (auth !=null) {
                     const decode = JWT.decode(res, endpoints.jwtSecret);
                     
                     if (decode.type == Constants.userTypeAdmin) {
                         setIsAdmin(true)
-                        console.log(decode.type,"decoded")
                     }
                 }            
             }
@@ -255,7 +267,6 @@ export const GlobalProvider = ({ children }) => {
 
             let userResponse = await getUserDetailsFromToken(res);
             let resJson = await userResponse.json();
-            console.log(resJson)
             dispatch({
                 type: 'GET_USER_DETAILS',
                 payload: resJson.data
@@ -264,6 +275,30 @@ export const GlobalProvider = ({ children }) => {
             showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
             dispatch({
                 type: 'GET_USER_DETAILS_ERR',
+                payload: error
+            });
+        }
+    }
+
+
+    async function updateUserDetails(payload) {
+
+        try {
+            setScreenLoading(true);
+            const res = await deviceStorage.loadJWT();
+
+            let userResponse = await updateUserDetailsFromToken(res, payload);
+            let resJson = await userResponse.json();
+            setScreenLoading(false);
+            dispatch({
+                type: 'PATCH_USER_DETAILS',
+                payload: resJson.data
+            });
+        } catch (error) {
+            setScreenLoading(false);
+            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            dispatch({
+                type: 'PATCH_USER_DETAILS_ERR',
                 payload: error
             });
         }
@@ -283,12 +318,26 @@ export const GlobalProvider = ({ children }) => {
             });
         }
     }
-
-    async function setScreenLoading(isLoading) {
+    async function setSkeletionLoading(skeletonLoading) {
+        try {
+            dispatch({
+                type: 'SET_SKELETON_LOADING',
+                payload: skeletonLoading
+            });
+        } catch (error) {
+            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            dispatch({
+                type: 'SET_SKELETON_LOADING_ERR',
+                payload: error
+            });
+        }
+    }
+    
+    async function setScreenLoading(screenLoading) {
         try {
             dispatch({
                 type: 'SET_SCREENLOADING',
-                payload: isLoading
+                payload: screenLoading
             });
         } catch (error) {
             showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
@@ -370,7 +419,7 @@ export const GlobalProvider = ({ children }) => {
             setScreenLoading(false);
             dispatch({
                 type: 'GET_TENANTBUILDING_LIST',
-                payload: resJson
+                payload: resJson.data
             });
         } catch (error) {
             setScreenLoading(false);
@@ -436,20 +485,18 @@ export const GlobalProvider = ({ children }) => {
         try {
 
             const res = await deviceStorage.loadJWT();
-            //await logout();
-
+            setScreenLoading(true)
             let tenantBuildingsFloorRoomsDetails = await listRoomsByFloorId(res, floorId);
 
             let resJson = await tenantBuildingsFloorRoomsDetails.json();
-
-            console.log(resJson, "Roomid")
+            setScreenLoading(false)
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_ROOM_BYID_LIST',
                 payload: resJson.data
             });
         } catch (error) {
             console.log(error)
-
+            setScreenLoading(false)
             showFlashMessage('Error', error, 'danger', 'danger');
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_ROOM_BYID_LIST_ERR',
@@ -458,13 +505,13 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    async function getTenantRoomsDetailsByRoomId(roomId) {
+    async function getTenantRoomsDetailsByRoomId(roomId, query='') {
         try {
 
             const res = await deviceStorage.loadJWT();
 
             setScreenLoading(true)
-            let tenantBuildingsFloorRoomsDetails = await listRoomDetailsByRoomId(res, roomId);
+            let tenantBuildingsFloorRoomsDetails = await listRoomDetailsByRoomId(res, roomId, query);
 
             let resJson = await tenantBuildingsFloorRoomsDetails.json();
             setScreenLoading(false)
@@ -525,15 +572,19 @@ export const GlobalProvider = ({ children }) => {
     
     async function startPaytmTransaction(orderId,amount,txnToken, buildingId, oldBuildingAmount) {
         try {
+            const res = await deviceStorage.loadJWT();
+            const settingsList = await getTenantSettings(res);
+            let resJson = await settingsList.json();
+            let paytmSettings = resJson.data.paytmPaymentSettings;
                 AllInOneSDKManager.startTransaction(
                     orderId,
-                    endpoints.mId,
+                    paytmSettings.merchantId,
                     txnToken,
                     amount.toFixed(2),
-                    endpoints.callBackUrl + orderId,
+                    paytmSettings.callBackUrl + orderId,
                     true,
                     true,
-                    endpoints.urlScheme
+                    paytmSettings.urlScheme
                 )
                     .then((result) => {
                         setScreenLoading(false);
@@ -619,7 +670,7 @@ export const GlobalProvider = ({ children }) => {
         try {
             setScreenLoading(true);
             const res = await deviceStorage.loadJWT();
-            let tenantBuildingsAllOrderRoomsDetails = await getTenantRoomAllOrderDetails(res, params, page);
+            let tenantBuildingsAllOrderRoomsDetails = await getRecentAllTenantsRoomOrderDetails( params, page);
 
             let resJson = await tenantBuildingsAllOrderRoomsDetails.json();
             setScreenLoading(false);
@@ -718,9 +769,127 @@ export const GlobalProvider = ({ children }) => {
     }
 
 
+    async function getTenantSettigsDetails() {
+        try {
+            setScreenLoading(true);
+            const res = await deviceStorage.loadJWT('tenant_token');
+            let tenantSettingsDetails = await getTenantSettings(res);
+
+            let resJson = await tenantSettingsDetails.json();
+            setScreenLoading(false);
+            
+            dispatch({
+                type: 'GET_TENANT_SETTINGS_LIST',
+                payload: resJson.data
+            });
+        } catch (error) {
+            console.log(error)
+            setScreenLoading(false);
+            showFlashMessage('Error', error, 'danger', 'danger');
+            dispatch({
+                type: 'GET_TENANT_SETTINGS_LIST_ERR',
+                payload: error
+            });
+        }
+    } 
+
+
+    async function createRoomOrderPaymentAndComplete(payload) {
+        try {
+            
+            setScreenLoading(true);
+            let tenantDetails = await saveOrderDetailsAndComplete(payload);
+
+            let resJson = await tenantDetails.json();
+            setScreenLoading(false);
+            getTenantRoomOrderDetails('P,F', 1);
+
+            dispatch({
+                type: 'POST_CREATE_ORDER_ROOM_PAYMENT_COMPLETE',
+                payload: resJson.data
+            });
+        } catch (error) {
+            console.log(error)
+            showFlashMessage('Error', error, 'danger', 'danger');
+            dispatch({
+                type: 'POST_CREATE_ORDER_ROOM_PAYMENT_COMPLETE_ERR',
+                payload: error
+            });
+        }
+    }
+
+    async function createTenantConversations(payload) {
+        try {
+            
+            setScreenLoading(true);
+            let tenantConvDetails = await saveTenantConversations(payload);
+
+            let resJson = await tenantConvDetails.json();
+            setScreenLoading(false);
+
+            dispatch({
+                type: 'POST_CREATE_TENANT_CONVERSATIONS',
+                payload: resJson.data
+            });
+        } catch (error) {
+            console.log(error)
+            showFlashMessage('Error', error, 'danger', 'danger');
+            dispatch({
+                type: 'POST_CREATE_TENANT_CONVERSATIONS_ERR',
+                payload: error
+            });
+        }
+    }
+
+    async function fetchTenantConversations(payload) {
+        try {
+            
+            setScreenLoading(true);
+            let tenantConvDetails = await listTenantConversations(payload);
+            
+            let resJson = await tenantConvDetails.json();
+            setScreenLoading(false);
+
+            dispatch({
+                type: 'GET_CREATE_TENANT_CONVERSATIONS',
+                payload: resJson.data
+            });
+        } catch (error) {
+            console.log(error)
+            showFlashMessage('Error', error, 'danger', 'danger');
+            dispatch({
+                type: 'GET_CREATE_TENANT_CONVERSATIONS_ERR',
+                payload: error
+            });
+        }
+    }
+
+    async function fetchAllTenantLastConversations() {
+        try {
+            
+            setScreenLoading(true);
+            let tenantConvDetails = await listAllTenantLastConversations();
+            
+            let resJson = await tenantConvDetails.json();
+            setScreenLoading(false);
+
+            dispatch({
+                type: 'GET_TENANT_LAST_CONVERSATIONS',
+                payload: resJson.data
+            });
+        } catch (error) {
+            console.log(error)
+            showFlashMessage('Error', error, 'danger', 'danger');
+            dispatch({
+                type: 'GET_TENANT_LAST_CONVERSATIONS_ERR',
+                payload: error
+            });
+        }
+    }
+
     return (<GlobalContext.Provider value={{
         error: state.error,
-        loading: state.isLoading,
+        isLoading: state.isLoading,
         popupLoading: state.popupLoading,
         setPopup,
         screenLoading: state.screenLoading,
@@ -765,7 +934,19 @@ export const GlobalProvider = ({ children }) => {
         updateTenantRoomContract: state.updateTenantRoomContract,
         unLinkTenantRoomContract,
         createTenantAddToRoomContractList: state.createTenantAddToRoomContractList,
-        createTenantAddToRoomOrderPayment
+        createTenantAddToRoomOrderPayment,
+        getTenantSettigsDetails,
+        tenantSettingsList : state.tenantSettingsList,
+        createOrderDetailsAndComplete: state.createOrderDetailsAndComplete,
+        createRoomOrderPaymentAndComplete,
+        updateUserDetails,
+        skeletonLoading : state.skeletonLoading,
+        setSkeletionLoading,
+        createTenantConversations ,
+        tenantConversations : state.tenantConversations,
+        fetchTenantConversations,
+        tenantLastConversations : state.tenantLastConversations,
+        fetchAllTenantLastConversations
     }}>
         {children}
     </GlobalContext.Provider>);

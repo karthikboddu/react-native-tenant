@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Moment from 'react-moment';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { default as Icon, default as MaterialCommunityIcons } from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
 import Button from '../../components/Button';
+import Transactions from '../../components/Transactions';
 import { GlobalContext } from '../../context/GlobalState';
 
 
@@ -14,7 +16,10 @@ const TenantRoomDetails = ({ route, navigation }) => {
     const [loader, setLoader] = useState(false)
     const [showBox, setShowBox] = useState(true);
 
-
+    var dateObj = new Date();
+    var currentMonth = dateObj.getUTCMonth() + 1; //months from 1-12
+    var currentDay = dateObj.getUTCDate();
+    var currentYear = dateObj.getUTCFullYear();
     const {getTenantRoomsDetailsByRoomId,tenantBuildingFloorRoomsDetails, screenLoading, unLinkTenantRoomContract} = useContext(GlobalContext);
 
     useEffect(() => {
@@ -26,29 +31,21 @@ const TenantRoomDetails = ({ route, navigation }) => {
 
 
 
-    if (screenLoading) {
-      return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#663399" />
-        </View>
-      );
-    }
+    // if (screenLoading) {
+    //   return (
+    //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    //       <ActivityIndicator size="large" color="#663399" />
+    //     </View>
+    //   );
+    // }
   
-    if (loader) {
-      return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="small" color="#663399" />
-        </View>
-      );
-    }
-
-    if (tenantBuildingFloorRoomsDetails.length < 1) {
-      return (
-        <View style={styles.titlesWrapper}>
-          <Text style={styles.title}>Room is empty.</Text>
-        </View>
-      )
-    } 
+    // if (loader) {
+    //   return (
+    //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    //       <ActivityIndicator size="small" color="#663399" />
+    //     </View>
+    //   );
+    // }
 
   const submitUnLinkTenantRoomContract = (roomTenantId, roomContractId) => {
       const payload = JSON.stringify({
@@ -87,7 +84,8 @@ const TenantRoomDetails = ({ route, navigation }) => {
     return (
         <ScrollView>
         {tenantBuildingFloorRoomsDetails.map( data => (
-            <View style={styles.container} key= {data.created_at}>
+
+            <View style={styles.container} key= {data._id}>
                 {/* Header */}
                 <SafeAreaView>
                     <View style={styles.headerWrapper}>
@@ -165,7 +163,7 @@ const TenantRoomDetails = ({ route, navigation }) => {
                         <View style={styles.infoItemWrapper}>
                             <FontAwesome name="hourglass-end" color="#777777" size={20} />
                             <Text style={styles.infoItemText}>
-                              {m.tenantDetails[0] ? m.tenantDetails[0].end_at : ""}
+                            <Moment  format="D MMM YYYY" element={Text}>{m.tenantDetails[0] ? m.tenantDetails[0].end_at : ""}</Moment>
                             </Text>
                         </View>
                         <View style={styles.infoItemWrapper}>
@@ -193,6 +191,12 @@ const TenantRoomDetails = ({ route, navigation }) => {
                 </View>
             </View>
             ))}
+            
+            <View>
+            <Text style={styles.title}>Room Transactions</Text>
+            <Transactions roomId={route.params?.item} 
+                date={currentDay} month={currentMonth} year={currentYear}  roomPaymentId = {route.params?.roomPaymentId} />
+                </View>
         </ScrollView>
     )
 }

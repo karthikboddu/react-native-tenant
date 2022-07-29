@@ -1,48 +1,67 @@
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
-import {
-    ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View
-} from 'react-native';
+import ContentLoader, { Rect } from 'react-content-loader/native';
+import { FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
 import { COLORS, FONTS, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
-import RecentTransactions from './RecentTransactions';
-
+import HeaderProfileScreen from '../account/HeaderProfileScreen';
 
 
 const AdminDashboard = () => {
     const navigation = useNavigation();
 
     const [selectedBuilding, setSelectedBuilding] = React.useState(null)
-    const { tenantBuildingList, getTenantBuildings, clearStateVariable, isAdmin,screenLoading
-         } = React.useContext(GlobalContext);
-    const [sum, setSum] = React.useState(0);
+    const { tenantBuildingList, getTenantBuildings, clearStateVariable, isAdmin, screenLoading
+    } = React.useContext(GlobalContext);
+
+    const loopData = [
+        { label: 'January', id: '1' },
+        { label: 'Febraury', id: '2' },
+        { label: 'March', id: '3' },
+        { label: 'April', id: '4' },
+        { label: 'May', id: '5' },
+        { label: 'June', id: '6' },
+        { label: 'July', id: '7' },
+        { label: 'August', id: '8' },
+        { label: 'September', id: '9' },
+        { label: 'October', id: '10' },
+        { label: 'November', id: '11' },
+        { label: 'December', id: '12' },
+    ];
     React.useEffect(() => {
         //clearStateVariable();
         getTenantBuildings();
-        console.log("tenantRoomOrderDetails",tenantBuildingList)
-        total()
     }, [])
-
-    const total = async () => {
-        var sum = 0;
-        console.log(sum,"sum")
-        tenantBuildingList.forEach( b => {
-            sum = sum + b.total_amount;
-            console.log(sum,"sum")
-        } 
-        )
-        setSum(sum);
-        return sum;
-    }
 
 
     function renderAmountOverAll() {
 
         return (
-            <View style={styles.titlesWrapper}>
-                {/* <Text style={styles.titlesSubtitle}>Food</Text> */}
-                <Text style={styles.titlesTitle}>Total Income : ₹{sum}</Text>
+            <View>
+                {true ? (
+                    <View style={styles.titlesWrapper}>
+                        {/* <Text style={styles.titlesSubtitle}>Food</Text> */}
+                        <Text style={styles.titlesTitle}>Total Income : ₹ {tenantBuildingList.totalAmount}</Text>
+                    </View>
+                ) : (
+                    <View style={styles.loaderTitlesWrapper} >
+                        <Text style={styles.titlesTitle}>Total Income : ₹
+                            {/* <ContentLoader
+                                speed={2}
+                                width={400}
+                                height={150}
+                                viewBox="0 0 400 150"
+                                backgroundColor="#f1e9e9"
+                                foregroundColor="#fafafa"
+                            >
+                                <Rect x="24" y="11" rx="3" ry="3" width="100" height="24" />
+                            </ContentLoader> */}
+                        </Text>
+                    </View>)}
+
+
             </View>
         )
 
@@ -51,7 +70,7 @@ const AdminDashboard = () => {
     function renderBuildingList() {
 
         const renderItem = ({ item }) => {
-            //getTenantBuildings();
+
             return (
                 <TouchableOpacity
                     style={{
@@ -105,47 +124,102 @@ const AdminDashboard = () => {
             )
         }
 
+        const loaderRenderItem = ({ item }) => {
+
+            return (
+                <TouchableOpacity
+                    style={{
+                        padding: SIZES.padding,
+                        paddingBottom: SIZES.padding * 2,
+                        backgroundColor: COLORS.white,
+                        borderRadius: SIZES.radius,
+                        marginRight: SIZES.padding,
+                        marginLeft: 10,
+                        width: 150,
+                        ...styles.shadow
+                    }}>
+                    <View
+                        style={{
+                            backgroundColor: '#78ADF9',
+                            marginRight: 20,
+                            marginBottom: 15,
+                            borderRadius: 20,
+                            width: 1,
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: (selectedBuilding?.id == item._id) ? COLORS.white : COLORS.lightGray
+                        }}
+                    >
+                        <ContentLoader
+                            speed={2}
+                            width={400}
+                            height={150}
+                            viewBox="0 0 400 150"
+                            backgroundColor="#f1e9e9"
+                            foregroundColor="#fafafa"
+
+                        >
+                            <Rect x="32" y="6" rx="24" ry="24" width="113" height="142" />
+                        </ContentLoader>
+                    </View>
+
+                </TouchableOpacity>
+            )
+        }
+
         return (
             <View style={{ padding: SIZES.padding * 2 }}>
-
-                <FlatList
-                    data={tenantBuildingList}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    keyExtractor={item => `${item._id}`}
-                    renderItem={renderItem}
-                    contentContainerStyle={{ paddingVertical: SIZES.padding * 2 }}
-                />
+                {screenLoading ? (
+                    <FlatList
+                        data={loopData}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={item => `${item.id}`}
+                        renderItem={loaderRenderItem}
+                        contentContainerStyle={{ paddingVertical: SIZES.padding * 2 }}
+                    />
+                ) : (
+                    <FlatList
+                        data={tenantBuildingList.buildingsList}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={item => `${item._id}`}
+                        renderItem={renderItem}
+                        contentContainerStyle={{ paddingVertical: SIZES.padding * 2 }}
+                    />
+                )}
             </View>
         )
     }
 
 
-    if (screenLoading) {
-        return (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#663399" />
-          </View>
-        );
-      }
-
-
-
 
     return (
-        <View>
+        <View style={styles.container}>
+
+            {/* Header */}
+            <SafeAreaView>
+                <HeaderProfileScreen />
+            </SafeAreaView>
+
+
+            {/* Search */}
+            <View style={styles.searchWrapper}>
+                <Feather name="search" size={16} color={colors.textDark} />
+                <View style={styles.search}>
+                    <Text style={styles.searchText}>Search</Text>
+                </View>
+            </View>
+
             {renderAmountOverAll()}
 
             {/* List builings */}
             {renderBuildingList()}
 
             {/* Recent */}
-            <RecentTransactions/>
-            {/* <Main/> */}
-            {/* <Button
-            title="Create Payment"
-            onPress={payNow}
-            /> */}
+
+            {/* <RecentTransactions /> */}
+
         </View>
     )
 }
@@ -160,6 +234,24 @@ const styles = StyleSheet.create({
     },
     categoriesWrapper: {
         marginTop: 30,
+    },
+    searchWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginTop: 30,
+    },
+    search: {
+        flex: 1,
+        marginLeft: 10,
+        borderBottomColor: colors.textLight,
+        borderBottomWidth: 2,
+    },
+    searchText: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 14,
+        marginBottom: 5,
+        color: colors.textLight,
     },
     categoriesTitle: {
         fontFamily: 'Montserrat-Bold',
@@ -246,6 +338,9 @@ const styles = StyleSheet.create({
         marginTop: 30,
         paddingHorizontal: 20,
     },
+    loaderTitlesWrapper: {
+        marginTop: 30,
+    },
     titlesSubtitle: {
         fontFamily: 'Montserrat-Regular',
         fontSize: 16,
@@ -253,7 +348,7 @@ const styles = StyleSheet.create({
     },
     titlesTitle: {
         fontFamily: 'Montserrat-Bold',
-        fontSize: 32,
+        fontSize: 22,
         color: colors.primary,
         marginTop: 5,
     },
