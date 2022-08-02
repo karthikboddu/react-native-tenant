@@ -3424,6 +3424,14 @@
     "@expo/config" "^6.0.14"
     "uuid" "^3.3.2"
 
+"expo-contacts@~10.2.0":
+  "integrity" "sha512-OVqJNfzJfc/erpgN+w7xxp0ro8fkFVRrfc89qK9oQHrfajkj1JmxKaAwJX1BYCmNOudCI1L5+tBpzNe5ygOZOA=="
+  "resolved" "https://registry.npmjs.org/expo-contacts/-/expo-contacts-10.2.0.tgz"
+  "version" "10.2.0"
+  dependencies:
+    "@expo/config-plugins" "^4.0.14"
+    "uuid" "^3.4.0"
+
 "expo-error-recovery@~3.1.0":
   "integrity" "sha512-qUxCW7kPB6AVX5h3ZPVnxw4LLZWsRwAPBtRDlh1UDN7GWZ+CQN1SNk0w0BPotjNtSlXEZSFDqKqtoDDAUYjNmg=="
   "resolved" "https://registry.npmjs.org/expo-error-recovery/-/expo-error-recovery-3.1.0.tgz"
@@ -6036,6 +6044,13 @@
   "integrity" "sha512-5+C0X9mopI0+qxyQHzOPEi5v5rxNBQjxydPPiKMQSlX1RBIcJ8uTcqUPssQ9Mo8p6c1IKIWJUSqCj4jAmD0qVQ=="
   "resolved" "https://registry.npmjs.org/react-native-communications/-/react-native-communications-2.2.1.tgz"
   "version" "2.2.1"
+
+"react-native-easy-grid@^0.2.2":
+  "integrity" "sha512-MlYrNIldnEMKn6TVatQN1P64GoVlwGIuz+8ncdfJ0Wq/xtzUkQwlil8Uksyp7MhKfENE09MQnGNcba6Mx3oSAA=="
+  "resolved" "https://registry.npmjs.org/react-native-easy-grid/-/react-native-easy-grid-0.2.2.tgz"
+  "version" "0.2.2"
+  dependencies:
+    "lodash" "^4.17.15"
 
 "react-native-element-dropdown@^2.0.0":
   "integrity" "sha512-EA9qi/47Jzeb+Zcu0aYrvzrTK4D9LDdA3doUHIoSrMWbfoEvwvzlQQehTEHhtLL1hAaxp/4GubMk9Zbdx2/WRg=="

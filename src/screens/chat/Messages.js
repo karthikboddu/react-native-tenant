@@ -1,6 +1,8 @@
 import React, { useContext, useEffect } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import Moment from 'react-moment';
+import { FlatList, StyleSheet, Text } from 'react-native';
 import SocketIOClient from 'socket.io-client';
+import ContactsFloatingIcon from '../../components/Chat/ContactsFloatingIcon';
 import { GlobalContext } from '../../context/GlobalState';
 import {
   Card, Container, MessageText, PostTime, TextSection, UserImg, UserImgWrapper, UserInfo, UserInfoText,
@@ -90,14 +92,18 @@ const Messages = ({navigation}) => {
                 <TextSection>
                   <UserInfoText>
                     <UserName>{item.user.name}</UserName>
-                    <PostTime>{item.updatedAt}</PostTime>
+                    <PostTime>
+                      <Moment fromNow element={Text}>{item.updatedAt}</Moment>
+                    </PostTime>
                   </UserInfoText>
-                  <MessageText>{item.lastMessage}</MessageText>
+                  <MessageText>
+                  {item.lastMessage}</MessageText>
                 </TextSection>
               </UserInfo>
             </Card>
           )}
         />
+        <ContactsFloatingIcon fromUserId = { tenantLastConversations.conversations &&  tenantLastConversations.conversations[0] ?  tenantLastConversations.conversations[0].from_tenant_id: null}/>
       </Container>
     );
 };

@@ -37,7 +37,9 @@ export const sendMessage = ({message, roomName, stoken, to, parentId}, cb) => {
     if (socket) socket.emit('message', { message, roomName, stoken, to, parentId }, cb);
 }
 
-
+export const onTypingMessage = ({message, stoken, to, isTyping}, cb) => {
+  if (socket) socket.emit('typing', { message, stoken, to, isTyping }, cb);
+}
 export const join = () => {
     socket.join('myRandomChatRoomId');
 }

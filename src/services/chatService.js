@@ -25,10 +25,10 @@ async function saveTenantConversations(payload) {
 }
 
 
-async function listTenantConversations(toTenantId) {
+async function listTenantConversations(toTenantId, query) {
     try {
         const accessToken = await deviceStorage.loadJWT();
-        let url = `${API_URL}` + `${endpoints.listConversationsByTenantId}`;
+        let url = `${API_URL}` + `${endpoints.listConversationsByTenantId}` + query;
         console.log(url,"url",toTenantId)
         let response = await fetch(url.replace('#',toTenantId), {
             method: 'GET',
