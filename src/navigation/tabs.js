@@ -17,6 +17,7 @@ import ProfileScreen from '../screens/account/ProfileScreen';
 import SignUpScreen from '../screens/account/SignUpScreen';
 import UserLoginActivity from '../screens/account/UserLoginActivity';
 import ChatScreen from '../screens/chat/ChatScreen';
+import Contacts from "../screens/chat/Contacts";
 import Messages from "../screens/chat/Messages";
 import AddNotes from "../screens/notes/AddNotes";
 import EditNotes from "../screens/notes/EditNotes";
@@ -392,6 +393,16 @@ const MessageStackScreen = ({ navigation }) => {
                 options={({ route }) => ({
                     //title: route.params.title,
                     title: "ChatScreen",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <MessageStack.Screen
+                name="contacts"
+                component={Contacts}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "Contacts",
                     headerBackTitleVisible: false,
                     headerShown: false,
                 })}

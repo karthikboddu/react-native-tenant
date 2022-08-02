@@ -55,6 +55,7 @@ const SignInScreen = ({}) => {
       }, []);        
 
     const textInputChange = (val) => {
+        console.log(val,"chaning")
         if( val.trim().length >= 4 ) {
             setData({
                 ...data,

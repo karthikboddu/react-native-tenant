@@ -841,11 +841,11 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    async function fetchTenantConversations(payload) {
+    async function fetchTenantConversations(payload, query) {
         try {
             
             setScreenLoading(true);
-            let tenantConvDetails = await listTenantConversations(payload);
+            let tenantConvDetails = await listTenantConversations(payload, query);
             
             let resJson = await tenantConvDetails.json();
             setScreenLoading(false);
