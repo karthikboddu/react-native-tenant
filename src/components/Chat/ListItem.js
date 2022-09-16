@@ -16,81 +16,13 @@ export default function ListItem({
   fId
 }) {
   const navigation = useNavigation();
-    console.log(user,"user",fId)
-
-    const users = [
-        {
-            "_id": "61f64f7af320710016814605",
-            "parent_id": "61f64f9af320710016814606",
-            "full_name": "karthikboddu",
-            "password": "$2b$08$C9fRHUUk4J8rLw5lfk6ym.UHv2yIQzBlL/j5vHMunjkRtbNzVVbLm",
-            "user_role": {
-                "$oid": "61c35c8f14263e7f4d7e6d6d"
-            },
-            "username": "karthikboddu",
-            "email": "karthik@gmail.com",
-            "mobile_no": "+919030493600"
-        },
-        {
-            "_id": "621b5866038d7f00166823d6",
-            "parent_id": "61f64f9af320710016814606",
-            "full_name": "srikanthboddu",
-            "password": "$2b$08$OFhN0AXjjgkfPSJkpJmZUeuA1qqywGBI7lm61JnjCv8LJeeEld/ye",
-            "user_role": {
-                "$oid": "61c35c8f14263e7f4d7e6d6d"
-            },
-            "username": "srikanthboddu",
-            "email": "srikanthboddu@gmail.com",
-            "mobile_no": "+918790731145"
-        },
-        {
-            "_id": "62d04323048802003e92ce92",
-            "userType": "INTERNAL",
-            "parent_id": "61f64f9af320710016814606",
-            "full_name": "narasaiah",
-        
-            "username": "narasaiah",
-            "email": "narasaiah@gmail.com",
-            "mobile_no": "+917777777777"
-            
-        },
-        {
-            "_id":"62c6f395055f090016603713",
-            "userType": "INTERNAL",
-            "parent_id": "61f64f9af320710016814606",
-            "full_name": "sridhar",
-            "username": "sridhar",
-            "email": "sridhar@gmail.com",
-            "mobile_no": "+919999999999"
-           
-        },
-        {
-            "_id":"62c6eb02055f0900166035c3",
-            "userType": "INTERNAL",
-            "parent_id": "61f64f9af320710016814606",
-            "full_name": "marty byrde",
-            "username": "marty",
-            "email": "marty@gmail.com",
-            "mobile_no": "+919999999998"
-         
-        }
-      ]
-    
-
-    const filtered = users.filter(employee => {
-            return employee.mobile_no === user.number;
-     });
-     console.log(filtered,"filtered");
-
-
+  console.log(user, "user", fId)
 
   return (
-    filtered.map(u => {
 
-    return (
     <TouchableOpacity
       style={{ height: 80, ...style }}
-      onPress={() => navigation.navigate("ChatScreen", {id: u._id, fromUserId : fId, parentId : u.parent_id})} key={u._id}
+      onPress={() => navigation.navigate("ChatScreen", { id: user._id, fromUserId: fId, parentId: user.parentId, name: user.name, user: user })} key={user._id}
     >
       <Grid style={{ maxHeight: 80 }}>
         <Col
@@ -104,7 +36,7 @@ export default function ListItem({
               <Text
                 style={{ fontWeight: "bold", fontSize: 16, color: colors.text }}
               >
-                {u.full_name || user.displayName}
+                {user.name || user.displayName}
               </Text>
             </Col>
             {time && (
@@ -125,7 +57,6 @@ export default function ListItem({
         </Col>
       </Grid>
     </TouchableOpacity>
-    )
-    })
-  );
+  )
+
 }

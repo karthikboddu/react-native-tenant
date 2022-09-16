@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import CheckBox from "expo-checkbox";
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -11,7 +11,7 @@ import Overlay from '../../components/Overlay';
 import { GlobalContext } from '../../context/GlobalState';
 
 
-const TenantSignUp = ({route}) => {
+const TenantSignUp = ({route, routeDetails}) => {
 
     const navigation = useNavigation();
 
@@ -53,7 +53,8 @@ const TenantSignUp = ({route}) => {
         isValidActualPrice : true,
         isValidPrice : true,
         isValidNoofPersons : true,
-        isValidConfirmPassword : true
+        isValidConfirmPassword : true,
+        addRoomContract: true
     });
 
     const [isSelected, setSelection] = useState(false);
@@ -292,7 +293,7 @@ const TenantSignUp = ({route}) => {
     }
 
     const signUpHandle = (fullName,email, username,password,aadharId, mobileNo, address,actualPrice,
-        price,advancePaid,noOfPersons,balanceAmount, buildingId,buildingFloorId,roomId) => {
+        price,advancePaid,noOfPersons,balanceAmount, buildingId,buildingFloorId,roomId, addRoomContract) => {
         const payload = {
             fullName,
             email,
@@ -308,16 +309,17 @@ const TenantSignUp = ({route}) => {
             balanceAmount,
             buildingId,
             buildingFloorId,
-            roomId
+            roomId,
+            addRoomContract
         }
-        // if ( username.length == 0 || password.length == 0 || aadharId.length ==0 || email.length ==0 ||
-        //     fullName.length==0 || mobileNo.length ==0 || address.length ==0  || actualPrice ==0 || price ==0
-        //     || advancePaid == false|| noOfPersons ==0 || balanceAmount ==0) {
-        //     Alert.alert('Wrong Input!', 'Username or password field cannot be empty.', [
-        //         {text: 'Okay'}
-        //     ]);
-        //     return;
-        // }
+        if ( username.length == 0 || password.length == 0 || aadharId.length ==0 || email.length ==0 ||
+            fullName.length==0 || mobileNo.length ==0 || address.length ==0  || actualPrice ==0 || price ==0
+            || advancePaid == false|| noOfPersons ==0) {
+            Alert.alert('Wrong Input!', 'Username or password field cannot be empty.', [
+                {text: 'Okay'}
+            ]);
+            return;
+        }
         console.log(payload)
         setScreenLoading(true)
         createTenantAddToRoomOrderPayment(JSON.stringify(payload))
@@ -753,7 +755,7 @@ const TenantSignUp = ({route}) => {
                     style={styles.signIn}
                     onPress={() => {signUpHandle(data.fullName,data.email, data.username,data.password
                     ,data.aadharId, data.mobileNo, data.address,data.actualPrice,data.price,isSelected
-                    ,data.noOfPersons,data.balanceAmount,route.params?.buildingId,route.params?.buildingFloorId,route.params?.roomId)}}
+                    ,data.noOfPersons,data.balanceAmount,route.params?.buildingId,route.params?.buildingFloorId,route.params?.roomId, data.addRoomContract)}}
                 >
                 <LinearGradient
                     colors={['#000000', '#000000']}

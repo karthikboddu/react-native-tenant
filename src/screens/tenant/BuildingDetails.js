@@ -3,10 +3,11 @@ import ContentLoader, { Rect } from 'react-content-loader/native';
 import { FlatList, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
-import { COLORS, FONTS, SIZES } from '../../constants';
+import { FONTS, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
+import { Ripple } from '../../utils';
+import commonStyles from '../styles';
 import FloorsList from './FloorsList';
-
 
 const BuildingDetails = ({ route, navigation }) => {
 
@@ -49,50 +50,24 @@ const BuildingDetails = ({ route, navigation }) => {
 
   function renderFloorList() {
     const renderItem = ({ item }) => {
+      const selectedItem = selectedFloors?._id == item._id
       return (
-        <TouchableOpacity
-          style={{
-            padding: SIZES.padding,
-            paddingBottom: SIZES.padding * 2,
-            backgroundColor: (selectedFloors?._id == item._id) ? COLORS.primary : COLORS.white,
-            borderRadius: SIZES.radius,
-            alignItems: "center",
-            justifyContent: "center",
-            marginRight: SIZES.padding,
-            ...styles.shadow
-          }}
+        <Ripple
           onPress={() => onSelectFloors(item)}
+          style={{
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            marginRight: 8,
+          }}
         >
-          <View
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: 25,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: (selectedFloors?._id == item._id) ? COLORS.white : COLORS.lightGray
-            }}
-          >
-            <Image
-              source={item.image}
-              resizeMode="contain"
-              style={{
-                width: 60,
-                height: 60
-              }}
-            />
+          <View>
+            <Text style={{ fontSize: 18, color: selectedItem ? '#2d2d2d' : '#a0a0a0', fontWeight: selectedItem ? '600' : '600' }}>{item.floor_name}</Text>
+            <View style={commonStyles.vSpace2} />
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ paddingHorizontal: 8, paddingVertical: 2, backgroundColor: selectedItem ? '#507ed1' : 'transparent' }} />
+            </View>
           </View>
-
-          <Text
-            style={{
-              marginTop: SIZES.padding,
-              color: (selectedFloors?._id == item._id) ? COLORS.white : COLORS.black,
-              ...FONTS.body5
-            }}
-          >
-            {item.floor_name}
-          </Text>
-        </TouchableOpacity>
+        </Ripple>
       )
     }
 
@@ -119,7 +94,7 @@ const BuildingDetails = ({ route, navigation }) => {
       <View style={styles.popularWrapper}>
         <Text style={styles.popularTitle}>List of rooms</Text>
         {tenantBuildingFloorRoomsList.map((item) => (
-          <FloorsList key={item.created_at} data={item} buildingId={route.params?.items} navigation={navigation} />
+          <FloorsList key={item.created_at} data={item} buildingId={route.params?.items} loading={loader} navigation={navigation} />
         ))}
       </View>
     )
@@ -235,10 +210,10 @@ const BuildingDetails = ({ route, navigation }) => {
 
         {renderFloorList()}
 
-        
+
         {renderRoomsItems()}
 
-        
+
         <TouchableOpacity onPress={() => navigation.navigate('TenantsList', { items: route.params?.items })}>
           <View style={styles.orderWrapper}>
             <Text style={styles.orderText}>View All Tenants </Text>

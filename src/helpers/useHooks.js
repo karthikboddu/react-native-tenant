@@ -5,7 +5,6 @@ export default function useContacts() {
 
   const [tenants, setTenants] = useState([]);
 
-
   const users = [
     {
         "_id": "61f64f7af320710016814605",
@@ -65,25 +64,23 @@ export default function useContacts() {
   ]
 
   const [contacts, setContacts] = useState([]);
+  const [numbers, setNumbers] = useState([]);
   useEffect(() => {
     (async () => {
       const { status } = await Contacts.requestPermissionsAsync();
-      console.log(status,"status")
+
       if (status === "granted") {
         const { data } = await Contacts.getContactsAsync({
           fields: [Contacts.Fields.Emails,Contacts.Fields.PhoneNumbers],
         });
         if (data.length > 0) {
+          // console.log(numbers,"numbers");
           setContacts(
             data
               .filter(
                 (c) =>
                  c.firstName && c.emails && c.emails[0] && c.emails[0].email 
-                 && c.phoneNumbers && c.phoneNumbers[0] && (c.phoneNumbers[0].number == '+918790731145' 
-                 || c.phoneNumbers[0].number == '+919999999998'
-                 || c.phoneNumbers[0].number =='+919999999999'
-                 || c.phoneNumbers[0].number == '+917777777777'
-                 ||  c.phoneNumbers[0].number == '+919030493600')
+                 && c.phoneNumbers && c.phoneNumbers[0] && (c.phoneNumbers[0].number)
               )
               .map(mapContactToUser)
           );
@@ -100,6 +97,6 @@ function mapContactToUser(contact) {
         ? `${contact.firstName} ${contact.lastName}`
         : contact.firstName,
     email: contact.emails[0].email,
-    number : contact.phoneNumbers[0].number
+    number : contact.phoneNumbers[0].number.replace('+',''),
   };
 }

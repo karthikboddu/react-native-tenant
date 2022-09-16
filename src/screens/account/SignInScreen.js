@@ -50,12 +50,12 @@ const SignInScreen = ({}) => {
         //   getUserData(response.authentication.accessToken);
         // }
           GoogleSignin.configure({
-            webClientId: '1001121940569-vfo0mbrajoacn3svhle635ivveq1urjv.apps.googleusercontent.com'
+            webClientId: '474733627251-bpov4509muv7285kmmqevf0ocebe5vk0.apps.googleusercontent.com'
           });
       }, []);        
 
     const textInputChange = (val) => {
-        console.log(val,"chaning")
+
         if( val.trim().length >= 4 ) {
             setData({
                 ...data,

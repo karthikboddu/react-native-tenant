@@ -1,12 +1,16 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
+import CryptoJS from "react-native-crypto-js";
+import { Actions, Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
+import ChatHeader from '../../components/Chat/ChatHeader';
 import { GlobalContext } from '../../context/GlobalState';
 import endpoints from '../../endpoints';
+import { pickImage, uploadImage } from '../../helpers/firebase';
 import deviceStorage from '../../services/deviceStorage';
 import { disconnectSocket, initiateSocketConnection, onTypingMessage, sendMessage, subscribeToMessages } from '../../services/socketService';
 
@@ -57,60 +61,7 @@ const ChatScreen = ({route,navigation}) => {
     }); return willFocusSubscription;
 
 
-    // setMessages([
-    //   {
-    //     _id: 1,
-    //     text: 'Hello developer',
-    //     createdAt: new Date(),
-    //     user: {
-    //       _id: 2,
-    //       name: 'React Native',
-    //       avatar: 'https://placeimg.com/140/140/any',
-    //     },
-    //     image: 'https://placeimg.com/140/140/any',
-    //   },
-    //   {
-    //     _id: 2,
-    //     text: 'Hello developer',
-    //     createdAt: new Date(),
-    //     user: {
-    //       _id: 2,
-    //       name: 'React Native',
-    //       avatar: 'https://placeimg.com/140/140/any',
-    //     },
-    //   },
-    //   {
-    //     _id: 3,
-    //     text: 'Hello world',
-    //     createdAt: new Date(),
-    //     user: {
-    //       _id: 1,
-    //       name: 'React Native',
-    //       avatar: 'https://placeimg.com/140/140/any',
-    //     },
-    //     sent: true,
-    //     received: true,
-    //     pending: true,
-    //     quickReplies: {
-    //       type: 'radio', // or 'checkbox',
-    //       keepIt: true,
-    //       values: [
-    //         {
-    //           title: '😋 Yes',
-    //           value: 'yes',
-    //         },
-    //         {
-    //           title: '📷 Yes, let me show you with a picture!',
-    //           value: 'yes_picture',
-    //         },
-    //         {
-    //           title: '😞 Nope. What?',
-    //           value: 'no',
-    //         },
-    //       ],
-    //     },
-    //   },
-    // ]);
+   
   }, [token,typing]);
 
   const onSend = useCallback((messages = [], text) => {
@@ -119,10 +70,12 @@ const ChatScreen = ({route,navigation}) => {
       toTenantId  : route?.params?.id,
       assetType : 'TEXT'
     }
+    let ciphertext = CryptoJS.AES.encrypt(JSON.stringify(text[0].text), '0123456789123456').toString();
 
     //createTenantConversations(JSON.stringify(payload));
+    console.log({message: ciphertext, roomName: CHAT_ROOM, stoken : route?.params?.fromUserId, to : route?.params?.id, parentId : route?.params?.parentId},"message")
     
-    sendMessage({message: text[0].text, roomName: CHAT_ROOM, stoken : route?.params?.fromUserId, to : route?.params?.id, parentId : route?.params?.parentId}, cb => {
+    sendMessage({message: ciphertext, roomName: CHAT_ROOM, stoken : route?.params?.fromUserId, to : route?.params?.id, parentId : route?.params?.parentId}, cb => {
     	console.log(cb);
     });
 
@@ -199,6 +152,7 @@ const ChatScreen = ({route,navigation}) => {
       .then((json) => {
         console.log(json?.data.conversation.length,"json?.data.conversation.length")
         if (json?.data.conversation.length > 0) {
+          decryptJsonData(json?.data.conversation);
           setMessages((previousMessages) =>
             GiftedChat.prepend(previousMessages, json?.data.conversation),
           );
@@ -215,6 +169,32 @@ const ChatScreen = ({route,navigation}) => {
   }
 }
 
+const decryptJsonData = (data) => {
+  let resultData = [];
+  
+  data.forEach(element => {
+    var list = {};
+    list = element;
+    console.log(list,"Data**************")
+    if (!(typeof element.text === 'string' && element.text.trim().length === 0)) {
+    
+      list.text = decryptText(element.text);
+    }
+    resultData.push(list);
+  });
+
+  return resultData;
+
+}
+
+const decryptText = (text) => {
+  console.log(text,"cipter")
+  let bytes  = CryptoJS.AES.decrypt(text, '0123456789123456');
+  let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  console.log(decryptedData,"decipter")
+  return decryptedData;
+}
+
   const loadMoreMessage = () => {
     const nextPage = page + 1;
     setPage(page + 1)
@@ -228,6 +208,43 @@ const ChatScreen = ({route,navigation}) => {
     return contentSize.height - layoutMeasurement.height - paddingToTop <= contentOffset.y;
   }
 
+  const handlePhotoPicker = async() => {
+    const result = await pickImage();
+    if (!result.cancelled) {
+      await sendImage(result.uri, route?.params?.fromUserId);
+    }
+  }
+
+  async function sendImage(uri, path) {
+    const { url, fileName } = await uploadImage(
+      uri,
+      `images/${path}`
+    );
+    console.log(url,"download url")
+
+    const messages = {
+      _id : fileName,
+      text : "",
+      user : {
+        "_id": route?.params?.fromUserId,
+      },
+      toTenantId  : route?.params?.id,
+      image : url,
+      assetType : 'IMAGE'
+    }
+
+   
+    
+    sendMessage({message: "", roomName: CHAT_ROOM, stoken : route?.params?.fromUserId, to : route?.params?.id, parentId : route?.params?.parentId, image : url}, cb => {
+    	console.log(cb);
+    });
+
+    setMessages((previousMessages) =>
+      GiftedChat.append(previousMessages, messages),
+    );
+
+  }
+
   return (
     <View style={styles.container}>
         <SafeAreaView>
@@ -238,9 +255,13 @@ const ChatScreen = ({route,navigation}) => {
               </View>
 
             </TouchableOpacity>
+            <View style={styles.headerRight}>
+              <ChatHeader/>
+            </View>
           </View>
 
         </SafeAreaView>
+
 
     <GiftedChat
       messages={messages}
@@ -266,6 +287,22 @@ const ChatScreen = ({route,navigation}) => {
           }
         }}
       scrollToBottomComponent={scrollToBottomComponent}
+      renderActions={(props) => (
+          <Actions
+            {...props}
+            containerStyle={{
+              position: "absolute",
+              right: 50,
+              bottom: 5,
+              zIndex: 9999,
+            }}
+            onPressActionButton={handlePhotoPicker}
+            icon={() => (
+              <Ionicons name="camera" size={30} color={colors.primary} />
+            )}
+          />
+        )}
+        timeTextStyle={{ right: { color: colors.primary } }}
     />
     </View>
   );
@@ -279,10 +316,8 @@ const styles = StyleSheet.create({
   },
   headerWrapper: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 20,
   },
   headerLeft: {
     borderColor: colors.textLight,
@@ -291,10 +326,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   headerRight: {
-    backgroundColor: colors.primary,
     padding: 12,
     borderRadius: 10,
-    borderColor: colors.primary,
+    borderColor: colors.white,
     borderWidth: 2,
+  
   },
 });

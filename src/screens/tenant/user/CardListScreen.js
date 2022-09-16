@@ -3,7 +3,6 @@ import React, { useContext } from 'react';
 import Moment from 'react-moment';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card } from 'react-native-shadow-cards';
-import Swiper from 'react-native-swiper/src';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../../assets/colors/colors';
 import { Loading } from '../../../components/common';
@@ -14,23 +13,23 @@ const CardListScreen = () => {
   const [loader, setLoader] = React.useState(false);
   const { startPaytmTransaction, paytmTransactionResponse
     , screenLoading, setScreenLoading, getTenantRoomOrderDetails, tenantRoomOrderDetails } = useContext(GlobalContext);
-    const [roomsList, setRoomsList] = React.useState([])
-    const navigation = useNavigation();
+  const [roomsList, setRoomsList] = React.useState([])
+  const navigation = useNavigation();
 
   React.useEffect(() => {
     //clearStateVariable();
-    getTenantRoomOrderDetails('P,F',1);
+    getTenantRoomOrderDetails('P,F', 1);
     setRoomsList(tenantRoomOrderDetails)
 
     const willFocusSubscription = navigation.addListener('focus', () => {
-      getTenantRoomOrderDetails('P,F',1);
+      getTenantRoomOrderDetails('P,F', 1);
       setRoomsList(tenantRoomOrderDetails)
     }); return willFocusSubscription;
 
   }, [])
 
 
- 
+
 
 
 
@@ -39,26 +38,21 @@ const CardListScreen = () => {
 
     <View style={styles.container}>
       <View style={styles.sliderContainer}>
-        <Swiper
-          autoplay
-          horizontal={true}
-          height={200}
-          activeDotColor="#FFF">
+
           <View style={styles.slide} >
-            <TouchableOpacity onPress={() => { console.log("hey") }}>
-              <Card style={{ padding: 10, margin: 20, height: 200,width: 'auto', borderRadius: 20 }} backgroundColor="#78ADF9"    >
+              <Card style={{ padding: 10, margin: 20, height: 200, width: 'auto', borderRadius: 25 }} backgroundColor="#fff"    >
                 <View style={styles.card}>
-                
+
                   <View style={styles.cardInfo1}>
-                  {tenantRoomOrderDetails.totalAmount && (
-                    
-                    <View style={styles.menuItem1}>
-                      
-                      <Text style={{ fontWeight: "bold", fontSize: 20, color: "#fff", paddingLeft: 10 }}>Amount Due</Text>
-                      <Text style={{ fontWeight: "bold", fontSize: 15, color: "#fff", paddingLeft: 10 }}>₹ {tenantRoomOrderDetails.totalAmount[0] ? tenantRoomOrderDetails.totalAmount[0].count: 0}</Text>
-                      
-                    </View>
-                    
+                    {tenantRoomOrderDetails.totalAmount && (
+
+                      <View style={styles.menuItem1}>
+
+                        <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 10 }}>Amount Due</Text>
+                        <Text style={{ fontWeight: "bold", fontSize: 15, paddingLeft: 10 }}>₹ {tenantRoomOrderDetails.totalAmount[0] ? tenantRoomOrderDetails.totalAmount[0].count : 0}</Text>
+
+                      </View>
+
                     )}
                     {/* <StarRating ratings={itemData.ratings} reviews={itemData.reviews} /> */}
                     {/* <View style={styles.menuItem}>
@@ -69,43 +63,41 @@ const CardListScreen = () => {
                       <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>Expires on</Text>
                       {tenantRoomOrderDetails.tenantDetails && (
 
-                      <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>
-                      
-                      {tenantRoomOrderDetails.tenantDetails.map(m => (
-                     
-                      <Moment format="D MMM YYYY" key={m._id} element={Text}>{m.end_at}</Moment>
-                      ))}
-                      </Text>
+                        <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>
+
+                          {tenantRoomOrderDetails.tenantDetails.map(m => (
+
+                            <Moment format="D MMM YYYY" key={m._id} element={Text}>{m.end_at}</Moment>
+                          ))}
+                        </Text>
                       )}
                     </View>
                   </View>
                 </View>
                 {tenantRoomOrderDetails.roomDetails && (
-                <TouchableOpacity                     
-                              onPress={() =>
-                              navigation.navigate('PaymentDetails')
-                }>
-                  {!screenLoading ?
-                    <View>
-                    {tenantRoomOrderDetails.roomDetails.map((item) => (
-                      <View style={styles.orderWrapper} 
-                               key= {item._id}
-                      >
-                        <Text style={styles.orderText}>Pay now</Text>
-                        <Feather name="chevron-right" size={18} color={colors.black} />
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('PaymentDetails')
+                    }>
+                    {!screenLoading ?
+                      <View>
+                        {tenantRoomOrderDetails.roomDetails.map((item) => (
+                          <View style={styles.orderWrapper}
+                            key={item._id}
+                          >
+                            <Text style={styles.orderText}>Pay now</Text>
+                            <Feather name="chevron-right" size={18} color={colors.black} />
+                          </View>
+                        ))}
                       </View>
-                      ))}
-                    </View>
-                    :
-                    <Loading size={'small'} />
-                  }
+                      :
+                      <Loading size={'small'} />
+                    }
 
-                </TouchableOpacity>
+                  </TouchableOpacity>
                 )}
               </Card>
-            </TouchableOpacity>
           </View>
-        </Swiper>
       </View>
 
       {/* <FlatList 
@@ -127,8 +119,6 @@ const styles = StyleSheet.create({
   sliderContainer: {
     height: 240,
     marginTop: 10,
-    justifyContent: 'center',
-    alignSelf: 'center',
     borderRadius: 8,
   },
 
@@ -162,7 +152,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     shadowColor: '#999',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.8,
+    shadowOpacity: 0.10,
     shadowRadius: 2,
     elevation: 5,
   },

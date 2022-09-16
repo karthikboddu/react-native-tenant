@@ -10,7 +10,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import colors from '../../assets/colors/colors';
-import { SIZES } from '../../constants';
+import { COLORS, icons, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
 import endpoints from '../../endpoints';
 import deviceStorage from '../../services/deviceStorage';
@@ -245,7 +245,7 @@ const RecentTransactions = ({ }) => {
 
                 <View style={styles.popularTitlesWrapper1}>
                   <Text style={styles.popularTitlesTitle}>
-                    {item.paymeny_status != 'C' ?
+                    {item.payment_status != 'C' ?
                       <MaterialIcons
                         name="pending"
                         size={20}
@@ -274,6 +274,15 @@ const RecentTransactions = ({ }) => {
                   <Text style={styles.popularTitlesTitle}>
                     {item.room_payment_type}
                   </Text>
+                  <Image
+                            source={icons.icons}
+                            resizeMode="contain"
+                            style={{
+                                width: 25,
+                                height: 25,
+                                tintColor: focused ? COLORS.primary : COLORS.secondary
+                            }}
+                        />
                 </View>
 
                 <View style={styles.popularTitlesWrapper}>
