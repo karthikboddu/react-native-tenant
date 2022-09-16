@@ -61,3 +61,7 @@ export const MessageText = styled.Text`
   font-size: 14px;
   color: #333333;
 `;
+export const MessageNotSeenText = styled.Text`
+  font-size: 14px;
+  color: #F35D38;
+`;

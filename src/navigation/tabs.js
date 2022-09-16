@@ -28,6 +28,7 @@ import Dashboard from '../screens/tenant/Dashboard';
 import EditOrderDetails from "../screens/tenant/order/EditOrderDetails";
 import PaymentDetails from '../screens/tenant/order/PaymentDetails';
 import TenantRoomDetails from '../screens/tenant/TenantRoomDetails';
+import TenantRoomTransactionList from "../screens/tenant/TenantRoomTransactionList";
 import TenantSignUp from "../screens/tenant/TenantSignUp";
 import TenantsList from '../screens/tenant/TenantsList';
 import TransactionsList from '../screens/tenant/TransactionsList';
@@ -427,7 +428,6 @@ const NotesStackScreen = ({ navigation }) => {
                     fontWeight: 'bold',
                 },
             }}>
-
             <NotesStack.Screen
                 name="Home Note"
                 component={NotesHome}
@@ -585,6 +585,16 @@ const HomeStackScreen = ({ navigation }) => {
                 options={({ route }) => ({
                     //title: route.params.title,
                     title: "TransactionsList",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <HomeStack.Screen
+                name="TenantRoomTransactionList"
+                component={TenantRoomTransactionList}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "TenantRoomTransactionList",
                     headerBackTitleVisible: false,
                     headerShown: false,
                 })}

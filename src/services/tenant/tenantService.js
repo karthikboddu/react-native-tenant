@@ -14,12 +14,9 @@ async function listTenantBuildings(accessToken) {
                 'x-access-token': accessToken
             }
         });
-        //  console.log(JSON.stringify(response),"access")
         return response;
     } catch (error) {
-        // console.log(error)
-        // Alert.alert('Sorry, something went wrong.', error.message);
-        // throw handler(error);
+        console.log(error)
     }
 }
 
@@ -34,12 +31,9 @@ async function listTenantBuildingsById(accessToken,buildingId) {
                 'x-access-token': accessToken
             }
         });
-        //  console.log(JSON.stringify(response),"access")
         return response;
     } catch (error) {
-        // console.log(error)
-        // Alert.alert('Sorry, something went wrong.', error.message);
-        // throw handler(error);
+        console.log(error)
     }
 }
 
@@ -54,12 +48,9 @@ async function listFloorsByBuildingsId(accessToken,buildingId) {
                 'x-access-token': accessToken
             }
         });
-        //  console.log(JSON.stringify(response),"access")
         return response;
     } catch (error) {
         console.log(error)
-        // Alert.alert('Sorry, something went wrong.', error.message);
-        // throw handler(error);
     }
 }
 
@@ -74,12 +65,9 @@ async function listRoomsByFloorId(accessToken,floorId) {
                 'x-access-token': accessToken
             }
         });
-        //  console.log(JSON.stringify(response),"access")
         return response;
     } catch (error) {
         console.log(error)
-        // Alert.alert('Sorry, something went wrong.', error.message);
-        // throw handler(error);
     }
 }
 
@@ -95,12 +83,9 @@ async function listRoomDetailsByRoomId(accessToken,roomId, query) {
                 'x-access-token': accessToken
             }
         });
-        //  console.log(JSON.stringify(response),"access")
         return response;
     } catch (error) {
         console.log(error)
-        // Alert.alert('Sorry, something went wrong.', error.message);
-        // throw handler(error);
     }
 }
 
@@ -165,11 +150,11 @@ async function updatePaymentDetails(accessToken, payload) {
 }
 
 
-async function initTenantRoomPayment(accessToken, payload) {
+async function initTenantRoomPayment(accessToken, payload, query='') {
 
     try {
 
-        let response = await fetch(`${API_URL}` + `${endpoints.initRoomPayment}`, {
+        let response = await fetch(`${API_URL}` + `${endpoints.initRoomPayment}` + query, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -266,6 +251,25 @@ async function getTenantSettings(accessToken) {
     }
 }
 
+async function getTenantList() {
+
+    try {
+        const accessToken = await deviceStorage.loadJWT();
+        let response = await fetch(`${API_URL}` + `${endpoints.tenantsList}`, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': accessToken
+            }
+        });
+        return response;
+    } catch (e) {
+        Alert.alert('Sorry, something went wrong.', e.message);
+        throw handler(e);
+    }
+}
+
 export {
     listTenantBuildings,
     listTenantBuildingsById,
@@ -279,5 +283,6 @@ export {
     getTenantRoomAllOrderDetails,
     getRecentAllTenantsRoomOrderDetails,
     createTenantAndToRoom,
-    getTenantSettings
+    getTenantSettings,
+    getTenantList
 };

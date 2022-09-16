@@ -45,7 +45,7 @@ export default UserDashboard
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.lightGray
+    backgroundColor: COLORS.white
   },
   titlesWrapper: {
     marginTop: 30,

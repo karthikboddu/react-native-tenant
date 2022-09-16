@@ -43,10 +43,10 @@ export default (state, action) => {
         userDetails: action.payload,
       };
     case 'PATCH_USER_DETAILS':
-        return {
-          ...state,
-          userDetails: action.payload,
-        };      
+      return {
+        ...state,
+        userDetails: action.payload,
+      };
     case 'SET_LOADING':
       return {
         ...state,
@@ -58,10 +58,10 @@ export default (state, action) => {
         screenLoading: action.payload,
       };
     case 'SET_SKELETON_LOADING':
-        return {
-          ...state,
-          skeletonLoading: action.payload,
-        };      
+      return {
+        ...state,
+        skeletonLoading: action.payload,
+      };
     case 'SET_POPUP':
       return {
         ...state,
@@ -159,23 +159,38 @@ export default (state, action) => {
         ...state,
         tenantSettingsList: action.payload
       };
-        
-      case 'POST_CREATE_ORDER_ROOM_PAYMENT_COMPLETE':
-        return {
-          ...state,
-          createOrderDetailsAndComplete: action.payload
-        }; 
-        
+
+    case 'POST_CREATE_ORDER_ROOM_PAYMENT_COMPLETE':
+      return {
+        ...state,
+        createOrderDetailsAndComplete: action.payload
+      };
+
     case 'GET_CREATE_TENANT_CONVERSATIONS':
-          return {
-            ...state,
-            tenantConversations: action.payload
-          }; 
+      return {
+        ...state,
+        tenantConversations: action.payload
+      };
     case 'GET_TENANT_LAST_CONVERSATIONS':
-            return {
-              ...state,
-              tenantLastConversations: action.payload
-            };                   
+      return {
+        ...state,
+        tenantLastConversations: action.payload
+      };
+    case 'GET_TENANT_LIST':
+      return {
+        ...state,
+        tenantDetailsList: action.payload
+      };
+    case 'GET_TENANT_NOTES_LIST':
+      return {
+        ...state,
+        tenantNotesList: action.payload
+      };
+    case 'BULK_INIT_PAYMENT':
+      return {
+        ...state,
+        tenantNotesList: action.payload
+      };
     default:
       return state;
   }

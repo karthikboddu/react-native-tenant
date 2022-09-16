@@ -8,25 +8,21 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import colors from '../../assets/colors/colors';
 import { GlobalContext } from '../../context/GlobalState';
 
-const FloorsList = ({ data,buildingId, navigation }) => {
+const FloorsList = ({ data, buildingId, navigation, loading }) => {
 
     const item = data
-    const { screenLoading} = useContext(GlobalContext);
-    if (screenLoading) {
+    const { screenLoading } = useContext(GlobalContext);
+
+    if (loading) {
         return (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#663399" />
-          </View>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#663399" />
+            </View>
         );
-      }
+    }
     return (
         <TouchableRipple
-            onPress={() =>
-                navigation.navigate('TenantRoomDetails', {
-                    item: item._id, buildingItemId : buildingId
-                })
-            }
-            style = {{borderRadius: 20}}
+            style={{ borderRadius: 15 }}
         >
             <View
                 style={[
@@ -58,7 +54,7 @@ const FloorsList = ({ data,buildingId, navigation }) => {
                             <View key={m.created_at}>
                                 {m.orderDetails && (
                                     <View key={m.orderDetails.created_at}>
-                                        {m.orderDetails[0]  ? (
+                                        {m.orderDetails[0] ? (
                                             <View key={m.orderDetails[0].created_at}>
                                                 <Text style={styles.popularTitlesTitle}>
                                                     {m.orderDetails[0].payment_status != 'C' ?
@@ -79,7 +75,7 @@ const FloorsList = ({ data,buildingId, navigation }) => {
                                                     ₹ {m.orderDetails[0].amount_paid}
                                                 </Text>
                                             </View>
-                                        ) : (<></> )}
+                                        ) : (<></>)}
                                     </View>
                                 )}
                             </View>
@@ -98,7 +94,11 @@ const FloorsList = ({ data,buildingId, navigation }) => {
                         size={15}
                         style={{ alignSelf: 'center' }}
                         color={item.selected ? colors.black : colors.white}
-
+                        onPress={() =>
+                            navigation.navigate('TenantRoomDetails', {
+                                item: item._id, buildingItemId: buildingId, buildingFloorId: data.building_floor_id
+                            })
+                        }
                     />
                 </View>
             </View>
@@ -121,8 +121,9 @@ const styles = StyleSheet.create({
     popularCardWrapper: {
         backgroundColor: colors.white,
         borderRadius: 25,
-        paddingTop: 20,
+        paddingTop: 10,
         paddingLeft: 20,
+        marginBottom: 10,
         flexDirection: 'row',
         overflow: 'hidden',
         shadowColor: colors.black,
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 10,
         elevation: 2,
-        height: 100,
+        height: 70,
     },
     popularTopWrapper: {
         flexDirection: 'row',

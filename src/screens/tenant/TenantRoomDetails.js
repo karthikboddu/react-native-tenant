@@ -1,282 +1,243 @@
+import { useActionSheet } from "@expo/react-native-action-sheet";
 import React, { useContext, useEffect, useState } from 'react';
-import Moment from 'react-moment';
-import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { default as Icon, default as MaterialCommunityIcons } from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
+import BackButton from "../../components/BackButton";
 import Button from '../../components/Button';
-import Transactions from '../../components/Transactions';
+import AddRoomPayment from '../../components/Tenant/AddRoomPayment';
+import ListTenantRoomDetails from "../../components/Tenant/ListTenantRoomDetails";
 import { GlobalContext } from '../../context/GlobalState';
+import { IconToggle } from '../../utils';
 
 
+const TenantRoomDetails = ({ route, navigation }) => {
+  const { item } = route.params;
+  const [loader, setLoader] = useState(false)
 
-const TenantRoomDetails = ({ route, navigation }) => { 
-    const { item } = route.params;
-    const [loader, setLoader] = useState(false)
-    const [showBox, setShowBox] = useState(true);
-
-    var dateObj = new Date();
-    var currentMonth = dateObj.getUTCMonth() + 1; //months from 1-12
-    var currentDay = dateObj.getUTCDate();
-    var currentYear = dateObj.getUTCFullYear();
-    const {getTenantRoomsDetailsByRoomId,tenantBuildingFloorRoomsDetails, screenLoading, unLinkTenantRoomContract} = useContext(GlobalContext);
-
-    useEffect(() => {
-      setLoader(true)
-      getTenantRoomsDetailsByRoomId(route.params?.item)
-      setLoader(false)
-      console.log("tennat room details ",route.params)
-    }, [route.params?.items])
-
-
-
-    // if (screenLoading) {
-    //   return (
-    //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    //       <ActivityIndicator size="large" color="#663399" />
-    //     </View>
-    //   );
-    // }
+  const initialPaymentValues = {
+    type: '',
+    description: '',
+    amount: '',
+    roomId: route.params?.item,
+    paymentForDate : new Date()
+  };
   
-    // if (loader) {
-    //   return (
-    //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    //       <ActivityIndicator size="small" color="#663399" />
-    //     </View>
-    //   );
-    // }
-
-  const submitUnLinkTenantRoomContract = (roomTenantId, roomContractId) => {
-      const payload = JSON.stringify({
-        tenantId : roomTenantId,
-        contractId : roomContractId,
-        status : false
-      })
- 
-      unLinkTenantRoomContract(payload);
-      getTenantRoomsDetailsByRoomId(route.params?.item)
-  }
-
-  const showConfirmDialog = (tenantId, contractId) => {
-    console.log("clicked")
-    return Alert.alert(
-      "Are your sure?",
-      "Are you sure you want to remove this beautiful box?",
-      [
-        // The "Yes" button
-        {
-          text: "Yes",
-          onPress: () => {
-            submitUnLinkTenantRoomContract(tenantId,contractId);
-            setShowBox(false);
-          },
-        },
-        // The "No" button
-        // Does nothing but dismiss the dialog when tapped
-        {
-          text: "No",
-        },
-      ]
-    );
+  const initialAddEditRoomPaymentValues = {
+    pending: false,
+    failed: false,
+    visible: false,
+    data: initialPaymentValues,
+    isAdd: null
   };
 
-    return (
-        <ScrollView>
-        {tenantBuildingFloorRoomsDetails.map( data => (
+  const [addEditPaymentModal, setAddEditPaymentModall] = useState(initialAddEditRoomPaymentValues);
 
-            <View style={styles.container} key= {data._id}>
-                {/* Header */}
-                <SafeAreaView>
-                    <View style={styles.headerWrapper}>
-                        <TouchableOpacity onPress={() => navigation.goBack()}>
-                            <View style={styles.headerLeft}>
-                                <Feather name="chevron-left" size={12} color={colors.textDark} />
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => showConfirmDialog(data.contractDetails[0].tenantDetails[0]._id, data.contractDetails[0]._id)}>
-                        <View style={styles.headerRight}>
-                            <MaterialCommunityIcons
-                                name="delete"
-                                size={20}
-                                color={colors.white}
-                            />
-                        </View>
-                        </TouchableOpacity>
-                    </View>
-                </SafeAreaView>
+  const { getTenantRoomsDetailsByRoomId, initTenantRoomOrderPayment, tenantBuildingFloorRoomsDetails, screenLoading, unLinkTenantRoomContract } = useContext(GlobalContext);
 
-                {/* Titles */}
-                <View style={styles.titlesWrapper}>
-                    <Text style={styles.title}>Tenant Details</Text>
-                    {/* <Image source={item.image} style={styles.itemImage} /> */}
-                </View>
-                
+  useEffect(() => {
+    setLoader(true)
+    getTenantRoomsDetailsByRoomId(route.params?.item)
+    setLoader(false)
+    
+    console.log("tennat room details ", route.params,tenantBuildingFloorRoomsDetails)
+  }, [route.params?.items])
 
-                {/* Price */}
-                {/* <View style={styles.priceWrapper}>
-                    <Text style={styles.priceText}>{data.amount}</Text>
-                </View> */}
-                {data.contractDetails.length < 1 && (
-                  <View style={styles.titlesWrapper}>
+
+  const onChangeInput = (inputValue, inputName) => {
+    setAddEditPaymentModall({
+      ...addEditPaymentModal,
+      data: {
+        ...addEditPaymentModal.data,
+        [inputName]: inputValue
+      }
+    });
+  }
+
+
+const initRoomPayment = async () => {
+
+    const payload = JSON.stringify(addEditPaymentModal.data);
+
+    console.log(payload, "paytmPayload",'&tenantId=' )
+
+    initTenantRoomOrderPayment(payload, '?tenantId=' + tenantBuildingFloorRoomsDetails[0]?.contractDetails[0]?.tenant_id);
+    setAddEditPaymentModall((prevState) => ({
+      ...prevState,
+      visible: false
+  }));
+}
+  
+const submitAddEditPayment = async () => {
+    await initRoomPayment();
+ };
+
+const openAddEditPaymentModal = (action, data) => {
+    setAddEditPaymentModall((prevState) => ({
+      ...prevState,
+      isAdd: action === 'add',
+      visible: true,
+      data
+    }));
+  }
+
+  const closeAddEditPaymentModal = () => {
+    setAddEditPaymentModall((prevState) => ({
+      ...prevState,
+      visible: false
+    }));
+  }
+  const { showActionSheetWithOptions } = useActionSheet();
+
+  const icons = [
+    <IconToggle
+      set={'fontAwesome'}
+      name={'close'}
+      size={22}
+    />,
+    <IconToggle
+      set={'fontAwesome'}
+      name={'edit'}
+      size={22}
+    />,
+    <IconToggle
+      set={'fontAwesome'}
+      name={'trash'}
+      size={22}
+    />
+  ];
+
+  const handleActionMenuList = (dataItem) => {
+    showActionSheetWithOptions({
+      options: ["Cancel", "Edit Book"],
+      destructiveButtonIndex: 2,
+      cancelButtonIndex: 0,
+      userInterfaceStyle: 'light',
+      icons
+    }, buttonIndex => {
+      if (buttonIndex === 0) {
+        // cancel action
+      } else if (buttonIndex === 1) {
+        // Edit Book
+        openAddEditPaymentModal('edit', dataItem);
+      }
+    });
+  }
+  
+  const routeDetails = {
+    roomId: route.params?.item, buildingId: route.params?.buildingItemId, buildingFloorId: route.params?.buildingFloorId
+ }
+
+  return (
+    <View style={styles.container}>
+          {/* Header */}
+          <BackButton goBack={navigation.goBack}/>
+          {tenantBuildingFloorRoomsDetails.length > 0 ? (
+            <>
+             {tenantBuildingFloorRoomsDetails.map(data => (
+               <ListTenantRoomDetails roomDetails = {data} routeDetails = {routeDetails} key={data._id}/>
+             ))}
+            </>
+          ) : (
+            <View style={styles.titlesWrapper}>
                     <Text style={styles.title}>Room is empty</Text>
                     <Button
-                     onPress={() =>
-                                      navigation.navigate('TenantSignUp', {
-                    roomId: route.params?.item, buildingId : route.params?.buildingItemId, buildingFloorId : data.building_floor_id
-                    })}
+                        onPress={() =>
+                            navigation.navigate('TenantSignUp', routeDetails)}
                     >Add tenant to room</Button>
-                    {/* <Image source={item.image} style={styles.itemImage} /> */}
                 </View>
-                )}
+          )}
 
-                <View style={styles.infoWrapper}>
-                  
-                    {data.contractDetails && (            
-                    <View style={styles.infoLeftWrapper}>
-                        {data.contractDetails.map(m => (
-                        <View key={m._id}>
-                        <View style={styles.infoItemWrapper}>
-                            <Text style={styles.infoItemTitle}>Name</Text>
-                            <Text style={styles.infoItemText}>
-                                {m.tenantDetails[0] ? m.tenantDetails[0].full_name : ""}
-                            </Text>
-                        </View>
-                        <View style={styles.infoItemWrapper}>
-                            <Icon name="map-marker-radius" color="#777777" size={20} />
-                            <Text style={styles.infoItemText}>
-                              {m.tenantDetails[0] ? m.tenantDetails[0].address : ""}
-                            </Text>
-                        </View>
-                        <View style={styles.infoItemWrapper}>
-                            <Icon name="phone" color="#777777" size={20}/>
-                            <Text style={styles.infoItemText}>
-                              {m.tenantDetails[0] ? m.tenantDetails[0].mobile_no : ""}
-                            </Text>
-                        </View>
-                        <View style={styles.infoItemWrapper}>
-                            <Icon name="email" color="#777777" size={20}/>
-                            <Text style={styles.infoItemText}>
-                              {m.tenantDetails[0] ? m.tenantDetails[0].email : ""}
-                            </Text>
-                        </View>
-                        <View style={styles.infoItemWrapper}>
-                            <FontAwesome name="hourglass-end" color="#777777" size={20} />
-                            <Text style={styles.infoItemText}>
-                            <Moment  format="D MMM YYYY" element={Text}>{m.tenantDetails[0] ? m.tenantDetails[0].end_at : ""}</Moment>
-                            </Text>
-                        </View>
-                        <View style={styles.infoItemWrapper}>
-                        <Text style={styles.infoItemTitle}>Status</Text>
-                            <Text style={styles.infoItemText}>
-                              {m.tenantDetails[0] ? (m.tenantDetails[0].status ? "Active" : "In Active") : ""}
-                            </Text>
-                        </View>
+      <View>
+        <View style={styles.titlesWrapper}>
+          <Text style={styles.titleSecond}>Room Transactions</Text>
+          <IconToggle
+            name={'book-plus-multiple'}
+            size={25}
+            set={'material'}
+            color={'#298df7'}
+            onPress={() => openAddEditPaymentModal('add', initialPaymentValues)}
+          />
+        </View>
 
-                        <View style={styles.infoItemWrapper}>
-                            <Text style={styles.infoItemTitle}>Room No</Text>
-                            <Text style={styles.infoItemText}>{data.room_name}</Text>
-                        </View>
-                        <View style={styles.infoItemWrapper}>
-                            <Text style={styles.infoItemTitle}>Room Rent</Text>
-                            <Text style={styles.infoItemText}>
-                              ₹{m.actual_price}
-                            </Text>
-                        </View>
-                        </View> 
-                        ))}
-                    </View>
-                    )
-                    }  
-                </View>
-            </View>
-            ))}
-            
-            <View>
-            <Text style={styles.title}>Room Transactions</Text>
-            <Transactions roomId={route.params?.item} 
-                date={currentDay} month={currentMonth} year={currentYear}  roomPaymentId = {route.params?.roomPaymentId} />
-                </View>
-        </ScrollView>
-    )
+        <TouchableOpacity onPress={() => navigation.navigate('TenantRoomTransactionList', { roomId: route.params?.item, roomPaymentId: route.params?.roomPaymentId })}>
+          <View style={styles.orderWrapper}>
+            <Text style={styles.orderText}>View Room Transactions </Text>
+            <Feather name="chevron-right" size={18} color={colors.black} />
+          </View>
+        </TouchableOpacity>
+      </View>
+      {addEditPaymentModal.visible && (
+        <AddRoomPayment
+          addEditPaymentModal={addEditPaymentModal}
+          closeAddPaymentModal={closeAddEditPaymentModal}
+          submitAddPayment={submitAddEditPayment}
+          onChangeInput={onChangeInput}
+          handleActionMenuList={handleActionMenuList}
+        />
+      )}
+    </View>
+  )
 }
 
 export default TenantRoomDetails
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-      },
-      headerWrapper: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingTop: 20,
-      },
-      headerLeft: {
-        borderColor: colors.textLight,
-        borderWidth: 2,
-        padding: 12,
-        borderRadius: 10,
-      },
-      headerRight: {
-        backgroundColor: colors.primary,
-        padding: 12,
-        borderRadius: 10,
-        borderColor: colors.primary,
-        borderWidth: 2,
-      },
-      titlesWrapper: {
-        flexDirection: 'row',
-        paddingHorizontal: 20,
-        marginTop: 30,
-      },
-      title: {
-        fontFamily: 'Montserrat-Bold',
-        fontSize: 32,
-        color: colors.textDark,
-        width: '50%',
-      },
-      priceWrapper: {
-        marginTop: 20,
-        paddingHorizontal: 20,
-      },
-      priceText: {
-        color: colors.primary,
-        fontFamily: 'Montserrat-Bold',
-        fontSize: 32,
-      },
-      infoWrapper: {
-        marginTop: 60,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      },
-      infoLeftWrapper: {
-        paddingLeft: 20,
-      },
-      infoItemWrapper: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 10
-      },
-      infoItemTitle: {
-        fontFamily: 'Montserrat-Medium',
-        fontSize: 14,
-        color: colors.textLight,
-        paddingRight: 20,
-      },
-      infoItemText: {
-        fontFamily: 'Montserrat-SemiBold',
-        fontSize: 14,
-        color: colors.textDark,
-        paddingLeft: 50
-      },
-      itemImage: {
-        resizeMode: 'contain',
-        marginLeft: 50,
-        height:100,
-        width:100
-      },
+  container: {
+    flex: 1,
+    flexGrow :1
+  },
+  headerWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  headerLeft: {
+    borderColor: colors.textLight,
+    borderWidth: 2,
+    padding: 12,
+    borderRadius: 10,
+  },
+  headerRight: {
+    backgroundColor: colors.primary,
+    padding: 12,
+    borderRadius: 10,
+    borderColor: colors.primary,
+    borderWidth: 2,
+  },
+  titlesWrapper: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    marginTop: 30,
+  },
+  title: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 22,
+    color: colors.textDark,
+    width: '50%',
+  },
+  titleSecond: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 20,
+    color: colors.textDark,
+    width: '50%',
+  },
+  orderWrapper: {
+    marginTop: 40,
+    marginBottom: 50,
+    marginHorizontal: 20,
+    backgroundColor: colors.primary,
+    borderRadius: 50,
+    paddingVertical: 25,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  orderText: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 14,
+    marginRight: 10,
+  },
 })

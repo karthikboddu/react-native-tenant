@@ -7,12 +7,11 @@ import {
   Text, TouchableOpacity, View
 } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import { ScrollView } from 'react-native-gesture-handler';
 import { Avatar, TouchableRipple } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import colors from '../assets/colors/colors';
-import { SIZES } from '../constants';
+import { icons, SIZES } from '../constants';
 import { GlobalContext } from '../context/GlobalState';
 import endpoints from '../endpoints';
 import deviceStorage from '../services/deviceStorage';
@@ -91,6 +90,10 @@ const Transactions = (route) => {
 
   React.useEffect(() => {
     //clearStateVariable();
+
+    if (!route?.roomId) {
+      return ;
+    }
     setYear(2022);
    
     let isSubscribed = true
@@ -162,23 +165,25 @@ const Transactions = (route) => {
   const getRecentAllTenantsRoomOrderDetails = async (params, page, startDate, roomId) => {
 
     try {
-
+      console.log(startDate,"startDate")
       setScreenLoading(true);
       let query = "";
 
       if (roomId) {
-        query = query + '&startDate=' + route?.year + '-' + route?.month + '-01'
-        query = query + '&endDate=' + route?.year + '-' + route?.month + '-30'
         query = query + '&roomId=' + roomId
-      } else {
-        if (startDate) {
-          query = query + '&startDate=' + startDate
-        }
-  
-        if (endDate) {
-          query = query + '&endDate=' + endDate
-        }
       }
+      if (startDate) {
+          query = query + '&startDate=' + startDate
+      } else {
+        query = query + '&startDate=' + route?.year + '-' + route?.month + '-01'
+      }
+  
+      if (endDate) {
+          query = query + '&endDate=' + endDate
+      } else {
+        query = query + '&endDate=' + route?.year + '-' + route?.month + '-30'
+      }
+
       if (route?.roomPaymentId) {
         query = query + '&roomPaymentId=' + route?.roomPaymentId
       }
@@ -376,7 +381,7 @@ const Transactions = (route) => {
 
                 <View style={styles.popularTitlesWrapper1}>
                   <Text style={styles.popularTitlesTitle}>
-                    {item.paymeny_status != 'C' ?
+                    {item.payment_status != 'C' ?
                       <MaterialIcons
                         name="pending"
                         size={20}
@@ -391,7 +396,7 @@ const Transactions = (route) => {
                   </Text>
 
                   <Text style={styles.popularTitlesTitle}>
-                    ₹ {item.total_amount}
+                    ₹ {item.price}
                   </Text>
                 </View>
 
@@ -402,9 +407,26 @@ const Transactions = (route) => {
 
                 <View style={styles.popularTitlesWrapper}>
                   {/* <Text style={styles.infoItemTitle}>Type</Text> */}
-                  <Text style={styles.popularTitlesTitle}>
+                  {/* <Text style={styles.popularTitlesTitle}>
                     {item.room_payment_type}
-                  </Text>
+                  </Text> */}
+                  {item.room_payment_type == "ROOM_RENT" ? (
+                    <Avatar.Image
+                        source={icons.key}
+                        size={30}
+                        style={styles.popularTitlesTitle}
+                      />
+                  ) : (
+                    <>{item.room_payment_type == "ELECTRICITY" ?  (
+                    <Avatar.Image
+                        source={icons.lightning}
+                        size={30}
+                        style={styles.popularTitlesTitle}
+                      />
+                  ) : (                    
+                    <Text style={styles.popularTitlesTitle}>
+                    {item.room_payment_type}
+                  </Text>)}</>)}
                 </View>
 
                 <View style={styles.popularTitlesWrapper}>
@@ -542,10 +564,6 @@ const Transactions = (route) => {
   return (
 
     <View style={styles.container}>
-      <ScrollView
-
-        contentInsetAdjustmentBehavior="automatic"
-        showsVerticalScrollIndicator={false}>
 
 
         <View style={styles.popularWrapper}>
@@ -618,10 +636,6 @@ const Transactions = (route) => {
 
 
 
-      </ScrollView>
-
-
-
 
     </View>
 
@@ -633,7 +647,7 @@ export default Transactions
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    
   },
   headerWrapper: {
     flexDirection: 'row',

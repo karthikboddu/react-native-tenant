@@ -14,10 +14,11 @@ import {
 import deviceStorage from '../services/deviceStorage';
 import { showFlashMessage } from '../services/FlashMessageService';
 import { getTasksList } from '../services/tasks';
-import { saveOrderDetailsAndComplete } from '../services/tenant/orderService';
+import { findAllNotes } from '../services/tenant/noteService';
+import { bulkInitTenantOrderPayment, saveOrderDetailsAndComplete } from '../services/tenant/orderService';
 import { unlinkTenantRoomContract } from '../services/tenant/roomService';
 import {
-    createTenantAndToRoom, generatePaytmToken, getRecentAllTenantsRoomOrderDetails, getTenantRoomDetails, getTenantSettings, initTenantRoomPayment, listFloorsByBuildingsId, listRoomDetailsByRoomId,
+    createTenantAndToRoom, generatePaytmToken, getRecentAllTenantsRoomOrderDetails, getTenantList, getTenantRoomDetails, getTenantSettings, initTenantRoomPayment, listFloorsByBuildingsId, listRoomDetailsByRoomId,
     listRoomsByFloorId, listTenantBuildings, listTenantBuildingsById, updatePaymentDetails
 } from '../services/tenant/tenantService';
 import AppReducer from './AppReducer';
@@ -53,7 +54,10 @@ const initialLoginState = {
     createOrderDetailsAndComplete : [],
     skeletonLoading: false,
     tenantConversations : [],
-    tenantLastConversations : []
+    tenantLastConversations : [],
+    tenantDetailsList : [],
+    tenantNotesList: [],
+    bulkTenantRoomPayment :[]
 };
 
 export const GlobalContext = createContext(initialLoginState);
@@ -62,23 +66,25 @@ export const GlobalProvider = ({ children }) => {
 
     const [state, dispatch] = useReducer(AppReducer, initialLoginState);
 
-    // Actions
-    async function getTodoTasks() {
-        try {
-            setScreenLoading(true);
-            const res = await getTasksList();
-            dispatch({
-                type: 'GET_TASKS',
-                payload: res.data
-            });
-        } catch (err) {
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
-            dispatch({
-                type: 'TASKS_ERROR',
-                payload: err
-            });
-        }
+
+   async function getTodoTasks() {
+    try {
+        setScreenLoading(true);
+        const response = await getTasksList();
+        let res = await response.json();
+        dispatch({
+            type: 'GET_TASKS',
+            payload: res
+        });
+    } catch (err) {
+        console.log(err)
+        showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+        dispatch({
+            type: 'TASKS_ERROR',
+            payload: err
+        });
     }
+}
 
     async function signIn(payload) {
         try {
@@ -485,18 +491,15 @@ export const GlobalProvider = ({ children }) => {
         try {
 
             const res = await deviceStorage.loadJWT();
-            setScreenLoading(true)
             let tenantBuildingsFloorRoomsDetails = await listRoomsByFloorId(res, floorId);
 
             let resJson = await tenantBuildingsFloorRoomsDetails.json();
-            setScreenLoading(false)
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_ROOM_BYID_LIST',
                 payload: resJson.data
             });
         } catch (error) {
             console.log(error)
-            setScreenLoading(false)
             showFlashMessage('Error', error, 'danger', 'danger');
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_ROOM_BYID_LIST_ERR',
@@ -589,7 +592,7 @@ export const GlobalProvider = ({ children }) => {
                     .then((result) => {
                         setScreenLoading(false);
                         //successPopup();
-                        if (result.status = Constants.txnSuccess) {
+                        if (result.STATUS = Constants.txnSuccess) {
                             console.log(result,"Paytm response")
                             updatePaytmPaymentDetails(orderId, "C", result, buildingId, oldBuildingAmount, amount)
                         } else {
@@ -691,13 +694,13 @@ export const GlobalProvider = ({ children }) => {
     }       
 
 
-    async function initTenantRoomOrderPayment(payload) {
+    async function initTenantRoomOrderPayment(payload, query='') {
         try {
 
             const res = await deviceStorage.loadJWT();
             //await logout();
-
-            let initPaymentRoomsDetails = await initTenantRoomPayment(res, payload);
+            console.log(query,"query")
+            let initPaymentRoomsDetails = await initTenantRoomPayment(res, payload, query);
 
             let resJson = await initPaymentRoomsDetails.json();
             setScreenLoading(false);
@@ -887,6 +890,73 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
+    async function fetchAllTenantList() {
+        try {
+            
+            setScreenLoading(true);
+            let tenantDetails = await getTenantList();
+            
+            let resJson = await tenantDetails.json();
+            
+            setScreenLoading(false);
+
+            dispatch({
+                type: 'GET_TENANT_LIST',
+                payload: resJson.data
+            });
+        } catch (error) {
+            console.log(error)
+            showFlashMessage('Error', error, 'danger', 'danger');
+            dispatch({
+                type: 'GET_TENANT_LIST_ERR',
+                payload: error
+            });
+        }
+    }    
+
+    async function fetchAllTenantNotes(query) {
+        try {
+            
+            setScreenLoading(true);
+            let notesDetails = await findAllNotes(query);
+            
+            let resJson = await notesDetails.json();
+            console.log(resJson,"resjson")
+            setScreenLoading(false);
+
+            dispatch({
+                type: 'GET_TENANT_NOTES_LIST',
+                payload: resJson.data
+            });
+        } catch (error) {
+            console.log(error)
+            showFlashMessage('Error', error, 'danger', 'danger');
+            dispatch({
+                type: 'GET_TENANT_NOTES_LIST_ERR',
+                payload: error
+            });
+        }
+    }
+
+    async function bulkInitTenantRoomPayment() {
+        try {
+            let tenantRoomPayment = await bulkInitTenantOrderPayment();
+
+            let resJson = await tenantRoomPayment.json();
+            dispatch({
+                type: 'BULK_INIT_PAYMENT',
+                payload: resJson.data
+            });
+        } catch (error) {
+            console.log(error)
+            showFlashMessage('Error', error, 'danger', 'danger');
+            dispatch({
+                type: 'BULK_INIT_PAYMENT_ERR',
+                payload: error
+            });
+        }
+    }
+
     return (<GlobalContext.Provider value={{
         error: state.error,
         isLoading: state.isLoading,
@@ -946,7 +1016,13 @@ export const GlobalProvider = ({ children }) => {
         tenantConversations : state.tenantConversations,
         fetchTenantConversations,
         tenantLastConversations : state.tenantLastConversations,
-        fetchAllTenantLastConversations
+        fetchAllTenantLastConversations,
+        tenantDetailsList : state.tenantDetailsList,
+        fetchAllTenantList,
+        tenantNotesList: state.tenantNotesList,
+        fetchAllTenantNotes,
+        bulkInitTenantRoomPayment,
+        bulkTenantRoomPayment: state.bulkTenantRoomPayment
     }}>
         {children}
     </GlobalContext.Provider>);

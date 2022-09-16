@@ -33,8 +33,8 @@ export const subscribeToMessages = ({token},cb) => {
     });
   }
 
-export const sendMessage = ({message, roomName, stoken, to, parentId}, cb) => {
-    if (socket) socket.emit('message', { message, roomName, stoken, to, parentId }, cb);
+export const sendMessage = ({message, roomName, stoken, to, parentId, image}, cb) => {
+    if (socket) socket.emit('message', { message, roomName, stoken, to, parentId, image }, cb);
 }
 
 export const onTypingMessage = ({message, stoken, to, isTyping}, cb) => {

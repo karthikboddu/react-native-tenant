@@ -1,3 +1,4 @@
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { useNetInfo } from "@react-native-community/netinfo";
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
@@ -20,10 +21,13 @@ export default function App() {
  
 
   return (
+    
     <PaperProvider theme={theme}>
       {netInfo.isConnected ? (
         <GlobalProvider>
+        <ActionSheetProvider>
           <Router />
+          </ActionSheetProvider>
         </GlobalProvider>
       ) : <Modals
         show={netInfo.isConnected}

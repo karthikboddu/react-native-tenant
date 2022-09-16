@@ -1,22 +1,16 @@
-import { BottomSheetModal, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { useActionSheet } from "@expo/react-native-action-sheet";
 import { useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
 import moment from 'moment';
-// import { Root } from 'popup-ui';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import Moment from 'react-moment';
-import {
-  Alert, FlatList, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View
-} from 'react-native';
-import { TouchableRipple } from 'react-native-paper';
+import { Root } from 'popup-ui';
+import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import colors from '../../../assets/colors/colors';
-import { Loading } from '../../../components/common';
-import { SIZES } from "../../../constants";
+import AddRoomPayment from '../../../components/Tenant/AddRoomPayment';
+//import CreatePaymentForm from "../../../components/Tenant/CreatePaymentForm";
+import PendingTransactionsList from "../../../components/Tenant/PendingTransactionsList";
 import { GlobalContext } from '../../../context/GlobalState';
-import { generatePaytmToken } from '../../../services/tenant/tenantService';
+import { IconToggle } from '../../../utils';
 
 
 
@@ -44,137 +38,113 @@ const PaymentDetails = () => {
 
   }, [])
 
-  const [data, setData] = useState({
-    amount: '',
-    type: '',
-    check_textInputChange: false,
-    secureTextEntry: true,
-    isValidUser: true,
-    isValidPassword: true,
-  });
-  const [state, setState] = useState({
-    amount: '',
-    type: '',
-    message: '',
-    error: '',
-    loading: false
-  })
-
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
+
+
   const [items, setItems] = useState([
     { label: 'ROOM RENT', value: 'ROOM_RENT' },
     { label: 'WATER BILL', value: 'WATER_BILL' },
     { label: 'CURRENT BILL', value: 'CURRENT_BILL' },
     { label: 'OTHERS', value: 'OTHERS' }
-  ]);
+  ])
 
+  const initialPaymentValues = {
+    type: '',
+    description: '',
+    amount: '',
+    roomId: tenantRoomOrderDetails.floor_room_id,
+    paymentForDate : new Date()
+  };
 
-  const bottomSheetModalRef = useRef(null);
-  const snapPoints = useMemo(() => ["25%", "50%"], []);
+  const initialAddEditRoomPaymentValues = {
+    pending: false,
+    failed: false,
+    visible: false,
+    data: initialPaymentValues,
+    isAdd: null
+  };
 
-  // callbacks
-  const handlePresentModalPress = useCallback((amount, orderId, roomCId) => {
-    setAmount(amount);
-    setOrderId(orderId);
-    setRoomContractId(roomCId)
-    bottomSheetModalRef.current?.present();
-    
-  }, []);
+  const [addEditPaymentModal, setAddEditPaymentModall] = useState(initialAddEditRoomPaymentValues);
 
-  const handleSheetChanges = useCallback((index) => {
-    console.log('handleSheetChanges', index);
-  }, []);
-
-  const textInputChange = (val) => {
-    if (val.trim().length >= 4) {
-      setData({
-        ...data,
-        amount: val,
-        check_textInputChange: true,
-        isValidUser: true
-      });
-    } else {
-      setData({
-        ...data,
-        amount: val,
-        check_textInputChange: false,
-        isValidUser: false
-      });
-    }
-  }
-
-  const handleTypeChange = (val) => {
-    if (val.trim().length >= 6) {
-      setData({
-        ...data,
-        type: val,
-        isValidPassword: true
-      });
-    } else {
-      setData({
-        ...data,
-        type: val,
-        isValidPassword: false
-      });
-    }
-  }
-
-  const handleValidUser = (val) => {
-    if (val.trim().length >= 4) {
-      setData({
-        ...data,
-        isValidUser: true
-      });
-    } else {
-      setData({
-        ...data,
-        isValidUser: false
-      });
-    }
-  }
-
-  const loginHandle = async (amount, type) => {
-    console.log(type,"type")
-    if (amount.length == 0 || type.length == 0) {
-      Alert.alert('Wrong Input!', 'Username or password field cannot be empty.', [
-        { text: 'Okay' }
-      ]);
-      return;
-    }
-
-    //setScreenLoading(true)
-
-    await initRoomPayment(amount, roomId, type);
-  }
-
-
-
-  const payNow = async (amount, orderId, roomCId) => {
-    setScreenLoading(true);
-    const min = 1;
-    const max = 10000;
-    const rand = min + Math.random() * (max - min);
-
-    //getPaytmToken(orderId, amt);
-    var raw = JSON.stringify({
-      orderId: orderId,
-      amt: amount,
-      roomContractId: roomCId,
-      buildingId: tenantRoomOrderDetails.buildingDetails[0]._id ? tenantRoomOrderDetails.buildingDetails[0]._id : null,
-      buildingAmount: tenantRoomOrderDetails.buildingDetails[0].total_amount ? tenantRoomOrderDetails.buildingDetails[0].total_amount : 0
+  const onChangeInput = (inputValue, inputName) => {
+    setAddEditPaymentModall({
+      ...addEditPaymentModal,
+      data: {
+        ...addEditPaymentModal.data,
+        [inputName]: inputValue
+      }
     });
+  }
 
-    console.log(raw, "paytmPayload")
+  const submitAddEditPayment = async () => {
+    await initRoomPayment1();
+  };
 
-    const token = await generatePaytmToken("", raw);
-    let resJson = await token.json();
-    const txnToken = resJson.data?.body?.txnToken;
-    console.log("gateway response1", resJson);
+  const openAddEditPaymentModal = (action, data) => {
+      setAddEditPaymentModall((prevState) => ({
+        ...prevState,
+        isAdd: action === 'add',
+        visible: true,
+        data
+      }));
+  }
 
-    startPaytmTransaction(resJson.data?.orderId, amount, txnToken, resJson.data?.buildingId, resJson.data?.buildingAmount);
+  const closeAddEditPaymentModal = () => {
+    setAddEditPaymentModall((prevState) => ({
+      ...prevState,
+      visible: false
+    }));
+  }
 
-    getTenantRoomOrderDetails('P,F', 1);
+  const { showActionSheetWithOptions } = useActionSheet();
+
+  const icons = [
+    <IconToggle
+      set={'fontAwesome'}
+      name={'close'}
+      size={22}
+    />,
+    <IconToggle
+      set={'fontAwesome'}
+      name={'edit'}
+      size={22}
+    />,
+    <IconToggle
+      set={'fontAwesome'}
+      name={'trash'}
+      size={22}
+    />
+  ];
+
+  const handleActionMenuList = (dataItem) => {
+    showActionSheetWithOptions({
+      options: ["Cancel", "Edit Book"],
+      destructiveButtonIndex: 2,
+      cancelButtonIndex: 0,
+      userInterfaceStyle: 'light',
+      icons
+    }, buttonIndex => {
+      if (buttonIndex === 0) {
+        // cancel action
+      } else if (buttonIndex === 1) {
+        // Edit Book
+        openAddEditPaymentModal('edit', dataItem);
+      }
+    });
+  }
+
+  const initRoomPayment1 = async () => {
+
+    const payload = JSON.stringify(addEditPaymentModal.data);
+
+    console.log(payload, "paytmPayload",'&tenantId=')
+
+    initTenantRoomOrderPayment(payload, '');
+    setAddEditPaymentModall((prevState) => ({
+      ...prevState,
+      visible: false
+    }));
   }
 
   const initRoomPayment = async (amt, roomId, type = '') => {
@@ -196,189 +166,15 @@ const PaymentDetails = () => {
     // getTenantRoomOrderDetails('P,F', 1);
   }
 
-  function renderPaymentForm() {
-    return (
-
-      <View style={styles.popularWrapper}>
-        <Text style={[styles.text_footer, {
-          color: colors.text
-        }]}>Enter amount</Text>
-        <View style={styles.action}>
-          <TextInput
-            placeholder="amount"
-            placeholderTextColor="#666666"
-            style={[styles.textInput, {
-              color: colors.text
-            }]}
-            autoCapitalize="none"
-            onChangeText={(val) => textInputChange(val)}
-          />
-
-        </View>
-
-        <Text style={[styles.text_footer, {
-          color: colors.text
-        }]}>Type Name</Text>
-        <View style={styles.action}>
-          <TextInput
-            placeholder="type"
-            placeholderTextColor="#666666"
-            style={[styles.textInput, {
-              color: colors.text
-            }]}
-            autoCapitalize="characters"
-            onChangeText={(val) => handleTypeChange(val)}
-          />
-
-        </View>
-
-
-        <View style={styles.button}>
-          <TouchableOpacity
-            style={styles.signIn}
-            onPress={() => { loginHandle(data.amount, data.type) }}
-          >
-            <LinearGradient
-              colors={['#212426', '#212426']}
-              style={styles.signIn}
-            >
-              {!screenLoading ?
-                <Text style={[styles.textSign, {
-                  color: '#fff'
-                }]}>Create Payment</Text>
-                :
-                <Loading size={'large'} />
-              }
-
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
-
-  function renderRecentTransactions() {
-    const renderItem = ({ item }) => {
-      if (!item) {
-        return (<></>);
-      }
-      return (
-
-        <TouchableRipple key={item._id}>
-          <View
-            style={[
-              styles.popularCardWrapper
-            ]}>
-
-
-
-            <View
-              style={[
-                styles.popularCardWrapperAmount
-              ]}>
-
-              <View style={styles.popularTitlesWrapper}>
-                <Text style={styles.infoItemTitle}>Type</Text>
-                <Text style={styles.popularTitlesTitle}>
-                  {item.room_payment_type}
-                </Text>
-              </View>
-
-
-
-              <View style={styles.popularTitlesWrapper1}>
-                <Text style={styles.infoItemTitle}>Amount</Text>
-                <Text style={styles.popularTitlesTitle}>
-                  {item.paymeny_status != 'C' ?
-                    <MaterialIcons
-                      name="pending"
-                      size={20}
-                      color={colors.pending}
-                    /> :
-                    <Ionicons
-                      name="cloud-done-sharp"
-                      size={20}
-                      color={colors.done}
-                    />
-                  }
-                </Text>
-
-                <Text style={styles.popularTitlesTitle}>
-                  ₹ {item.total_amount}
-                </Text>
-              </View>
-
-              <View style={styles.popularTitlesWrapper}>
-                <Text style={styles.popularTitlesTitle}>
-                  <Ionicons
-                    name="time-outline"
-                    size={20}
-                    color={colors.done}
-                  />
-
-                </Text>
-                <Text style={styles.popularTitlesTitle}>
-                  <Moment format="D MMM YYYY" key={item._id} element={Text}>{item.updated_at}</Moment>
-                </Text>
-              </View>
-
-            </View>
-            <View
-              style={[
-                styles.roomsListIcon
-              ]}>
-              <TouchableOpacity
-                onPress={() => { handlePresentModalPress(item.total_amount, item._id, item.room_contract_id) }}
-              >
-                {!screenLoading ?
-                  <View style={styles.orderWrapper}>
-                    <Text style={styles.orderText}>Pay now</Text>
-                    <Feather name="chevron-right" size={18} color={colors.black} />
-                  </View>
-                  :
-                  <Loading size={'small'} />
-                }
-
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableRipple>
-
-      )
-    }
-
-    return (
-
-      <View>
-        <FlatList
-          data={tenantRoomOrderDetails.orderDetails}
-
-          onEndReachedThreshold={0.5}
-          // onEndReached={() => setPage(page + 1)}
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item ? `${item._id}` : 0}
-          renderItem={renderItem}
-          contentContainerStyle={{ paddingVertical: SIZES.padding * 2 }}
-          
-        />
-      </View>
-    )
-
-  }
-
-
-
   return (
 
 
-    // <Root>
-    <BottomSheetModalProvider>
+    <Root>
       <View style={styles.container}>
-        <ScrollView
+        {/* <ScrollView
 
           contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}> */}
 
 
           <View style={styles.headerWrapper}>
@@ -390,59 +186,35 @@ const PaymentDetails = () => {
           </View>
 
           <View style={styles.popularWrapper}>
-
-            <Text style={styles.popularTitle}>Recent Transaction</Text>
-            {renderRecentTransactions()}
-            {renderPaymentForm()}
+            <View style={styles.headerTitleWrapper}>
+              <Text style={styles.popularTitle}>Recent Transaction</Text>
+              <IconToggle
+                name={'book-plus-multiple'}
+                size={30}
+                set={'material'}
+                color={'#298df7'}
+                onPress={() => openAddEditPaymentModal('add', initialPaymentValues)}
+              />
+            </View>
+            {/* <CreatePaymentForm roomId={tenantRoomOrderDetails.floor_room_id}/> */}
+            <PendingTransactionsList/>
+            {addEditPaymentModal.visible && (
+              <AddRoomPayment
+                addEditPaymentModal={addEditPaymentModal}
+                closeAddPaymentModal={closeAddEditPaymentModal}
+                submitAddPayment={submitAddEditPayment}
+                onChangeInput={onChangeInput}
+                handleActionMenuList={handleActionMenuList}
+              />
+            )}
           </View>
 
 
-          <View style={styles.container}>
-
-            <BottomSheetModal
-              ref={bottomSheetModalRef}
-              index={1}
-              snapPoints={snapPoints}
-              onChange={handleSheetChanges}
-            >
-              <View style={styles.contentContainer}>
-                <Text style={styles.contentText}>Choose the payment method</Text>
-              </View>
-              <View style={styles.contentContainer}>
-                <Text style={styles.amountContentText}>Amount to be paid :   ₹ {amount}</Text>
-              </View>
-              <View style={styles.paymentContainer}>
-              <View style={styles.contentContainer}>
-                <Text style={styles.amountContentText}>Click here for paytm  : </Text>
-              </View>
-              <View
-              style={[
-                styles.roomsListIcon
-              ]}>
-              <TouchableOpacity
-                onPress={() => { payNow(amount, orderId, roomContractId) }}
-              >
-                {!screenLoading ?
-                  <View style={styles.orderWrapper}>
-                    <Text style={styles.orderText}>Pay now</Text>
-                    <Feather name="chevron-right" size={18} color={colors.black} />
-                  </View>
-                  :
-                  <Loading size={'small'} />
-                }
-
-              </TouchableOpacity>
-            </View>
-            </View>
-            </BottomSheetModal>
-          </View>
-
-        </ScrollView>
+        {/* </ScrollView> */}
 
 
       </View>
-    </BottomSheetModalProvider>
-      // </Root>
+      </Root>
   )
 }
 
@@ -450,7 +222,8 @@ export default PaymentDetails
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex  : 1,
+    flexGrow : 1
   },
   headerWrapper: {
     flexDirection: 'row',
@@ -475,7 +248,7 @@ const styles = StyleSheet.create({
   popularWrapper: {
     paddingHorizontal: 20,
     marginBottom: 30,
-    height: 'auto'
+    height: 1000
   },
   popularTitle: {
     fontFamily: 'Montserrat-Bold',
@@ -654,34 +427,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#ecf0f1',
     padding: 8,
   },
-  contentContainer: {
-    fontFamily: 'Montserrat-Bold',
-    fontSize: 16,
-    color: '#000',
-    marginBottom: 10
-  },
-  contentText : {
-    fontFamily: 'Montserrat-Bold',
-    fontSize: 16,
-    color: '#000',
+  headerTitleWrapper : {
     flexDirection: 'row',
-    alignItems:'center',
-    justifyContent: 'center',
-    textAlign : 'center',
-    marginTop: 50
-  },
-  amountContentText : {
-    fontFamily: 'Montserrat-Bold',
-    fontSize: 16,
-    color: '#000',
-    flexDirection: 'row',
-    alignItems:'center',
-    justifyContent: 'center',
-    marginLeft: 50,
-    marginTop: 20
-  },
-  paymentContainer: {
-    flexDirection: 'row'
+    
   }
+  
 
 })

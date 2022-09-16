@@ -13,7 +13,8 @@ const AdminDashboard = () => {
     const navigation = useNavigation();
 
     const [selectedBuilding, setSelectedBuilding] = React.useState(null)
-    const { tenantBuildingList, getTenantBuildings, clearStateVariable, isAdmin, screenLoading
+    const { tenantBuildingList, getTenantBuildings,
+         clearStateVariable, isAdmin, screenLoading,bulkInitTenantRoomPayment
     } = React.useContext(GlobalContext);
 
     const loopData = [
@@ -33,6 +34,7 @@ const AdminDashboard = () => {
     React.useEffect(() => {
         //clearStateVariable();
         getTenantBuildings();
+        bulkInitTenantRoomPayment();
     }, [])
 
 
@@ -81,6 +83,14 @@ const AdminDashboard = () => {
                         alignItems: "center",
                         justifyContent: "center",
                         marginRight: SIZES.padding,
+                        shadowOffset: {
+                            width: 0,
+                            height: 2,
+                        },
+                        marginLeft:10,
+                        shadowOpacity: 0.05,
+                        shadowRadius: 10,
+                        elevation: 2,
                         ...styles.shadow
                     }}
                     onPress={() =>
@@ -136,6 +146,13 @@ const AdminDashboard = () => {
                         marginRight: SIZES.padding,
                         marginLeft: 10,
                         width: 150,
+                        shadowOffset: {
+                            width: 0,
+                            height: 2,
+                        },
+                        shadowOpacity: 0.05,
+                        shadowRadius: 10,
+                        elevation: 2,
                         ...styles.shadow
                     }}>
                     <View
@@ -186,6 +203,7 @@ const AdminDashboard = () => {
                         keyExtractor={item => `${item._id}`}
                         renderItem={renderItem}
                         contentContainerStyle={{ paddingVertical: SIZES.padding * 2 }}
+                        refreshing={true}
                     />
                 )}
             </View>
@@ -215,7 +233,7 @@ const AdminDashboard = () => {
 
             {/* List builings */}
             {renderBuildingList()}
-
+            
             {/* Recent */}
 
             {/* <RecentTransactions /> */}
@@ -230,7 +248,7 @@ export default AdminDashboard
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.lightGray
+        backgroundColor: COLORS.white
     },
     categoriesWrapper: {
         marginTop: 30,

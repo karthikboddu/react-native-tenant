@@ -26,10 +26,10 @@ const TenantsList = (route) => {
     const { screenLoading, setScreenLoading, isAdmin } = React.useContext(GlobalContext);
 
     const getData = async () => {
-       
+
         const accessToken = await deviceStorage.loadJWT();
         const apiResponse = await fetch(
-            `${endpoints.apiUrl}` + `${endpoints.tenantsList}` + `?`+ `buildingId=` + `${route.route.params?.items}`, {
+            `${endpoints.apiUrl}` + `${endpoints.tenantsList}` + `?` + `buildingId=` + `${route.route.params?.items}`, {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
@@ -60,13 +60,6 @@ const TenantsList = (route) => {
         }
     }, []);
 
-    // if (screenLoading) {
-    //     return (
-    //         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    //             <ActivityIndicator size="large" color="#663399" />
-    //         </View>
-    //     );
-    // }
 
     const renderFooter = () => {
         return (
@@ -95,7 +88,7 @@ const TenantsList = (route) => {
             }
             return (
 
-                <TouchableRipple key={item._id} onPress={() =>                 navigation.navigate('TenantRoomDetails', {
+                <TouchableRipple key={item._id} onPress={() => navigation.navigate('TenantRoomDetails', {
                     item: item.floor_room_id,
                 })}>
                     <View
@@ -157,7 +150,7 @@ const TenantsList = (route) => {
 
             <View>
                 <FlatList
-                    data={data}
+                    data={data.tenants}
                     onEndReachedThreshold={0.5}
                     // onEndReached={() => setPage(page + 1)}
                     showsHorizontalScrollIndicator={false}

@@ -13,7 +13,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import colors from '../../assets/colors/colors';
-import { SIZES } from '../../constants';
+import { icons, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
 import endpoints from '../../endpoints';
 import deviceStorage from '../../services/deviceStorage';
@@ -138,7 +138,7 @@ const TransactionsList = (route) => {
       console.log(page, "----page")
       setScreenLoading(true);
       const res = await deviceStorage.loadJWT();
-      await fetch(`${API_URL}` + `${endpoints.tenantRoomOrderDetails}` + `?paymentStatus=` + `${params}` + `&page=` + `${page}` + `&size=` + `${5}`, {
+      await fetch(`${API_URL}` + `${endpoints.tenantRoomOrderDetails}` + `?paymentStatus=` + `${params}` + `&page=` + `${page}` + `&size=` + `${15}`, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -186,7 +186,7 @@ const TransactionsList = (route) => {
       console.log(query, "----page")
       const res = await deviceStorage.loadJWT();
       await fetch(`${API_URL}` + `${endpoints.recentAllTenantsRoomOrderDetails}`
-        + `?page=` + `${page}` + `&size=` + `${5}` + query, {
+        + `?page=` + `${page}` + `&size=` + `${15}` + query, {
         method: 'GET',
         headers: {
           Accept: 'application/json',
@@ -367,7 +367,7 @@ const TransactionsList = (route) => {
 
                 <View style={styles.popularTitlesWrapper1}>
                   <Text style={styles.popularTitlesTitle}>
-                    {item.paymeny_status != 'C' ?
+                    {item.payment_status != 'C' ?
                       <MaterialIcons
                         name="pending"
                         size={20}
@@ -382,7 +382,7 @@ const TransactionsList = (route) => {
                   </Text>
 
                   <Text style={styles.popularTitlesTitle}>
-                    ₹ {item.total_amount}
+                    ₹ {item.price}
                   </Text>
                 </View>
 
@@ -392,9 +392,27 @@ const TransactionsList = (route) => {
 
 
                 <View style={styles.popularTitlesWrapper}>
-                  <Text style={styles.popularTitlesTitle}>
+                  {/* <Text style={styles.popularTitlesTitle}>
                     {item.room_payment_type}
-                  </Text>
+                  </Text> */}
+                  {item.room_payment_type == "ROOM_RENT" ? (
+                    <Avatar.Image
+                        source={icons.key}
+                        size={30}
+                        style={styles.popularTitlesTitle}
+                      />
+                  ) : (
+                    <>{item.room_payment_type == "ELECTRICITY" ?  (
+                    <Avatar.Image
+                        source={icons.lightning}
+                        size={30}
+                        style={styles.popularTitlesTitle}
+                      />
+                  ) : (                    
+                    <Text style={styles.popularTitlesTitle}>
+                    {item.room_payment_type}
+                  </Text>)}</>)}
+
                 </View>
 
                 <View style={styles.popularTitlesWrapper}>

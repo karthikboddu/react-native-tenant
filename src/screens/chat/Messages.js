@@ -1,11 +1,13 @@
 import React, { useContext, useEffect } from 'react';
 import Moment from 'react-moment';
 import { FlatList, StyleSheet, Text } from 'react-native';
+import CryptoJS from "react-native-crypto-js";
 import SocketIOClient from 'socket.io-client';
 import ContactsFloatingIcon from '../../components/Chat/ContactsFloatingIcon';
+import DecryptText from '../../components/Chat/DecryptText';
 import { GlobalContext } from '../../context/GlobalState';
 import {
-  Card, Container, MessageText, PostTime, TextSection, UserImg, UserImgWrapper, UserInfo, UserInfoText,
+  Card, Container, PostTime, TextSection, UserImg, UserImgWrapper, UserInfo, UserInfoText,
   UserName
 } from '../../styles/MessageStyles';
 
@@ -61,12 +63,14 @@ socket.on('disconnect', () => console.log('disconnected'));
 
 const Messages = ({navigation}) => {
 
-  const {fetchAllTenantLastConversations, tenantLastConversations} = useContext(GlobalContext);
+  const {fetchAllTenantLastConversations, tenantLastConversations, fetchAllTenantList} = useContext(GlobalContext);
 
   useEffect(() => {
     fetchAllTenantLastConversations()
+    fetchAllTenantList()
     console.log(tenantLastConversations,"tenantLastConversations   ");
-
+    decryptJsonData()
+    
     const willFocusSubscription = navigation.addListener('focus', () => {
       fetchAllTenantLastConversations()
     }); return willFocusSubscription;
@@ -78,16 +82,47 @@ const Messages = ({navigation}) => {
     isValid : false
   })
 
+  const decryptJsonData = () => {
+    let resultData = [];
+    if (tenantLastConversations.length > 0) {
+    tenantLastConversations.conversations.forEach(element => {
+      var list = {};
+      list = element;
+      console.log(list,"Data**************")
+      list.text = decryptText(element.text);
+      resultData.push(list);
+    });
+    }
+  
+    return resultData;
+  
+  }
+  
+  const decryptText = (text) => {
+    console.log(text,"cipter")
+    let bytes  = CryptoJS.AES.decrypt(text, '0123456789123456');
+    let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    console.log(decryptedData,"decipter")
+    return decryptedData;
+  }
+  
+
     return (
       <Container>
         <FlatList 
           data={tenantLastConversations.conversations}
           keyExtractor={item=>item._id}
           renderItem={({item}) => (
-            <Card onPress={() => navigation.navigate('ChatScreen', {id: item.user._id, fromUserId : item.from_tenant_id, parentId : item.parentId})}>
+            <Card onPress={() => navigation.navigate('ChatScreen', {id: item.user._id, fromUserId : item.from_tenant_id, parentId : item.parentId, user : item.user})}>
               <UserInfo>
                 <UserImgWrapper>
-                  <UserImg source={{uri:item.user.avatar}} />
+                  <UserImg 
+                  source={
+                    item.user.avatar
+                    ? { uri: item.user.avatar }
+                    : require("../../assets/icon-square.png")
+                    }
+                  />
                 </UserImgWrapper>
                 <TextSection>
                   <UserInfoText>
@@ -96,8 +131,7 @@ const Messages = ({navigation}) => {
                       <Moment fromNow element={Text}>{item.updatedAt}</Moment>
                     </PostTime>
                   </UserInfoText>
-                  <MessageText>
-                  {item.lastMessage}</MessageText>
+                  <DecryptText text={item.lastMessage}/>
                 </TextSection>
               </UserInfo>
             </Card>
