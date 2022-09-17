@@ -220,6 +220,7 @@ export const GlobalProvider = ({ children }) => {
                     }
                 }            
             }
+            console.log(auth,"auth")
             dispatch({
                 type: 'RETRIEVE_TOKEN',
                 payload: auth

@@ -4,9 +4,9 @@ import {
 } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useFonts } from 'expo-font';
-import LottieView from 'lottie-react-native';
+// import LottieView from 'lottie-react-native';
 import React, { useContext, useEffect } from 'react';
-import { StatusBar, View } from 'react-native';
+import { ActivityIndicator, StatusBar, View } from 'react-native';
 import {
   DarkTheme as PaperDarkTheme, DefaultTheme as PaperDefaultTheme
 } from 'react-native-paper';
@@ -69,8 +69,8 @@ export default function Router(props) {
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        {/*  <ActivityIndicator size="large" color="#663399" />*/}
-        <LottieView source={require('../assets/97930-loading.json')} autoPlay loop />
+         <ActivityIndicator size="large" color="#663399" />
+        {/* <LottieView source={require('../assets/97930-loading.json')} autoPlay loop /> */}
       </View>
     );
   }

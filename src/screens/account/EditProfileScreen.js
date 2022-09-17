@@ -1,14 +1,12 @@
 import storage from '@react-native-firebase/storage';
-import * as ImagePicker from 'expo-image-picker';
 import React, { useContext, useState } from 'react';
 import {
   ImageBackground, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View
 } from 'react-native';
-import ActionButton from 'react-native-action-button';
+// import ActionButton from 'react-native-action-button';
 import { useTheme } from 'react-native-paper';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
 import { Loading } from '../../components/common';
@@ -30,30 +28,30 @@ const EditProfileScreen = ({navigation}) => {
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+    // let result = await ImagePicker.launchImageLibraryAsync({
+    //   mediaTypes: ImagePicker.MediaTypeOptions.All,
+    //   allowsEditing: true,
+    //   aspect: [4, 3],
+    //   quality: 1,
+    // });
 
-    console.log(result);
+    // console.log(result);
 
-    if (!result.cancelled) {
-      setImage(result.uri);
-    }
+    // if (!result.cancelled) {
+    //   setImage(result.uri);
+    // }
   };
 
   const takePhotoFromCamera = () => {
-    ImagePicker.openCamera({
-      width: 1200,
-      height: 780,
-      cropping: true,
-    }).then((image) => {
-      console.log(image);
-      const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
-      setImage(imageUri);
-    });
+    // ImagePicker.openCamera({
+    //   width: 1200,
+    //   height: 780,
+    //   cropping: true,
+    // }).then((image) => {
+    //   console.log(image);
+    //   const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
+    //   setImage(imageUri);
+    // });
   };
 
   const uploadImage = async () => {
@@ -131,7 +129,7 @@ const EditProfileScreen = ({navigation}) => {
           </View>
         </SafeAreaView>
 
-      <ActionButton buttonColor="#2e64e5">
+      {/* <ActionButton buttonColor="#2e64e5">
         <ActionButton.Item
           buttonColor="#9b59b6"
           title="Take Photo"
@@ -144,7 +142,7 @@ const EditProfileScreen = ({navigation}) => {
           onPress={pickImage}>
           <Ionicons name="images" style={styles.actionButtonIcon} />
         </ActionButton.Item>
-      </ActionButton>
+      </ActionButton> */}
 
         <View style={{ alignItems: 'center' }}>
           <TouchableOpacity onPress={() =>{}}>
