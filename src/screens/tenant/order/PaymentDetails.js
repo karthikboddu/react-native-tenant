@@ -3,11 +3,10 @@ import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import { Root } from 'popup-ui';
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../../assets/colors/colors';
-import AddRoomPayment from '../../../components/Tenant/AddRoomPayment';
-//import CreatePaymentForm from "../../../components/Tenant/CreatePaymentForm";
+import AddRoomPayment from "../../../components/Tenant/AddRoomPayment";
 import PendingTransactionsList from "../../../components/Tenant/PendingTransactionsList";
 import { GlobalContext } from '../../../context/GlobalState';
 import { IconToggle } from '../../../utils';
@@ -78,6 +77,12 @@ const PaymentDetails = () => {
   }
 
   const submitAddEditPayment = async () => {
+    if (addEditPaymentModal.data.type.length ==0 || addEditPaymentModal.data.amount.length ==0 || addEditPaymentModal.data.description.length==0 ) {
+      Alert.alert('Wrong Input!', 'Some Fields cannot be empty.', [
+          {text: 'Okay'}
+      ]);
+      return;
+    }
     await initRoomPayment1();
   };
 
@@ -145,6 +150,7 @@ const PaymentDetails = () => {
       ...prevState,
       visible: false
     }));
+    
   }
 
   const initRoomPayment = async (amt, roomId, type = '') => {
@@ -183,9 +189,21 @@ const PaymentDetails = () => {
                 <Feather name="chevron-left" size={12} color={colors.textDark} />
               </View>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => {}}>
+                <View style={styles.headerRight}>
+                <IconToggle
+                  name={'book-plus-multiple'}
+                  size={30}
+                  set={'material'}
+                  color={'#298df7'}
+                  onPress={() => openAddEditPaymentModal('add', initialPaymentValues)}
+                />
+                </View>
+              </TouchableOpacity>
           </View>
+          <PendingTransactionsList/>
 
-          <View style={styles.popularWrapper}>
+          {/* <View style={styles.popularWrapper}>
             <View style={styles.headerTitleWrapper}>
               <Text style={styles.popularTitle}>Recent Transaction</Text>
               <IconToggle
@@ -195,10 +213,11 @@ const PaymentDetails = () => {
                 color={'#298df7'}
                 onPress={() => openAddEditPaymentModal('add', initialPaymentValues)}
               />
+              
             </View>
-            {/* <CreatePaymentForm roomId={tenantRoomOrderDetails.floor_room_id}/> */}
-            <PendingTransactionsList/>
-            {addEditPaymentModal.visible && (
+
+          </View> */}
+          {addEditPaymentModal.visible && (
               <AddRoomPayment
                 addEditPaymentModal={addEditPaymentModal}
                 closeAddPaymentModal={closeAddEditPaymentModal}
@@ -207,8 +226,6 @@ const PaymentDetails = () => {
                 handleActionMenuList={handleActionMenuList}
               />
             )}
-          </View>
-
 
         {/* </ScrollView> */}
 
@@ -222,8 +239,8 @@ export default PaymentDetails
 
 const styles = StyleSheet.create({
   container: {
-    flex  : 1,
-    flexGrow : 1
+    flex:1,
+    flexGrow:1
   },
   headerWrapper: {
     flexDirection: 'row',
@@ -239,16 +256,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   headerRight: {
-    backgroundColor: colors.primary,
-    padding: 12,
     borderRadius: 10,
-    borderColor: colors.primary,
-    borderWidth: 2,
+  
   },
   popularWrapper: {
     paddingHorizontal: 20,
     marginBottom: 30,
-    height: 1000
   },
   popularTitle: {
     fontFamily: 'Montserrat-Bold',
@@ -280,7 +293,7 @@ const styles = StyleSheet.create({
 
     paddingLeft: 20,
     flexDirection: 'column',
-    overflow: 'hidden',
+
     height: 130,
   },
   popularTopWrapper: {

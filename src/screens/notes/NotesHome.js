@@ -45,6 +45,7 @@ const NotesHome = ({navigation }) => {
 
     const fetchNotesListCall = () => {
 		fetchAllTenantNotes('');
+        setNotes(notes)
         setLoading(false);
     }
     const onChangeInput = (inputValue, inputName) => {

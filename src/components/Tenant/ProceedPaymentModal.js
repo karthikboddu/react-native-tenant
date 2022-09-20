@@ -1,44 +1,25 @@
-import { Picker } from '@react-native-picker/picker';
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Keyboard,
     KeyboardAvoidingView,
     Modal,
     Platform,
-    Pressable, ScrollView, StyleSheet, Text,
-    TextInput,
-    TouchableOpacity,
+    Pressable, ScrollView, StyleSheet, Text, TouchableOpacity,
     TouchableWithoutFeedback,
     View
 } from 'react-native';
+import colors from '../../assets/colors/colors';
 import commonStyles from '../../screens/styles';
 import {
     IconToggle,
     Ripple
 } from '../../utils';
+import { Loading } from '../common';
 
 
 
-
-const AddRoomPayment = ({ addEditPaymentModal, submitAddPayment, onChangeInput, closeAddPaymentModal}) => {
+const ProceedPaymentModal = ({ addEditPaymentModal, submitAddPayment, closeAddPaymentModal, loading}) => {
     const inputFieldValidation = addEditPaymentModal?.data?.type ? "#6d6d6d" : "rgb(255,55,95)";
-    const [selectedCategory, setSelectedCategory] = useState('');
-
-
-    const categoryList =  [
-        {
-            id: 1,
-            category_name: 'ROOM_RENT'
-        },
-        {
-            id: 2,
-            category_name: 'ELECTRICITY'
-        },
-        {
-            id: 3,
-            category_name: 'OTHERS'
-        }
-    ];
 
     return (
         <Modal
@@ -63,7 +44,7 @@ const AddRoomPayment = ({ addEditPaymentModal, submitAddPayment, onChangeInput, 
                                     <Text style={styles.cancelContainerText}>Cancel</Text>
                                 </TouchableOpacity>
                                 <View style={[commonStyles.center, {paddingVertical:12}]}>
-                                    <Text style={styles.modalLabelText}>{addEditPaymentModal.isAdd ? 'Add' : 'Edit'} Room Payment</Text>
+                                    <Text style={styles.modalLabelText}>{addEditPaymentModal.isAdd ? 'Proceed' : 'Edit'} to Payment</Text>
                                 </View>
                                 <Ripple onPress={() => submitAddPayment()} style={styles.submitContainer}>
                                     <Text 
@@ -76,72 +57,34 @@ const AddRoomPayment = ({ addEditPaymentModal, submitAddPayment, onChangeInput, 
                                 </Ripple>
                             </View>
                             <ScrollView contentContainerStyle={styles.contentContainer}>
-                                <View style={styles.inputContainer}>
-                                    <View>
-                                        <IconToggle
-                                            name={"book"}
-                                            set={"entypo"}
-                                            color={inputFieldValidation}
-                                            size={30}
-                                        />
-                                    </View>
-                                    {/* <TextInput
-                                        style={styles.inputField}
-                                        onChangeText={(value) => onChangeInput(value, 'type')}
-                                        value={addEditPaymentModal.data.type}
-                                        placeholder="Payment Type"
-                                    /> */}
-                                    <Picker
-                                        style={styles.picker}
-                                        selectedValue={addEditPaymentModal?.data?.type}
-                                        onValueChange={(itemValue, itemIndex) =>
-                                            onChangeInput(itemValue, 'type')
-                                        }>
-                                        {
-                                            categoryList.map((item) => {
-                                                return(
-                                                    <Picker.Item key={item.id} label={item.category_name} value={item.category_name} />
-                                                )
-                                            })
-                                        }
-                                    </Picker>
+                            <View style={styles.contentContainer}>
+                                <Text style={styles.contentText}>Choose the payment method</Text>
                                 </View>
-                                <View style={commonStyles.vSpace2} />
-                                <View style={commonStyles.row}>
-                                    <View>
-                                        <IconToggle
-                                            name={"account-tie"}
-                                            set={"material"}
-                                            color={"#6d6d6d"}
-                                            size={30}
-
-                                        />
-                                    </View>
-                                    <TextInput
-                                        style={styles.inputField}
-                                        onChangeText={(value) => onChangeInput(value, 'description')}
-                                        value={addEditPaymentModal.data.description}
-                                        placeholder="Description"
-                                    />
+                                <View style={styles.contentContainer}>
+                                    <Text style={styles.amountContentText}>Amount to be paid :   ₹ {addEditPaymentModal.data.amount}</Text>
                                 </View>
-                                <View style={commonStyles.vSpace2} />
-                                <View style={commonStyles.row}>
-                                    <View>
-                                        <IconToggle
-                                            name={"pricetags"}
-                                            set={"ionicons"}
-                                            color={"#6d6d6d"}
-                                            size={30}
-
-                                        />
+                                <View style={styles.paymentContainer}>
+                                    <View style={styles.contentContainer}>
+                                        <Text style={styles.amountContentText}>Click here for paytm  : </Text>
                                     </View>
-                                    <TextInput
-                                        style={[styles.inputField, {borderBottomWidth:0}]}
-                                        onChangeText={(value) => onChangeInput(value, 'amount')}
-                                        value={addEditPaymentModal.data.amount}
-                                        placeholder="Price"
-                                        keyboardType='numeric'
-                                    />
+                                    <View
+                                        style={[
+                                            styles.roomsListIcon
+                                        ]}>
+                                        <TouchableOpacity
+                                            onPress={() => { submitAddPayment() }}
+                                        >
+                                            {!addEditPaymentModal.loading ?
+                                                <View style={styles.orderWrapper}>
+                                                    <Text style={styles.orderText}>Pay now</Text>
+                                                    <IconToggle set={'feather'} name="chevron-right" size={18} color={colors.black} />
+                                                </View>
+                                                :
+                                                <Loading size={'small'} />
+                                            }
+
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </ScrollView>
                         </View>
@@ -152,7 +95,7 @@ const AddRoomPayment = ({ addEditPaymentModal, submitAddPayment, onChangeInput, 
     );
 }
 
-export default AddRoomPayment;
+export default ProceedPaymentModal;
 
 const styles = StyleSheet.create({
     contentContainer: {
@@ -244,6 +187,60 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
         width: '100%'
 	},
+    orderText: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 10,
+        paddingLeft: 5,
+        marginRight: 10,
+        alignItems: 'center'
+      },
+      orderWrapper: {
+        marginTop: 10,
+        marginBottom: 20,
+        marginHorizontal: 10,
+        backgroundColor: colors.orange,
+        borderRadius: 50,
+        width: 80,
+        paddingVertical: 10,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      infoItemTitle: {
+        fontFamily: 'Montserrat-Medium',
+        fontSize: 14,
+        color: colors.textLight,
+        paddingRight: 50,
+      },
+      contentContainer: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 16,
+        color: '#000',
+        marginBottom: 10
+      },
+      contentText : {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 16,
+        color: '#000',
+        flexDirection: 'row',
+        alignItems:'center',
+        justifyContent: 'center',
+        textAlign : 'center',
+        marginTop: 50
+      },
+      amountContentText : {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 16,
+        color: '#000',
+        flexDirection: 'row',
+        alignItems:'center',
+        justifyContent: 'center',
+        marginLeft: 50,
+        marginTop: 20
+      },
+      paymentContainer: {
+        flexDirection: 'row'
+      },
 });
 
 

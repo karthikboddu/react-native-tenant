@@ -1,5 +1,5 @@
 const endpoints = {
-    apiUrl : 'https://nodejs-authtest.herokuapp.com',
+    apiUrl : 'https://nodejs-authentication-production.up.railway.app',
     tenantLogin : '/api/tenant/login',
     ssoLogin : '/api/tenant/SSOLogin',
     verifyAccessToken : '/api/auth/verifyAccessToken',

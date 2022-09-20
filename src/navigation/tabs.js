@@ -385,7 +385,7 @@ const MessageStackScreen = ({ navigation }) => {
                             //title: route.params.title,
                             title: "Messages",
                             headerBackTitleVisible: false,
-                            headerShown: false,
+                            headerShown: true,
                         })}
             />
             <MessageStack.Screen

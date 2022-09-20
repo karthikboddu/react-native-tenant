@@ -71,18 +71,18 @@ const ProfileScreen = ({ navigation }) => {
 
 
       <View style={styles.menuWrapper}>
-        <TouchableRipple onPress={() => {}}>
+        {/* <TouchableRipple onPress={() => {}}>
           <View style={styles.menuItem}>
             <Icon name="heart-outline" color={colors.primary} size={25}/>
             <Text style={styles.menuItemText}>Your Favorites</Text>
           </View>
-        </TouchableRipple>
-        <TouchableRipple onPress={() => {}}>
+        </TouchableRipple> */}
+        {/* <TouchableRipple onPress={() => {}}>
           <View style={styles.menuItem}>
             <Icon name="credit-card" color={colors.primary} size={25}/>
             <Text style={styles.menuItemText}>Payment</Text>
           </View>
-        </TouchableRipple>
+        </TouchableRipple> */}
         <TouchableRipple onPress={{}}>
           <View style={styles.menuItem}>
             <Icon name="share-outline" color={colors.primary} size={25}/>
@@ -118,6 +118,9 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </TouchableRipple>
       </View>
+      {/* <View>
+      <Text style={ {color:colors.primary,alignItems:'center', fontSize: 20, paddingLeft: 10 }}>Karthik</Text>
+      </View> */}
     </SafeAreaView>
     </ScrollView>
   );

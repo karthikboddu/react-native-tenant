@@ -1,6 +1,6 @@
 import JWT from 'expo-jwt';
 import AllInOneSDKManager from 'paytm_allinone_react-native';
-// import { Popup } from 'popup-ui';
+import { Popup } from 'popup-ui';
 import React, { createContext, useReducer } from 'react';
 import Constants from '../Constants';
 import endpoints from '../endpoints';
@@ -591,7 +591,8 @@ export const GlobalProvider = ({ children }) => {
                 )
                     .then((result) => {
                         setScreenLoading(false);
-                        //successPopup();
+                        successPopup();
+                        console.log(result.STATUS,"result.STATUS")
                         if (result.STATUS = Constants.txnSuccess) {
                             console.log(result,"Paytm response")
                             updatePaytmPaymentDetails(orderId, "C", result, buildingId, oldBuildingAmount, amount)
@@ -607,7 +608,7 @@ export const GlobalProvider = ({ children }) => {
                     })
                     .catch((err) => {
                         setScreenLoading(false);
-                        //failedPopup()
+                        failedPopup()
                         getTenantRoomOrderDetails('P,F',1)
                         updatePaytmPaymentDetails(orderId, "F",'',buildingId, 0, 0)
                         console.log("gateway error", err);
@@ -615,7 +616,7 @@ export const GlobalProvider = ({ children }) => {
 
         } catch (error) {
             setScreenLoading(false);
-            // failedPopup()
+            failedPopup()
             console.log(error.message)
             updatePaytmPaymentDetails(orderId, "F", '',buildingId, 0, 0)
             getTenantRoomOrderDetails('P,F',1)
@@ -647,6 +648,7 @@ export const GlobalProvider = ({ children }) => {
         try {
             setScreenLoading(true);
             const res = await deviceStorage.loadJWT();
+            console.log(res,"res")
             //await logout();
 
             let tenantBuildingsOrderRoomsDetails = await getTenantRoomDetails(res, params, page);
@@ -706,6 +708,9 @@ export const GlobalProvider = ({ children }) => {
             setScreenLoading(false);
             getTenantRoomOrderDetails('P,F', 1);
             console.log(resJson,"resjson")
+            if  (resJson.status == 200) {
+                showFlashMessage('Success', 'Room Payment Added. ', 'success', 'success')
+            }
             dispatch({
                 type: 'POST_INIT_TENANT_ORDER_ROOM_PAYMENT',
                 payload: resJson.data

@@ -1,8 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import Moment from 'react-moment';
 import { FlatList, StyleSheet, Text } from 'react-native';
-import CryptoJS from "react-native-crypto-js";
-import SocketIOClient from 'socket.io-client';
 import ContactsFloatingIcon from '../../components/Chat/ContactsFloatingIcon';
 import DecryptText from '../../components/Chat/DecryptText';
 import { GlobalContext } from '../../context/GlobalState';
@@ -55,12 +53,6 @@ const MessagesData = [
 ];
 
 
-const socket = SocketIOClient('http://localhost:8000');
-
-socket.on('connect', () => console.log('connected'));
-
-socket.on('disconnect', () => console.log('disconnected'));
-
 const Messages = ({navigation}) => {
 
   const {fetchAllTenantLastConversations, tenantLastConversations, fetchAllTenantList} = useContext(GlobalContext);
@@ -69,44 +61,13 @@ const Messages = ({navigation}) => {
     fetchAllTenantLastConversations()
     fetchAllTenantList()
     console.log(tenantLastConversations,"tenantLastConversations   ");
-    decryptJsonData()
     
     const willFocusSubscription = navigation.addListener('focus', () => {
       fetchAllTenantLastConversations()
     }); return willFocusSubscription;
 
   },[])
-  const [data, setData] = React.useState({
-    name : "",
-    room : "",
-    isValid : false
-  })
-
-  const decryptJsonData = () => {
-    let resultData = [];
-    if (tenantLastConversations.length > 0) {
-    tenantLastConversations.conversations.forEach(element => {
-      var list = {};
-      list = element;
-      console.log(list,"Data**************")
-      list.text = decryptText(element.text);
-      resultData.push(list);
-    });
-    }
-  
-    return resultData;
-  
-  }
-  
-  const decryptText = (text) => {
-    console.log(text,"cipter")
-    let bytes  = CryptoJS.AES.decrypt(text, '0123456789123456');
-    let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-    console.log(decryptedData,"decipter")
-    return decryptedData;
-  }
-  
-
+ 
     return (
       <Container>
         <FlatList 

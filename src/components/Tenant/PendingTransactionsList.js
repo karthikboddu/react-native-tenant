@@ -1,5 +1,4 @@
-import { BottomSheetModal, BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Moment from 'react-moment';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { TouchableRipple } from 'react-native-paper';
@@ -11,6 +10,7 @@ import { SIZES } from "../../constants";
 import { GlobalContext } from '../../context/GlobalState';
 import { generatePaytmToken } from '../../services/tenant/tenantService';
 import { Loading } from "../common";
+import ProceedPaymentModal from "./ProceedPaymentModal";
 
 const PendingTransactionsList = () => {
 
@@ -20,20 +20,64 @@ const PendingTransactionsList = () => {
     const [price, setPrice] = useState(0);
     const [roomId, setRoomId] = useState(0);
 
-    const bottomSheetModalRef = useRef(null);
-    const snapPoints = useMemo(() => ["25%", "75%"], []);
     const { startPaytmTransaction, paytmTransactionResponse
         , screenLoading, setScreenLoading, getTenantRoomOrderDetails, tenantRoomOrderDetails,
         initTenantRoomOrderPayment, popupLoading, setPopup } = useContext(GlobalContext);
 
-    // callbacks
-    const handlePresentModalPress = useCallback((amount, orderId, roomCId) => {
-        setAmount(amount);
-        setOrderId(orderId);
-        setRoomContractId(roomCId)
-        bottomSheetModalRef.current?.present();
 
-    }, []);
+
+    const initialPaymentValues = {
+        roomContractId: '',
+        orderId: '',
+        amount: '',
+        paymentForDate : new Date()
+      };
+    
+    const initialAddEditRoomPaymentValues = {
+        pending: false,
+        failed: false,
+        visible: false,
+        loading : false,
+        data: initialPaymentValues,
+        isAdd: null
+      };
+    
+    const [addEditPaymentModal, setAddEditPaymentModall] = useState(initialAddEditRoomPaymentValues);
+
+    const openAddEditPaymentModal = (action, data , price, orderId, room_contract_id) => {
+
+        data.amount = price;
+        data.orderId = orderId;
+        data.roomContractId = room_contract_id;
+        setAddEditPaymentModall((prevState) => ({
+          ...prevState,
+          isAdd: action === 'add',
+          visible: true,
+          data
+        }));
+    }
+
+    const onChangeInput = (inputValue, inputName) => {
+        setAddEditPaymentModall({
+          ...addEditPaymentModal,
+          data: {
+            ...addEditPaymentModal.data,
+            [inputName]: inputValue
+          }
+        });
+      }
+  
+    const closeAddEditPaymentModal = () => {
+      setAddEditPaymentModall((prevState) => ({
+        ...prevState,
+        visible: false
+      }));
+    }
+
+    const submitAddEditPayment = async () => {
+        await payNow(addEditPaymentModal.data.amount, addEditPaymentModal.data.orderId, addEditPaymentModal.data.roomContractId);
+    };
+  
 
     useEffect(() => {
 
@@ -41,9 +85,7 @@ const PendingTransactionsList = () => {
         setRoomId(tenantRoomOrderDetails.floor_room_id)
     
       }, [])
-    const handleSheetChanges = useCallback((index) => {
-        console.log('handleSheetChanges', index);
-    }, []);
+
 
     const payNow = async (amount, orderId, roomCId) => {
         setScreenLoading(true);
@@ -68,7 +110,7 @@ const PendingTransactionsList = () => {
         console.log("gateway response1", resJson);
     
         startPaytmTransaction(resJson.data?.orderId, amount, txnToken, resJson.data?.buildingId, resJson.data?.buildingAmount);
-    
+        closeAddEditPaymentModal();
         getTenantRoomOrderDetails('P,F', 1);
       }
     
@@ -151,7 +193,7 @@ const PendingTransactionsList = () => {
                             styles.roomsListIcon
                         ]}>
                         <TouchableOpacity
-                            onPress={() => { handlePresentModalPress(item.price, item._id, item.room_contract_id) }}
+                            onPress={() => openAddEditPaymentModal('add', initialPaymentValues, item.price, item._id, item.room_contract_id)}
                         >
                             {!screenLoading ?
                                 <View style={styles.orderWrapper}>
@@ -171,7 +213,7 @@ const PendingTransactionsList = () => {
     }
 
     return (
-        <BottomSheetModalProvider>
+        <View>
             <View>
                 <FlatList
                     data={tenantRoomOrderDetails.orderDetails}
@@ -186,45 +228,15 @@ const PendingTransactionsList = () => {
             </View>
 
             <View style={styles.container}>
-
-                <BottomSheetModal
-                    ref={bottomSheetModalRef}
-                    index={1}
-                    snapPoints={snapPoints}
-                    onChange={handleSheetChanges}
-                >
-                    <View style={styles.contentContainer}>
-                        <Text style={styles.contentText}>Choose the payment method</Text>
-                    </View>
-                    <View style={styles.contentContainer}>
-                        <Text style={styles.amountContentText}>Amount to be paid :   ₹ {amount}</Text>
-                    </View>
-                    <View style={styles.paymentContainer}>
-                        <View style={styles.contentContainer}>
-                            <Text style={styles.amountContentText}>Click here for paytm  : </Text>
-                        </View>
-                        <View
-                            style={[
-                                styles.roomsListIcon
-                            ]}>
-                            <TouchableOpacity
-                                onPress={() => { payNow(amount, orderId, roomContractId) }}
-                            >
-                                {!screenLoading ?
-                                    <View style={styles.orderWrapper}>
-                                        <Text style={styles.orderText}>Pay now</Text>
-                                        <Feather name="chevron-right" size={18} color={colors.black} />
-                                    </View>
-                                    :
-                                    <Loading size={'small'} />
-                                }
-
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </BottomSheetModal>
             </View>
-        </BottomSheetModalProvider>
+            {addEditPaymentModal.visible && (
+            <ProceedPaymentModal
+                    addEditPaymentModal={addEditPaymentModal}
+                    closeAddPaymentModal={closeAddEditPaymentModal}
+                    submitAddPayment={submitAddEditPayment}
+                />
+                )}
+            </View>
     )
 }
 

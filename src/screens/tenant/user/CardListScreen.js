@@ -6,7 +6,9 @@ import { Card } from 'react-native-shadow-cards';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../../assets/colors/colors';
 import { Loading } from '../../../components/common';
+import { COLORS } from '../../../constants';
 import { GlobalContext } from '../../../context/GlobalState';
+import { IconToggle } from '../../../utils';
 
 const CardListScreen = () => {
 
@@ -40,7 +42,7 @@ const CardListScreen = () => {
       <View style={styles.sliderContainer}>
 
           <View style={styles.slide} >
-              <Card style={{ padding: 10, margin: 20, height: 200, width: 'auto', borderRadius: 25 }} backgroundColor="#fff"    >
+              <Card style={{ padding: 10, margin: 20, height: 220, width: 'auto', borderRadius: 25 }} backgroundColor="#fff"    >
                 <View style={styles.card}>
 
                   <View style={styles.cardInfo1}>
@@ -72,6 +74,27 @@ const CardListScreen = () => {
                         </Text>
                       )}
                     </View>
+                    <View style={styles.menuItem2}>
+                    <View>
+                    <IconToggle
+                            set = {"fontawesome"}    
+                            name="building" size={16}
+                            color = {COLORS.primary}
+                      />
+                      </View>
+                      <View>
+                      {tenantRoomOrderDetails.buildingDetails && (
+
+                        <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13, paddingTop:5 }}>
+
+                          {tenantRoomOrderDetails.buildingDetails.map(m => (
+
+                            <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>{m.building_name}</Text>
+                          ))}
+                        </Text>
+                      )}
+                    </View>
+                    </View>
                   </View>
                 </View>
                 {tenantRoomOrderDetails.roomDetails && (
@@ -100,12 +123,6 @@ const CardListScreen = () => {
           </View>
       </View>
 
-      {/* <FlatList 
-            data={data}
-            renderItem={renderItem}
-            keyExtractor={item => item.id}
-            numColumns= {2}
-        /> */}
     </View>
   );
 };
@@ -137,6 +154,9 @@ const styles = StyleSheet.create({
   },
   menuItem1: {
     flexDirection: 'column'
+  },
+  menuItem2: {
+    flexDirection: 'row'
   },
   planDetails: {
     flexDirection: 'column'

@@ -1,5 +1,7 @@
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import { Video } from 'expo-av';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import CryptoJS from "react-native-crypto-js";
 import { Actions, Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import Feather from 'react-native-vector-icons/Feather';
@@ -8,11 +10,13 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
 import ChatHeader from '../../components/Chat/ChatHeader';
+import { icons } from "../../constants";
 import { GlobalContext } from '../../context/GlobalState';
 import endpoints from '../../endpoints';
-import { pickImage, uploadImage } from '../../helpers/firebase';
+import { pickImage, pickImageFromGallery, uploadImage } from '../../helpers/firebase';
 import deviceStorage from '../../services/deviceStorage';
 import { disconnectSocket, initiateSocketConnection, onTypingMessage, sendMessage, subscribeToMessages } from '../../services/socketService';
+const { height, width } = Dimensions.get('window');
 
 const ChatScreen = ({route,navigation}) => {
   const [messages, setMessages] = useState([]);
@@ -29,6 +33,7 @@ const ChatScreen = ({route,navigation}) => {
   console.log(route?.params?.id,"route",{ roomName: CHAT_ROOM, stoken : route?.params?.fromUserId, to : route?.params?.id, parentId : route?.params?.parentId})
 
   let query = '?page=' + 1 + '&size=' + 20;
+
   useEffect(() => {
 
     setToken(route?.params?.fromUserId)
@@ -83,6 +88,42 @@ const ChatScreen = ({route,navigation}) => {
       GiftedChat.append(previousMessages, messages),
     );
   }, []);
+
+  const { showActionSheetWithOptions } = useActionSheet();
+  const handleActionMenuList = (dataItem) => {
+    showActionSheetWithOptions({
+        options: ["Cancel", "Open Camera", "Open Gallery"],
+        destructiveButtonIndex: 2,
+        cancelButtonIndex: 0,
+        userInterfaceStyle: 'light',
+        icons
+    }, buttonIndex => {
+        if (buttonIndex === 0) {
+            // cancel action
+        } else if (buttonIndex === 1) {
+            
+            handlePhotoPicker()
+        } else if (buttonIndex === 2) {
+            
+          handlePhotoPickerFromGallery()
+        }
+    });
+}
+
+const renderMessageVideo = (props) => {
+  const { currentMessage } = props;
+  return (
+    <View style={{ padding: 20 }}>
+       <Video
+        resizeMode="cover"
+        useNativeControls
+        shouldPlay={false}
+        source={{ uri: currentMessage.video }}
+        style={styles.video}
+      />
+    </View>
+  );
+};
 
   const renderSend = (props) => {
     return (
@@ -175,7 +216,6 @@ const decryptJsonData = (data) => {
   data.forEach(element => {
     var list = {};
     list = element;
-    console.log(list,"Data**************")
     if (!(typeof element.text === 'string' && element.text.trim().length === 0)) {
     
       list.text = decryptText(element.text);
@@ -215,27 +255,56 @@ const decryptText = (text) => {
     }
   }
 
+  const handlePhotoPickerFromGallery = async() => {
+    const result = await pickImageFromGallery();
+    if (!result.cancelled) {
+      await sendImage(result.uri, route?.params?.fromUserId);
+    }
+  }
+
   async function sendImage(uri, path) {
     const { url, fileName } = await uploadImage(
       uri,
       `images/${path}`
     );
     console.log(url,"download url")
+    let filename = uri.substring(uri.lastIndexOf('/') + 1);
+    const extension = filename.split('.').pop();
+    console.log(extension, "extension");
+    let messages = {}
+    let format;
+    if (extension == "mp4") {
+       messages = {
+        _id : fileName,
+        text : "",
+        user : {
+          "_id": route?.params?.fromUserId,
+        },
+        toTenantId  : route?.params?.id,
+        video : url,
+        assetType : 'VIDEO'
+      }
+      
+      format = "VIDEO";
+    } else {
+       messages = {
+        _id : fileName,
+        text : "",
+        user : {
+          "_id": route?.params?.fromUserId,
+        },
+        toTenantId  : route?.params?.id,
+        image : url,
+        assetType : 'IMAGE'
+      }
 
-    const messages = {
-      _id : fileName,
-      text : "",
-      user : {
-        "_id": route?.params?.fromUserId,
-      },
-      toTenantId  : route?.params?.id,
-      image : url,
-      assetType : 'IMAGE'
+      format = 'IMAGE'
     }
+
 
    
     
-    sendMessage({message: "", roomName: CHAT_ROOM, stoken : route?.params?.fromUserId, to : route?.params?.id, parentId : route?.params?.parentId, image : url}, cb => {
+    sendMessage({message: "", roomName: CHAT_ROOM, stoken : route?.params?.fromUserId, to : route?.params?.id, parentId : route?.params?.parentId, image : url, assetType : format}, cb => {
     	console.log(cb);
     });
 
@@ -287,8 +356,9 @@ const decryptText = (text) => {
           }
         }}
       scrollToBottomComponent={scrollToBottomComponent}
+      renderMessageVideo={renderMessageVideo}
       renderActions={(props) => (
-          <Actions
+          <Actions 
             {...props}
             containerStyle={{
               position: "absolute",
@@ -296,7 +366,7 @@ const decryptText = (text) => {
               bottom: 5,
               zIndex: 9999,
             }}
-            onPressActionButton={handlePhotoPicker}
+            onPressActionButton={handleActionMenuList}
             icon={() => (
               <Ionicons name="camera" size={30} color={colors.primary} />
             )}
@@ -332,4 +402,5 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   
   },
+  video: {width: 120,height: 80}
 });

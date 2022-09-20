@@ -315,7 +315,7 @@ const TenantSignUp = ({route, routeDetails}) => {
         if ( username.length == 0 || password.length == 0 || aadharId.length ==0 || email.length ==0 ||
             fullName.length==0 || mobileNo.length ==0 || address.length ==0  || actualPrice ==0 || price ==0
             || advancePaid == false|| noOfPersons ==0) {
-            Alert.alert('Wrong Input!', 'Username or password field cannot be empty.', [
+            Alert.alert('Wrong Input!', 'Some fields cannot be empty.', [
                 {text: 'Okay'}
             ]);
             return;
