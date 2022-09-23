@@ -1,21 +1,86 @@
-import React from 'react';
-import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import React, { useContext } from 'react';
+import Moment from 'react-moment';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import colors from '../assets/colors/colors';
+import { COLORS } from '../constants';
+import { GlobalContext } from '../context/GlobalState';
+import IconToggle from '../utils/IconToggle';
+import { Loading } from './common';
 
-//import StarRating from './StarRating';
+const CardCustom = ({ itemData }) => {
 
-const CardCustom = ({itemData, onPress}) => {
+  const { screenLoading } = useContext(GlobalContext);
+  const navigation = useNavigation();
+
+  if (itemData.totalAmount <= 0) {
+    return (<></>);
+  }
+  console.log(itemData)
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity>
       <View style={styles.card}>
+
         <View style={styles.cardInfo}>
-          <View style={styles.cardIcon}>
-            <Ionicons name="home-outline" size={45} color="#fff" />
+          {itemData.totalAmount && (
+
+            <View style={styles.menuItem1}>
+
+              <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 10 }}>Amount Due</Text>
+              <Text style={{ fontWeight: "bold", fontSize: 15, paddingLeft: 10 }}>₹ {itemData.totalAmount}</Text>
+
+            </View>
+
+          )}
+          <View style={styles.menuItem}>
+            <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>Expires on</Text>
+            {itemData.endAt && (
+
+              <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>
+                <Moment format="D MMM YYYY" element={Text}>{itemData.endAt}</Moment>
+              </Text>
+            )}
           </View>
-          <Text style={styles.cardTitle}>{itemData.title}</Text>
-          <Text numberOfLines={2} style={styles.cardDetails}>{itemData.description}</Text>
-          <Text style={styles.cardTitle}>{itemData.title}</Text>
+          <View style={styles.menuItem2}>
+            <View>
+              <IconToggle
+                set={"fontawesome"}
+                name="building" size={16}
+                color={COLORS.primary}
+              />
+            </View>
+            <View>
+              {itemData.buildingName && (
+
+                <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13, paddingTop: 5 }}>
+                  <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>{itemData.buildingName}</Text>
+                </Text>
+              )}
+            </View>
+          </View>
         </View>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('PaymentDetails')
+          }>
+          {!screenLoading ?
+            <View>
+              <View style={styles.orderWrapper}
+              >
+                <Text style={styles.orderText}>Pay now</Text>
+                <IconToggle
+                  set={"Feather"}
+                  name="chevron-right" size={18}
+                  color={colors.black}
+                />
+              </View>
+
+            </View>
+            :
+            <Loading size={'small'} />
+          }
+
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -25,18 +90,18 @@ export default CardCustom;
 
 const styles = StyleSheet.create({
   card: {
-    height: 100,
     marginVertical: 10,
-    paddingLeft:14,
-    marginLeft:20,
-    borderRadius:10,
-    width:'auto',
+    paddingLeft: 14,
+    marginLeft: 20,
+    borderRadius: 10,
+    height: '100%',
+    width: '100%',
     shadowColor: '#999',
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-    backgroundColor:'#78ADF9'
+    shadowRadius: 1,
+    elevation: 1,
+    borderColor: '#000'
   },
   cardImgWrapper: {
     flex: 3,
@@ -51,21 +116,49 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 0,
   },
   cardInfo: {
-  
-    flexWrap:'wrap',
-    padding: 10,
-    
+    flexWrap: 'wrap',
+    padding: 10
   },
   cardTitle: {
-    fontSize:20,
-    color:'#fff',
+    fontSize: 20,
+    color: '#fff',
     fontWeight: 'bold',
   },
   cardDetails: {
     fontSize: 20,
     color: '#fff',
   },
-  cardIcon : {
+  cardIcon: {
     paddingRight: 20
-  }
+  },
+  menuItem: {
+    flexDirection: 'column',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+  },
+  menuItem1: {
+    flexDirection: 'column'
+  },
+  menuItem2: {
+    flexDirection: 'row'
+  },
+  orderWrapper: {
+    marginTop: 10,
+    marginBottom: 20,
+    marginHorizontal: 10,
+    backgroundColor: colors.orange,
+    borderRadius: 50,
+    width: 80,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  orderText: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 10,
+    paddingLeft: 5,
+    marginRight: 10,
+    alignItems: 'center'
+  },
 });

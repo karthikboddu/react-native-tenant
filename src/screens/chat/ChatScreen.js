@@ -43,8 +43,9 @@ const ChatScreen = ({route,navigation}) => {
       initiateSocketConnection(token);
       subscribeToMessages({token}, (err,data) => {
         console.log(data);
-        console.log(data.isTyping, data.receiverToken,route?.params?.id, data.senderToken, route?.params?.fromUserId);
         if (data.isTyping == null) {
+            let ciphertext =  decryptText(data.text);
+            data.text = ciphertext;
             setMessages((previousMessages) =>
               GiftedChat.append(previousMessages, data),
             );

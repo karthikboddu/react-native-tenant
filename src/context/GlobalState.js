@@ -491,14 +491,17 @@ export const GlobalProvider = ({ children }) => {
         try {
 
             const res = await deviceStorage.loadJWT();
+            setSkeletionLoading(true);
             let tenantBuildingsFloorRoomsDetails = await listRoomsByFloorId(res, floorId);
 
             let resJson = await tenantBuildingsFloorRoomsDetails.json();
+            setSkeletionLoading(false)
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_ROOM_BYID_LIST',
                 payload: resJson.data
             });
         } catch (error) {
+            setSkeletionLoading(false)
             console.log(error)
             showFlashMessage('Error', error, 'danger', 'danger');
             dispatch({
@@ -761,7 +764,9 @@ export const GlobalProvider = ({ children }) => {
             let resJson = await tenantDetails.json();
             setScreenLoading(false);
             getTenantRoomOrderDetails('P,F', 1);
-
+            if(resJson.status == 200) { 
+                showFlashMessage('Success', 'Tenant Added', 'success', 'success')
+            }
             dispatch({
                 type: 'POST_CREATE_TENANT_ORDER_ROOM_PAYMENT',
                 payload: resJson.data
@@ -811,7 +816,9 @@ export const GlobalProvider = ({ children }) => {
             let resJson = await tenantDetails.json();
             setScreenLoading(false);
             getTenantRoomOrderDetails('P,F', 1);
-
+            if(resJson.status == 200) { 
+                showFlashMessage('Success', 'Room Payment Updated . ', 'success', 'success')
+            }
             dispatch({
                 type: 'POST_CREATE_ORDER_ROOM_PAYMENT_COMPLETE',
                 payload: resJson.data

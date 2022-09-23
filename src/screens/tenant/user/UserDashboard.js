@@ -32,10 +32,6 @@ const UserDashboard = () => {
       <View style={{ marginBottom: 200 }}>
         <CardListScreen />
       </View>
-
-
-
-      {/* <RecentTransactions /> */}
     </View>
   )
 }

@@ -3,6 +3,7 @@ import ContentLoader, { Rect } from 'react-content-loader/native';
 import { FlatList, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
+import SkeletonFloorsList from '../../components/Tenant/SkeletonFloorsList';
 import { FONTS, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
 import { Ripple } from '../../utils';
@@ -25,7 +26,7 @@ const BuildingDetails = ({ route, navigation }) => {
   const { tenantBuildingListById, getTenantBuildingsById,
     tenantBuildingFloorList, getTenantFloorsBuildingId,
     tenantBuildingFloorRoomsList, getTenantRoomsByFloorId,
-    clearStateVariable, screenLoading } = useContext(GlobalContext);
+    clearStateVariable, screenLoading, skeletonLoading } = useContext(GlobalContext);
 
   useEffect(() => {
     //clearStateVariable();
@@ -93,9 +94,15 @@ const BuildingDetails = ({ route, navigation }) => {
 
       <View style={styles.popularWrapper}>
         <Text style={styles.popularTitle}>List of rooms</Text>
+        {skeletonLoading ? (
+            <SkeletonFloorsList/>
+        ) : (
+          <>
         {tenantBuildingFloorRoomsList.map((item) => (
           <FloorsList key={item.created_at} data={item} buildingId={route.params?.items} loading={loader} navigation={navigation} />
         ))}
+        </>
+        )}
       </View>
     )
   }
@@ -353,10 +360,31 @@ const styles = new StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 30
   },
+  popularCardWrapper1: {
+    backgroundColor: colors.white,
+    borderRadius: 25,
+    paddingTop: 10,
+    paddingLeft: 20,
+    marginBottom: 10,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    shadowColor: colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+    height: 70,
+  },
   popularTitle: {
     fontFamily: 'Montserrat-Bold',
     fontSize: 16,
     color: '#000',
+    alignItems: 'center',
+    marginBottom: 10,
+    marginTop: 20
   },
   floorListIcon: {
     alignSelf: 'center',

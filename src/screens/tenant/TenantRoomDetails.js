@@ -4,7 +4,6 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
 import BackButton from "../../components/BackButton";
-import Button from '../../components/Button';
 import AddRoomPayment from '../../components/Tenant/AddRoomPayment';
 import ListTenantRoomDetails from "../../components/Tenant/ListTenantRoomDetails";
 import { GlobalContext } from '../../context/GlobalState';
@@ -141,14 +140,24 @@ const openAddEditPaymentModal = (action, data) => {
           ) : (
             <View style={styles.titlesWrapper}>
                     <Text style={styles.title}>Room is empty</Text>
-                    <Button
+                    {/* <Button
                         onPress={() =>
                             navigation.navigate('TenantSignUp', routeDetails)}
-                    >Add tenant to room</Button>
+                    >Add tenant to room</Button> */}
+                        <IconToggle
+                          name={'book-plus-multiple'}
+                          size={25}
+                          set={'material'}
+                          color={'#298df7'}
+                          onPress={() =>
+                            navigation.navigate('TenantSignUp', routeDetails)}
+                        />
                 </View>
           )}
 
       <View>
+        {tenantBuildingFloorRoomsDetails.length > 0 && (
+        <>
         <View style={styles.titlesWrapper}>
           <Text style={styles.titleSecond}>Room Transactions</Text>
           <IconToggle
@@ -166,7 +175,10 @@ const openAddEditPaymentModal = (action, data) => {
             <Feather name="chevron-right" size={18} color={colors.black} />
           </View>
         </TouchableOpacity>
+        </>
+        )}
       </View>
+      <>
       {addEditPaymentModal.visible && (
         <AddRoomPayment
           addEditPaymentModal={addEditPaymentModal}
@@ -176,6 +188,7 @@ const openAddEditPaymentModal = (action, data) => {
           handleActionMenuList={handleActionMenuList}
         />
       )}
+      </>
     </View>
   )
 }

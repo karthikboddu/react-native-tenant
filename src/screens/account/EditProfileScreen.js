@@ -1,21 +1,20 @@
+import { useActionSheet } from "@expo/react-native-action-sheet";
 import storage from '@react-native-firebase/storage';
-import * as ImagePicker from 'expo-image-picker';
 import React, { useContext, useState } from 'react';
 import {
   ImageBackground, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View
 } from 'react-native';
-import ActionButton from 'react-native-action-button';
 import { useTheme } from 'react-native-paper';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
 import { Loading } from '../../components/common';
 import { GlobalContext } from '../../context/GlobalState';
+import { openCameraProfileImage, pickProfileImage } from '../../helpers/firebase';
+import { IconToggle } from "../../utils";
 
-
-const EditProfileScreen = ({navigation}) => {
+const EditProfileScreen = ({ navigation }) => {
 
   const [image, setImage] = useState(null);
   const { colors } = useTheme();
@@ -30,12 +29,7 @@ const EditProfileScreen = ({navigation}) => {
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+    let result = await pickProfileImage();
 
     console.log(result);
 
@@ -44,16 +38,12 @@ const EditProfileScreen = ({navigation}) => {
     }
   };
 
-  const takePhotoFromCamera = () => {
-    ImagePicker.openCamera({
-      width: 1200,
-      height: 780,
-      cropping: true,
-    }).then((image) => {
-      console.log(image);
-      const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
+  const takePhotoFromCamera = async () => {
+    let result = await openCameraProfileImage();
+    const imageUri = Platform.OS === 'ios' ? result.sourceURL : result.path;
+    if (!result.cancelled) {
       setImage(imageUri);
-    });
+    }
   };
 
   const uploadImage = async () => {
@@ -115,182 +105,207 @@ const EditProfileScreen = ({navigation}) => {
 
   };
 
+  const icons = [
+    <IconToggle
+      set={'fontAwesome'}
+      name={'close'}
+      size={22}
+    />,
+    <IconToggle
+      set={'fontAwesome'}
+      name={'edit'}
+      size={22}
+    />,
+    <IconToggle
+      set={'fontAwesome'}
+      name={'trash'}
+      size={22}
+    />
+  ];
+
+  const { showActionSheetWithOptions } = useActionSheet();
+  const handleActionMenuList = (dataItem) => {
+    showActionSheetWithOptions({
+      options: ["Cancel", "Open Camera", "Open Gallery"],
+      destructiveButtonIndex: 2,
+      cancelButtonIndex: 0,
+      userInterfaceStyle: 'light',
+      icons
+    }, buttonIndex => {
+      if (buttonIndex === 0) {
+        // cancel action
+      } else if (buttonIndex === 1) {
+
+        takePhotoFromCamera()
+      } else if (buttonIndex === 2) {
+
+        pickImage()
+      }
+    });
+  }
+
   // bs = React.createRef();
   // fall = new Animated.Value(1);
 
   return (
     <View style={styles.container}>
 
-        <SafeAreaView>
-          <View style={styles.headerWrapper}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <View style={styles.headerLeft}>
-                <Feather name="chevron-left" size={12} color={colors.textDark} />
-              </View>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-
-      <ActionButton buttonColor="#2e64e5">
-        <ActionButton.Item
-          buttonColor="#9b59b6"
-          title="Take Photo"
-          onPress={takePhotoFromCamera}>
-          <Ionicons name="camera-outline" style={styles.actionButtonIcon} />
-        </ActionButton.Item>
-        <ActionButton.Item
-          buttonColor="#3498db"
-          title="Choose Photo"
-          onPress={pickImage}>
-          <Ionicons name="images" style={styles.actionButtonIcon} />
-        </ActionButton.Item>
-      </ActionButton>
-
-        <View style={{ alignItems: 'center' }}>
-          <TouchableOpacity onPress={() =>{}}>
-            <View
-              style={{
-                height: 100,
-                width: 100,
-                borderRadius: 15,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <ImageBackground
-                source={{
-                  uri: image,
-                }}
-                style={{ height: 100, width: 100 }}
-                imageStyle={{ borderRadius: 15 }}>
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <Icon
-                    name="camera"
-                    size={35}
-                    color="#fff"
-                    style={{
-                      opacity: 0.7,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderWidth: 1,
-                      borderColor: '#fff',
-                      borderRadius: 10,
-                    }}
-                  />
-                </View>
-              </ImageBackground>
+      <SafeAreaView>
+        <View style={styles.headerWrapper}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <View style={styles.headerLeft}>
+              <Feather name="chevron-left" size={12} color={colors.textDark} />
             </View>
           </TouchableOpacity>
-          <Text style={{ marginTop: 10, fontSize: 18, fontWeight: 'bold' }}>
-            {userDetails.full_name}
-          </Text>
         </View>
+      </SafeAreaView>
 
-        <View style={styles.action}>
-          <FontAwesome name="user-o" color={colors.text} size={20} />
-          <TextInput
-            placeholder="First Name"
-            placeholderTextColor="#666666"
-            autoCorrect={false}
-            editable={false}
-            value={userDetails.username}
-            style={[
-              styles.textInput,
-              {
-                color: colors.text,
-              },
-            ]}
-          />
-        </View>
-        <View style={styles.action}>
-          <FontAwesome name="user-o" color={colors.text} size={20} />
-          <TextInput
-            placeholder="Last Name"
-            placeholderTextColor="#666666"
-            autoCorrect={false}
-            editable={false}
-            value={userDetails.lastName}
-            style={[
-              styles.textInput,
-              {
-                color: colors.text,
-              },
-            ]}
-          />
-        </View>
-        <View style={styles.action}>
-          <Feather name="phone" color={colors.text} size={20} />
-          <TextInput
-            placeholder="Phone"
-            placeholderTextColor="#666666"
-            keyboardType="number-pad"
-            autoCorrect={false}
-            editable={false}
-            style={[
-              styles.textInput,
-              {
-                color: colors.text,
-              },
-            ]}
-          />
-        </View>
-        <View style={styles.action}>
-          <FontAwesome name="envelope-o" color={colors.text} size={20} />
-          <TextInput
-            placeholder="Email"
-            placeholderTextColor="#666666"
-            keyboardType="email-address"
-            autoCorrect={false}
-            editable={false}
-            value={userDetails.email}
-            style={[
-              styles.textInput,
-              {
-                color: colors.text,
-              },
-            ]}
-          />
-        </View>
-        <View style={styles.action}>
-          <FontAwesome name="globe" color={colors.text} size={20} />
-          <TextInput
-            placeholder="Country"
-            placeholderTextColor="#666666"
-            autoCorrect={false}
-            editable={false}
-            style={[
-              styles.textInput,
-              {
-                color: colors.text,
-              },
-            ]}
-          />
-        </View>
-        <View style={styles.action}>
-          <Icon name="map-marker-outline" color={colors.text} size={20} />
-          <TextInput
-            placeholder="City"
-            placeholderTextColor="#666666"
-            autoCorrect={false}
-            editable={false}
-            style={[
-              styles.textInput,
-              {
-                color: colors.text,
-              },
-            ]}
-          />
-        </View>
-        <TouchableOpacity style={styles.commandButton} onPress={() => uploadImage()}>
-          {!screenLoading ?
-            <Text style={styles.panelButtonTitle}>Submit</Text>
-            :
-            <Loading size={'small'} />}
+
+      <View style={{ alignItems: 'center' }}>
+        <TouchableOpacity onPress={handleActionMenuList}>
+          <View
+            style={{
+              height: 100,
+              width: 100,
+              borderRadius: 15,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <ImageBackground
+              source={{
+                uri: image,
+              }}
+              style={{ height: 100, width: 100 }}
+              imageStyle={{ borderRadius: 15 }}>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Icon
+                  name="camera"
+                  size={35}
+                  color="#fff"
+                  style={{
+                    opacity: 0.7,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderWidth: 1,
+                    borderColor: '#fff',
+                    borderRadius: 10,
+                  }}
+                />
+              </View>
+            </ImageBackground>
+          </View>
         </TouchableOpacity>
+        <Text style={{ marginTop: 10, fontSize: 18, fontWeight: 'bold' }}>
+          {userDetails.full_name}
+        </Text>
+      </View>
+
+      <View style={styles.action}>
+        <FontAwesome name="user-o" color={colors.text} size={20} />
+        <TextInput
+          placeholder="First Name"
+          placeholderTextColor="#666666"
+          autoCorrect={false}
+          editable={false}
+          value={userDetails.username}
+          style={[
+            styles.textInput,
+            {
+              color: colors.text,
+            },
+          ]}
+        />
+      </View>
+      <View style={styles.action}>
+        <FontAwesome name="user-o" color={colors.text} size={20} />
+        <TextInput
+          placeholder="Last Name"
+          placeholderTextColor="#666666"
+          autoCorrect={false}
+          editable={false}
+          value={userDetails.lastName}
+          style={[
+            styles.textInput,
+            {
+              color: colors.text,
+            },
+          ]}
+        />
+      </View>
+      <View style={styles.action}>
+        <Feather name="phone" color={colors.text} size={20} />
+        <TextInput
+          placeholder="Phone"
+          placeholderTextColor="#666666"
+          keyboardType="number-pad"
+          autoCorrect={false}
+          editable={false}
+          style={[
+            styles.textInput,
+            {
+              color: colors.text,
+            },
+          ]}
+        />
+      </View>
+      <View style={styles.action}>
+        <FontAwesome name="envelope-o" color={colors.text} size={20} />
+        <TextInput
+          placeholder="Email"
+          placeholderTextColor="#666666"
+          keyboardType="email-address"
+          autoCorrect={false}
+          editable={false}
+          value={userDetails.email}
+          style={[
+            styles.textInput,
+            {
+              color: colors.text,
+            },
+          ]}
+        />
+      </View>
+      <View style={styles.action}>
+        <FontAwesome name="globe" color={colors.text} size={20} />
+        <TextInput
+          placeholder="Country"
+          placeholderTextColor="#666666"
+          autoCorrect={false}
+          editable={false}
+          style={[
+            styles.textInput,
+            {
+              color: colors.text,
+            },
+          ]}
+        />
+      </View>
+      <View style={styles.action}>
+        <Icon name="map-marker-outline" color={colors.text} size={20} />
+        <TextInput
+          placeholder="City"
+          placeholderTextColor="#666666"
+          autoCorrect={false}
+          editable={false}
+          style={[
+            styles.textInput,
+            {
+              color: colors.text,
+            },
+          ]}
+        />
+      </View>
+      <TouchableOpacity style={styles.commandButton} onPress={() => uploadImage()}>
+        {!screenLoading ?
+          <Text style={styles.panelButtonTitle}>Submit</Text>
+          :
+          <Loading size={'small'} />}
+      </TouchableOpacity>
     </View>
   );
 };

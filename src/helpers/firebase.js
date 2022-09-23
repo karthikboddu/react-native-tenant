@@ -7,6 +7,25 @@ export async function pickImage() {
     return result;
 } 
 
+export async function pickProfileImage() {
+    let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+    return result;
+} 
+
+export async function openCameraProfileImage() {
+    let result = await ImagePicker.openCamera({
+            width: 1200,
+            height: 780,
+            cropping: true,
+        });
+
+        return result;
+}
 export async function pickImageFromGallery() {
     let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.All,

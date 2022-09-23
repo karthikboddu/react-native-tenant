@@ -7,6 +7,7 @@ import * as Animatable from 'react-native-animatable';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Fontisto from 'react-native-vector-icons/Fontisto';
+import BackButton from '../../components/BackButton';
 import Overlay from '../../components/Overlay';
 import { GlobalContext } from '../../context/GlobalState';
 
@@ -335,7 +336,7 @@ const TenantSignUp = ({route, routeDetails}) => {
     return (
       <View style={styles.container}>
         <Overlay isShow={screenLoading} />
-
+        <BackButton goBack={navigation.goBack}/>
 
         <Animatable.View 
             animation="fadeInUpBig"

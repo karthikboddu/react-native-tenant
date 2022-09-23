@@ -46,9 +46,6 @@ const FloorsList = ({ data, buildingId, navigation, loading }) => {
                 {item.contractDetails && (
 
                     <View style={styles.popularCardRight}>
-                        {/* <Ionicons name="add" size={20} color={colors.textDark} />
-                    <Text style={styles.popularCardImage}>20,000</Text> */}
-                        {/* <Image source={item.image} style={styles.popularCardImage} /> */}
                         {item.contractDetails.map(m => (
 
                             <View key={m.created_at}>

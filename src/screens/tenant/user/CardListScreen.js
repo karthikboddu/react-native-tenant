@@ -1,15 +1,10 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useContext } from 'react';
-import Moment from 'react-moment';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Card } from 'react-native-shadow-cards';
-import Feather from 'react-native-vector-icons/Feather';
+import { StyleSheet, View } from 'react-native';
 import colors from '../../../assets/colors/colors';
+import CardCustom from '../../../components/Card';
 import { Loading } from '../../../components/common';
-import { COLORS } from '../../../constants';
 import { GlobalContext } from '../../../context/GlobalState';
-import { IconToggle } from '../../../utils';
-
 const CardListScreen = () => {
 
   const [loader, setLoader] = React.useState(false);
@@ -33,95 +28,21 @@ const CardListScreen = () => {
 
 
 
-
+const data = {
+  totalAmount : tenantRoomOrderDetails.totalAmount ? (tenantRoomOrderDetails.totalAmount[0] ? tenantRoomOrderDetails.totalAmount[0].count : 0) : 0,
+  endAt : tenantRoomOrderDetails.tenantDetails ? tenantRoomOrderDetails.tenantDetails[0].end_at : '',
+  buildingName : tenantRoomOrderDetails.buildingDetails ? tenantRoomOrderDetails.buildingDetails[0].building_name : "Hey"
+  };
 
 
   return (
 
     <View style={styles.container}>
-      <View style={styles.sliderContainer}>
-
-          <View style={styles.slide} >
-              <Card style={{ padding: 10, margin: 20, height: 220, width: 'auto', borderRadius: 25 }} backgroundColor="#fff"    >
-                <View style={styles.card}>
-
-                  <View style={styles.cardInfo1}>
-                    {tenantRoomOrderDetails.totalAmount && (
-
-                      <View style={styles.menuItem1}>
-
-                        <Text style={{ fontWeight: "bold", fontSize: 20, paddingLeft: 10 }}>Amount Due</Text>
-                        <Text style={{ fontWeight: "bold", fontSize: 15, paddingLeft: 10 }}>₹ {tenantRoomOrderDetails.totalAmount[0] ? tenantRoomOrderDetails.totalAmount[0].count : 0}</Text>
-
-                      </View>
-
-                    )}
-                    {/* <StarRating ratings={itemData.ratings} reviews={itemData.reviews} /> */}
-                    {/* <View style={styles.menuItem}>
-                      <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>Plan</Text>
-                      <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>Yearly</Text>
-                    </View> */}
-                    <View style={styles.menuItem}>
-                      <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>Expires on</Text>
-                      {tenantRoomOrderDetails.tenantDetails && (
-
-                        <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>
-
-                          {tenantRoomOrderDetails.tenantDetails.map(m => (
-
-                            <Moment format="D MMM YYYY" key={m._id} element={Text}>{m.end_at}</Moment>
-                          ))}
-                        </Text>
-                      )}
-                    </View>
-                    <View style={styles.menuItem2}>
-                    <View>
-                    <IconToggle
-                            set = {"fontawesome"}    
-                            name="building" size={16}
-                            color = {COLORS.primary}
-                      />
-                      </View>
-                      <View>
-                      {tenantRoomOrderDetails.buildingDetails && (
-
-                        <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13, paddingTop:5 }}>
-
-                          {tenantRoomOrderDetails.buildingDetails.map(m => (
-
-                            <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>{m.building_name}</Text>
-                          ))}
-                        </Text>
-                      )}
-                    </View>
-                    </View>
-                  </View>
-                </View>
-                {tenantRoomOrderDetails.roomDetails && (
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate('PaymentDetails')
-                    }>
-                    {!screenLoading ?
-                      <View>
-                        {tenantRoomOrderDetails.roomDetails.map((item) => (
-                          <View style={styles.orderWrapper}
-                            key={item._id}
-                          >
-                            <Text style={styles.orderText}>Pay now</Text>
-                            <Feather name="chevron-right" size={18} color={colors.black} />
-                          </View>
-                        ))}
-                      </View>
-                      :
-                      <Loading size={'small'} />
-                    }
-
-                  </TouchableOpacity>
-                )}
-              </Card>
-          </View>
-      </View>
+          {!screenLoading ? (
+          <CardCustom itemData = {data}/>
+            ) : (
+              <Loading size={'small'} />
+            )}
 
     </View>
   );
@@ -132,20 +53,6 @@ export default CardListScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1
-  },
-  sliderContainer: {
-    height: 240,
-    marginTop: 10,
-    borderRadius: 8,
-  },
-
-  wrapper: {},
-
-  slide: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-    borderRadius: 8,
   },
   menuItem: {
     flexDirection: 'column',
