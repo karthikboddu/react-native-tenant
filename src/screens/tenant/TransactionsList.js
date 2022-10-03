@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import ContentLoader, { Circle, Rect } from 'react-content-loader/native';
 import Moment from 'react-moment';
 import {
-  ActivityIndicator, Alert, FlatList, Modal, Pressable, StyleSheet,
+  ActivityIndicator, Alert, FlatList, StyleSheet,
   Text, TouchableOpacity, View
 } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -17,7 +17,7 @@ import { icons, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
 import endpoints from '../../endpoints';
 import deviceStorage from '../../services/deviceStorage';
-
+import { IconToggle } from '../../utils';
 
 
 const TransactionsList = (route) => {
@@ -130,6 +130,14 @@ const TransactionsList = (route) => {
     setEndDate(year + '-' + value + '-30');
   }
 
+  const callRefresh = async () => {
+    setData([]);
+    if (isAdmin) {
+      getRecentAllTenantsRoomOrderDetails('P,C,F', page, startDate)
+    } else {
+      getTenantRoomAllOrderDetails('P,C,F', page);
+    }
+  }
 
   const API_URL = endpoints.apiUrl;
   const getTenantRoomAllOrderDetails = async (params, page) => {
@@ -227,40 +235,6 @@ const TransactionsList = (route) => {
       </View>
     );
   };
-
-  function renderModal() {
-    return (
-      <View style={styles.centeredView}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
-            setModalVisible(!modalVisible);
-          }}
-        >
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>Hello World!</Text>
-              <Pressable
-                style={[styles.button, styles.buttonClose]}
-                onPress={() => setModalVisible(!modalVisible)}
-              >
-                <Text style={styles.textStyle}>Hide Modal</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
-        <Pressable
-          style={[styles.button, styles.buttonOpen]}
-          onPress={() => setModalVisible(true)}
-        >
-          <Text style={styles.textStyle}>Show Modal</Text>
-        </Pressable>
-      </View>
-    )
-  }
 
   const getNextPageData = () => {
     console.log(page, "firstpage")
@@ -398,14 +372,14 @@ const TransactionsList = (route) => {
                   {item.room_payment_type == "ROOM_RENT" ? (
                     <Avatar.Image
                         source={icons.key}
-                        size={30}
+                        size={20}
                         style={styles.popularTitlesTitle}
                       />
                   ) : (
                     <>{item.room_payment_type == "ELECTRICITY" ?  (
                     <Avatar.Image
                         source={icons.lightning}
-                        size={30}
+                        size={20}
                         style={styles.popularTitlesTitle}
                       />
                   ) : (                    
@@ -424,21 +398,29 @@ const TransactionsList = (route) => {
                     />
 
                   </Text>
-                  <Text style={styles.popularTitlesTitle}>
+                  <Text style={styles.popularTitlesTitleTime}>
                     <Moment fromNow key={item._id} element={Text}>{item.updated_at}</Moment>
                   </Text>
                 </View>
-
+                {item.contractDetails[0] && (
+                <View style={styles.popularTitlesWrapper}>
+                  <View>
+                    <IconToggle
+                      set={"fontawesome"}
+                      name="building" size={16}
+                      color={colors.primary}
+                    />
+                  </View>
+                  <Text style={styles.popularTitlesTitleTime}>
+                   {item.contractDetails[0] ? (item.contractDetails[0].buildingDetails[0].building_name) : ""}
+                  </Text>
+                </View>
+                )}
               </View>
 
             </View>
             {isAdmin && (
-              <TouchableRipple
-                onPress={() =>
-                  navigation.navigate('TenantRoomDetails', {
-                    item: item.floor_room_id, buildingItemId: item.contractDetails[0].building_id, roomPaymentId: item._id
-                  })}
-                style={{ borderRadius: 10, alignItems: 'flex-end' }}>
+
                 <View
                   style={[
                     styles.detailsListIcon,
@@ -448,10 +430,14 @@ const TransactionsList = (route) => {
                   ]}>
                   <Feather
                     name="chevron-right"
-                    size={15}
-                    color={colors.white}/>
+                    size={35}
+                    color={colors.white}
+                    onPress= {() =>
+                      navigation.navigate('TenantRoomDetails', {
+                        item: item.floor_room_id, buildingItemId: item.contractDetails[0].building_id, roomPaymentId: item._id
+                      })}
+                    />
                 </View>
-              </TouchableRipple>
             )}
           </View>
         </TouchableRipple>
@@ -509,6 +495,8 @@ const TransactionsList = (route) => {
             showsHorizontalScrollIndicator={false}
             keyExtractor={item => item ? `${item._id}` : 0}
             renderItem={renderItem}
+            onRefresh={callRefresh}
+            refreshing={screenLoading}
             contentContainerStyle={{ paddingVertical: SIZES.padding * 2 }}
             ListFooterComponent={renderFooter}
           />
@@ -516,52 +504,6 @@ const TransactionsList = (route) => {
       </View>
     )
 
-  }
-
-  function skeletionLoader() {
-    return (
-      <View>
-        <View
-          style={[
-            styles.popularCardWrapper
-          ]}>
-          <ContentLoader
-            speed={2}
-            width={400}
-            height={150}
-            viewBox="0 0 400 150"
-            backgroundColor="#c0b5b5"
-            foregroundColor="#ecebeb"
-
-          >
-            <Rect x="48" y="8" rx="3" ry="3" width="86" height="18" />
-            <Rect x="156" y="8" rx="3" ry="3" width="86" height="18" />
-          </ContentLoader>
-        </View>
-        {loopVal.map((loop) => {
-          return (<TouchableRipple >
-            <View
-              key={loop}
-              style={[
-                styles.popularCardWrapper
-              ]}>
-              <ContentLoader
-                speed={2}
-                width={400}
-                height={160}
-                viewBox="0 0 400 160"
-                backgroundColor="#c0b5b5"
-                foregroundColor="#ecebeb"
-              >
-                <Rect x="48" y="8" rx="3" ry="3" width="120" height="6" />
-                <Rect x="48" y="23" rx="3" ry="3" width="120" height="6" />
-                <Circle cx="22" cy="22" r="22" />
-              </ContentLoader>
-            </View>
-          </TouchableRipple>)
-        })}
-      </View>
-    )
   }
 
 
@@ -636,7 +578,6 @@ const TransactionsList = (route) => {
           {renderRecentTransactions()}
 
         </View>
-        {/* {renderModal()} */}
       </SafeAreaView>
     </View>
 
@@ -687,7 +628,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: 25,
     paddingTop: 10,
-    paddingLeft: 20,
+
     marginBottom: 10,
     flexDirection: 'row',
     overflow: 'hidden',
@@ -762,6 +703,10 @@ const styles = StyleSheet.create({
   popularTitlesTitle: {
     fontFamily: 'Montserrat-SemiBold',
     fontSize: 10,
+    color: colors.textDark,
+  },
+  popularTitlesTitleTime: {
+    fontSize: 9,
     color: colors.textDark,
   },
   popularTitlesWeight: {
@@ -936,11 +881,12 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
   detailsListIcon: {
-    marginLeft: 23,
-    justifyContent: 'flex-end',
+    marginLeft: 20,
+    alignSelf: 'center',
+    justifyContent: 'center',
     marginTop: 20,
-    width: 26,
-    height: 26,
+    width: 36,
+    height: 36,
     borderRadius: 26,
     marginBottom: 20,
   },

@@ -225,8 +225,7 @@ const styles = StyleSheet.create({
     popularCardWrapper: {
         backgroundColor: colors.white,
         borderRadius: 25,
-        paddingTop: 20,
-        paddingLeft: 20,
+        
         marginBottom: 10,
         flexDirection: 'row',
         overflow: 'hidden',
@@ -247,7 +246,7 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         flexDirection: 'column',
         overflow: 'hidden',
-        height: 130,
+        height: 180,
     },
     popularTopWrapper: {
         flexDirection: 'row',
@@ -261,6 +260,7 @@ const styles = StyleSheet.create({
     popularTitlesWrapper: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        flexWrap : 'wrap',
         alignItems: 'center',
     },
     popularTitlesWrapper1: {
@@ -272,6 +272,8 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 14,
         color: colors.textDark,
+        alignItems: 'center',
+        flexWrap : 'wrap'
     },
     popularTitlesWeight: {
         fontFamily: 'Montserrat-Medium',
@@ -345,7 +347,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat-Medium',
         fontSize: 14,
         color: colors.textLight,
-        paddingRight: 50,
+        paddingRight: 10,
     },
     loadMoreBtn: {
         padding: 10,

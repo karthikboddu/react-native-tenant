@@ -4,10 +4,9 @@ import ContentLoader, { Rect } from 'react-content-loader/native';
 import { FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
-import { COLORS, FONTS, SIZES } from '../../constants';
+import { COLORS, CONSTANTS, FONTS, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
 import HeaderProfileScreen from '../account/HeaderProfileScreen';
-
 
 const AdminDashboard = () => {
     const navigation = useNavigation();
@@ -37,6 +36,10 @@ const AdminDashboard = () => {
         bulkInitTenantRoomPayment();
     }, [])
 
+    const callRefresh = async () => {
+        getTenantBuildings();
+    }
+
 
     function renderAmountOverAll() {
 
@@ -45,11 +48,11 @@ const AdminDashboard = () => {
                 {true ? (
                     <View style={styles.titlesWrapper}>
                         {/* <Text style={styles.titlesSubtitle}>Food</Text> */}
-                        <Text style={styles.titlesTitle}>Total Income : ₹ {tenantBuildingList.totalAmount}</Text>
+                        <Text style={styles.titlesTitle}>Total Income : {CONSTANTS.currencySymbol} {tenantBuildingList.totalAmount}</Text>
                     </View>
                 ) : (
                     <View style={styles.loaderTitlesWrapper} >
-                        <Text style={styles.titlesTitle}>Total Income : ₹
+                        <Text style={styles.titlesTitle}>Total Income : {CONSTANTS.currencySymbol}
                             {/* <ContentLoader
                                 speed={2}
                                 width={400}
@@ -102,7 +105,6 @@ const AdminDashboard = () => {
                     <View
                         style={{
                             backgroundColor: '#78ADF9',
-                            marginRight: 20,
                             marginBottom: 15,
                             borderRadius: 20,
 
@@ -203,7 +205,8 @@ const AdminDashboard = () => {
                         keyExtractor={item => `${item._id}`}
                         renderItem={renderItem}
                         contentContainerStyle={{ paddingVertical: SIZES.padding * 2 }}
-                        refreshing={true}
+                        refreshing={screenLoading}
+                        onRefresh={callRefresh}
                     />
                 )}
             </View>

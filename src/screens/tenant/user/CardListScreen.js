@@ -30,10 +30,10 @@ const CardListScreen = () => {
 
 const data = {
   totalAmount : tenantRoomOrderDetails.totalAmount ? (tenantRoomOrderDetails.totalAmount[0] ? tenantRoomOrderDetails.totalAmount[0].count : 0) : 0,
-  endAt : tenantRoomOrderDetails.tenantDetails ? tenantRoomOrderDetails.tenantDetails[0].end_at : '',
-  buildingName : tenantRoomOrderDetails.buildingDetails ? tenantRoomOrderDetails.buildingDetails[0].building_name : "Hey"
+  endAt : tenantRoomOrderDetails.tenantDetails ? tenantRoomOrderDetails.tenantDetails[0].end_at :  "2023-09-23T14:37:40.380Z",
+  buildingName : tenantRoomOrderDetails.buildingDetails ? tenantRoomOrderDetails.buildingDetails[0].building_name : "Building",
+  isContract : tenantRoomOrderDetails.roomDetails ? true : false
   };
-
 
   return (
 

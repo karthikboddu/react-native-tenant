@@ -1,6 +1,6 @@
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
 import BackButton from "../../components/BackButton";
@@ -32,7 +32,8 @@ const TenantRoomDetails = ({ route, navigation }) => {
 
   const [addEditPaymentModal, setAddEditPaymentModall] = useState(initialAddEditRoomPaymentValues);
 
-  const { getTenantRoomsDetailsByRoomId, initTenantRoomOrderPayment, tenantBuildingFloorRoomsDetails, screenLoading, unLinkTenantRoomContract } = useContext(GlobalContext);
+  const { getTenantRoomsDetailsByRoomId, initTenantRoomOrderPayment,
+     tenantBuildingFloorRoomsDetails, screenLoading, unLinkTenantRoomContract } = useContext(GlobalContext);
 
   useEffect(() => {
     setLoader(true)
@@ -59,12 +60,19 @@ const initRoomPayment = async () => {
     const payload = JSON.stringify(addEditPaymentModal.data);
 
     console.log(payload, "paytmPayload",'&tenantId=' )
-
-    initTenantRoomOrderPayment(payload, '?tenantId=' + tenantBuildingFloorRoomsDetails[0]?.contractDetails[0]?.tenant_id);
     setAddEditPaymentModall((prevState) => ({
       ...prevState,
-      visible: false
-  }));
+      pending : true
+    }));
+    initTenantRoomOrderPayment(payload, '?tenantId=' + tenantBuildingFloorRoomsDetails[0]?.contractDetails?.tenant_id);
+    if (!screenLoading) {
+      setAddEditPaymentModall((prevState) => ({
+        ...prevState,
+        visible: false,
+        pending : false
+      }));
+    }
+
 }
   
 const submitAddEditPayment = async () => {
@@ -128,7 +136,7 @@ const openAddEditPaymentModal = (action, data) => {
  }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
           {/* Header */}
           <BackButton goBack={navigation.goBack}/>
           {tenantBuildingFloorRoomsDetails.length > 0 ? (
@@ -189,7 +197,7 @@ const openAddEditPaymentModal = (action, data) => {
         />
       )}
       </>
-    </View>
+    </ScrollView>
   )
 }
 

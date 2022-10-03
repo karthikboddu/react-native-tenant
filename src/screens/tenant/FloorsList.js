@@ -68,9 +68,9 @@ const FloorsList = ({ data, buildingId, navigation, loading }) => {
                                                     }
                                                 </Text>
 
-                                                <Text style={styles.popularTitlesTitle}>
+                                                {/* <Text style={styles.popularTitlesTitle}>
                                                     ₹ {m.orderDetails[0].amount_paid}
-                                                </Text>
+                                                </Text> */}
                                             </View>
                                         ) : (<></>)}
                                     </View>
@@ -88,7 +88,7 @@ const FloorsList = ({ data, buildingId, navigation, loading }) => {
                     ]}>
                     <Feather
                         name="chevron-right"
-                        size={15}
+                        size={25}
                         style={{ alignSelf: 'center' }}
                         color={item.selected ? colors.black : colors.white}
                         onPress={() =>
@@ -195,8 +195,8 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         justifyContent: 'center',
         marginTop: 20,
-        width: 26,
-        height: 26,
+        width: 36,
+        height: 36,
         borderRadius: 26,
         marginBottom: 20,
     }

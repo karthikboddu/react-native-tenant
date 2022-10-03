@@ -1,6 +1,6 @@
 const endpoints = {
-    apiUrlBeta : 'https://nodejs-authentication-production.up.railway.app',
-    apiUrl : 'https://tenant.adaptable.app',
+    apiUrl : 'https://nodejs-authentication-production.up.railway.app',
+    apiUrlBeta : 'https://tenant.adaptable.app',
     tenantLogin : '/api/tenant/login',
     ssoLogin : '/api/tenant/SSOLogin',
     verifyAccessToken : '/api/auth/verifyAccessToken',

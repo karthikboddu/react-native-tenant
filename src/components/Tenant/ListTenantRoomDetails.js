@@ -26,7 +26,7 @@ const ListTenantRoomDetails = ({ roomDetails, navigation, routeDetails }) => {
     
         return Alert.alert(
           "Are your sure?",
-          "Are you sure you want to remove this beautiful box?",
+          "Are you sure you want to remove this tenant ?",
           [
             {
               text: "Yes",
@@ -116,7 +116,7 @@ const ListTenantRoomDetails = ({ roomDetails, navigation, routeDetails }) => {
                                 <View style={styles.infoItemWrapper}>
                                     <Text style={styles.infoItemTitle}>Room Rent</Text>
                                     <Text style={styles.infoItemText}>
-                                        ₹{roomDetails.contractDetails.actual_price}
+                                        ₹{roomDetails.contractDetails.price}
                                     </Text>
                                 </View>
                     </View>
@@ -141,8 +141,6 @@ const styles = StyleSheet.create({
         paddingTop: 20,
       },
       headerLeft: {
-        borderColor: colors.textLight,
-        borderWidth: 2,
         padding: 12,
         borderRadius: 10,
       },
@@ -162,7 +160,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat-Bold',
         fontSize: 22,
         color: colors.textDark,
-        width: '50%',
       },
       titleSecond: {
         fontFamily: 'Montserrat-Bold',
@@ -190,7 +187,7 @@ const styles = StyleSheet.create({
       },
       infoItemWrapper: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         marginBottom: 10
       },
       infoItemTitle: {

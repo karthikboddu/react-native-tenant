@@ -9,6 +9,7 @@ import { useTheme } from 'react-native-paper';
 import Svg, { Path } from 'react-native-svg';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../assets/colors/colors';
+import ForgotPassword from "../components/Tenant/ForgotPassword";
 import { COLORS, icons } from "../constants";
 import { GlobalContext } from '../context/GlobalState';
 import { SignInScreen } from "../screens";
@@ -628,6 +629,16 @@ const HomeStackScreen = ({ navigation }) => {
                     headerBackTitleVisible: false,
                     headerShown: false,
                 })}
+                navigation = {navigation}
+            />
+            <HomeStack.Screen
+                name="ForgotPassword"
+                options={{
+                    title: 'ForgotPassword',
+                    headerShown: false,
+                    headerBackTitleVisible: true,
+                }}
+                component={ForgotPassword}
             />
         </HomeStack.Navigator>
     );

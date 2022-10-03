@@ -1,8 +1,8 @@
 import JWT from 'expo-jwt';
 import AllInOneSDKManager from 'paytm_allinone_react-native';
-import { Popup } from 'popup-ui';
+// import { Popup } from 'popup-ui';
 import React, { createContext, useReducer } from 'react';
-import Constants from '../Constants';
+import { CONSTANTS } from '../constants';
 import endpoints from '../endpoints';
 import {
     getUserActivityDetailsFromToken, getUserDetailsFromToken,
@@ -22,7 +22,6 @@ import {
     listRoomsByFloorId, listTenantBuildings, listTenantBuildingsById, updatePaymentDetails
 } from '../services/tenant/tenantService';
 import AppReducer from './AppReducer';
-
 
 
 const initialLoginState = {
@@ -215,7 +214,7 @@ export const GlobalProvider = ({ children }) => {
                 if (auth !=null) {
                     const decode = JWT.decode(res, endpoints.jwtSecret);
                     
-                    if (decode.type == Constants.userTypeAdmin) {
+                    if (decode.type == CONSTANTS.userTypeAdmin) {
                         setIsAdmin(true)
                     }
                 }            
@@ -596,7 +595,7 @@ export const GlobalProvider = ({ children }) => {
                         setScreenLoading(false);
                         successPopup();
                         console.log(result.STATUS,"result.STATUS")
-                        if (result.STATUS = Constants.txnSuccess) {
+                        if (result.RESPCODE = CONSTANTS.RESPCODE) {
                             console.log(result,"Paytm response")
                             updatePaytmPaymentDetails(orderId, "C", result, buildingId, oldBuildingAmount, amount)
                         } else {

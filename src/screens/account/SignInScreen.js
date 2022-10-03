@@ -1,5 +1,4 @@
-import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
-import { useNavigation } from '@react-navigation/native';
+// import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
 //import * as Google from 'expo-auth-session/providers/google';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useContext } from 'react';
@@ -13,14 +12,13 @@ import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import colors from '../../assets/colors/colors';
 import { Loading } from '../../components/common';
-import Overlay from '../../components/Overlay';
+import ForgotPassword from '../../components/Tenant/ForgotPassword';
 import { GlobalContext } from '../../context/GlobalState';
 
 
-const SignInScreen = ({}) => {
+const SignInScreen = (navigation) => {
 
-    const navigation = useNavigation();
-
+    console.log(navigation,"vaaga");
     const [data, setData] = React.useState({
         username: '',
         password: '',
@@ -49,9 +47,9 @@ const SignInScreen = ({}) => {
         //   setAccessTokenGoogle(response.authentication.accessToken);
         //   getUserData(response.authentication.accessToken);
         // }
-          GoogleSignin.configure({
-            webClientId: '474733627251-bpov4509muv7285kmmqevf0ocebe5vk0.apps.googleusercontent.com'
-          });
+        //   GoogleSignin.configure({
+        //     webClientId: '474733627251-bpov4509muv7285kmmqevf0ocebe5vk0.apps.googleusercontent.com'
+        //   });
       }, []);        
 
     const textInputChange = (val) => {
@@ -143,19 +141,19 @@ const SignInScreen = ({}) => {
    // });
     console.log(tenantSettingsList)
 
-    async function onGoogleButtonPress() {
-        // Get the users ID token
-        const {user} = await GoogleSignin.signIn();      
-        // Create a Google credential with the token
-        // const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-        console.log(user,"*******")
-        if (user) {
-            setAccessTokenGoogle(user);
-            sooLoginHandle(user.name,user.id, user.email, user.photo);
-        }
-        // Sign-in the user with the credential
-        // return auth().signInWithCredential(googleCredential);
-      }
+    // async function onGoogleButtonPress() {
+    //     // Get the users ID token
+    //     const {user} = await GoogleSignin.signIn();      
+    //     // Create a Google credential with the token
+    //     // const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+    //     console.log(user,"*******")
+    //     if (user) {
+    //         setAccessTokenGoogle(user);
+    //         sooLoginHandle(user.name,user.id, user.email, user.photo);
+    //     }
+    //     // Sign-in the user with the credential
+    //     // return auth().signInWithCredential(googleCredential);
+    //   }
 
     async function getUserData(token) {
         let userInfoResponse = await fetch("https://www.googleapis.com/userinfo/v2/me", {
@@ -207,7 +205,7 @@ const SignInScreen = ({}) => {
     return (
         
       <View style={styles.container}>
-     <Overlay isShow={screenLoading} />
+     {/* <Overlay isShow={screenLoading} /> */}
        {/*     <StatusBar backgroundColor='#009387' barStyle="light-content"/> */}
         <View style={styles.header}>
             <Text style={styles.text_header}>Welcome!</Text>
@@ -301,9 +299,7 @@ const SignInScreen = ({}) => {
             }
             
 
-            <TouchableOpacity>
-                <Text style={{color: '#009387', marginTop:15}}>Forgot password?</Text>
-            </TouchableOpacity>
+            <ForgotPassword navigatte = {navigation}/>
             <View style={styles.button}>
                 <TouchableOpacity
                     style={styles.signIn}
@@ -337,7 +333,7 @@ const SignInScreen = ({}) => {
                     }]}>Sign Up</Text>
                 </TouchableOpacity>
                 ) : null}
-                {true ? (
+                {false ? (
                     <GoogleSigninButton
                 style={{ width: 192, height: 70 }}
                 size={GoogleSigninButton.Size.Wide}

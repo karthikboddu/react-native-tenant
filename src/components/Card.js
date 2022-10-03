@@ -12,17 +12,16 @@ const CardCustom = ({ itemData }) => {
 
   const { screenLoading } = useContext(GlobalContext);
   const navigation = useNavigation();
+  console.log(itemData)
 
-  if (itemData.totalAmount <= 0) {
+  if (itemData.totalAmount <= 0 && !itemData.isContract) {
     return (<></>);
   }
-  console.log(itemData)
   return (
     <TouchableOpacity>
       <View style={styles.card}>
 
         <View style={styles.cardInfo}>
-          {itemData.totalAmount && (
 
             <View style={styles.menuItem1}>
 
@@ -30,8 +29,6 @@ const CardCustom = ({ itemData }) => {
               <Text style={{ fontWeight: "bold", fontSize: 15, paddingLeft: 10 }}>₹ {itemData.totalAmount}</Text>
 
             </View>
-
-          )}
           <View style={styles.menuItem}>
             <Text numberOfLines={2} style={{ fontWeight: "bold", fontSize: 13 }}>Expires on</Text>
             {itemData.endAt && (
@@ -94,13 +91,13 @@ const styles = StyleSheet.create({
     paddingLeft: 14,
     marginLeft: 20,
     borderRadius: 10,
-    height: '100%',
-    width: '100%',
+    borderColor: '#999',
     shadowColor: '#999',
+    height:250,
+    width:370,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.8,
     shadowRadius: 1,
-    elevation: 1,
     borderColor: '#000'
   },
   cardImgWrapper: {
@@ -158,7 +155,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Bold',
     fontSize: 10,
     paddingLeft: 5,
-    marginRight: 10,
     alignItems: 'center'
   },
 });

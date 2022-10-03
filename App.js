@@ -1,5 +1,6 @@
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import { useNetInfo } from "@react-native-community/netinfo";
+import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
@@ -12,13 +13,12 @@ import { GlobalProvider } from './src/context/GlobalState';
 import { theme } from './src/core/theme';
 import Router from './src/navigation/Router';
 
-
 WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
 
   let netInfo = useNetInfo();
- 
+  console.log(Constants)
 
   return (
     

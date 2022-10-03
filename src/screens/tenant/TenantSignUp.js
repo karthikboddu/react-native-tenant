@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import CheckBox from "expo-checkbox";
+// import CheckBox from "expo-checkbox";
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -8,7 +8,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import BackButton from '../../components/BackButton';
-import Overlay from '../../components/Overlay';
+import { Loading } from '../../components/common';
 import { GlobalContext } from '../../context/GlobalState';
 
 
@@ -314,11 +314,12 @@ const TenantSignUp = ({route, routeDetails}) => {
             addRoomContract
         }
         if ( username.length == 0 || password.length == 0 || aadharId.length ==0 || email.length ==0 ||
-            fullName.length==0 || mobileNo.length ==0 || address.length ==0  || actualPrice ==0 || price ==0
-            || advancePaid == false|| noOfPersons ==0) {
+            fullName.length==0 || mobileNo.length ==0 || address.length ==0  || price ==0
+            || noOfPersons ==0) {
             Alert.alert('Wrong Input!', 'Some fields cannot be empty.', [
                 {text: 'Okay'}
             ]);
+            console.log("Aaaaaaaaaa",payload)
             return;
         }
         console.log(payload)
@@ -335,7 +336,7 @@ const TenantSignUp = ({route, routeDetails}) => {
 
     return (
       <View style={styles.container}>
-        <Overlay isShow={screenLoading} />
+        {/* <Overlay isShow={screenLoading} /> */}
         <BackButton goBack={navigation.goBack}/>
 
         <Animatable.View 
@@ -546,7 +547,7 @@ const TenantSignUp = ({route, routeDetails}) => {
             </Animatable.View>
             }
 
-            <Text style={styles.text_footer}>Enter Actual Room Amount</Text>
+            {/* <Text style={styles.text_footer}>Enter Actual Room Amount</Text>
             <View style={styles.action}>
                 <FontAwesome 
                     name="rupee"
@@ -579,7 +580,7 @@ const TenantSignUp = ({route, routeDetails}) => {
             <Animatable.View animation="fadeInLeft" duration={500}>
             <Text style={styles.errorMsg}>Actual price must not be empty.</Text>
             </Animatable.View>
-            }
+            } */}
 
             <Text style={styles.text_footer}>Enter Room Amount paid</Text>
             <View style={styles.action}>
@@ -650,7 +651,7 @@ const TenantSignUp = ({route, routeDetails}) => {
             }
 
 
-            <View style={styles.checkboxContainer}>
+            {/* <View style={styles.checkboxContainer}>
                 <CheckBox
                 value={isSelected}
                 onValueChange={setSelection}
@@ -658,7 +659,7 @@ const TenantSignUp = ({route, routeDetails}) => {
                 />
                 <Text style={styles.label}>Advance paid</Text>
             </View>
-            <Text>Is CheckBox selected: {isSelected ? "👍" : "👎"}</Text>     
+            <Text>Is CheckBox selected: {isSelected ? "👍" : "👎"}</Text>      */}
 
 
             <Text style={[styles.text_footer, {
@@ -762,9 +763,11 @@ const TenantSignUp = ({route, routeDetails}) => {
                     colors={['#000000', '#000000']}
                     style={styles.signIn}
                 >
+                {!screenLoading ? 
                     <Text style={[styles.textSign, {
                         color:'#fff'
                     }]}>Sign Up</Text>
+                    :  <Loading size={'large'} />}
                 </LinearGradient>
                 </TouchableOpacity>
 

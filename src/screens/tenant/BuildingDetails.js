@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import ContentLoader, { Rect } from 'react-content-loader/native';
-import { FlatList, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
 import SkeletonFloorsList from '../../components/Tenant/SkeletonFloorsList';
-import { FONTS, SIZES } from '../../constants';
+import { CONSTANTS, FONTS, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
 import { Ripple } from '../../utils';
 import commonStyles from '../styles';
@@ -47,6 +47,10 @@ const BuildingDetails = ({ route, navigation }) => {
     setRoomsList(tenantBuildingFloorRoomsList)
     setLoader(false);
     setSelectedFloors(item)
+  }
+
+  const callRefresh = async () => {
+    getTenantBuildingsById(route.params?.items);
   }
 
   function renderFloorList() {
@@ -152,7 +156,14 @@ const BuildingDetails = ({ route, navigation }) => {
   }
 
   return (
-    <ScrollView>
+    <ScrollView
+           refreshControl={
+            <RefreshControl
+            refreshing={screenLoading}
+            onRefresh={callRefresh}
+          />
+        }
+    >
       <View style={styles.container}>
         {/* Header */}
         <SafeAreaView>
@@ -185,7 +196,7 @@ const BuildingDetails = ({ route, navigation }) => {
 
                 {/* Price */}
                 <View style={styles.priceWrapper}>
-                  <Text style={styles.priceText}>$ {items.total_amount}</Text>
+                  <Text style={styles.priceText}>{CONSTANTS.currencySymbol} {items.total_amount}</Text>
                 </View>
 
                 {/* Pizza info */}
