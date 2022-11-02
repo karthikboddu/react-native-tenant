@@ -17,12 +17,6 @@ import EditProfileScreen from "../screens/account/EditProfileScreen";
 import ProfileScreen from '../screens/account/ProfileScreen';
 import SignUpScreen from '../screens/account/SignUpScreen';
 import UserLoginActivity from '../screens/account/UserLoginActivity';
-import ChatScreen from '../screens/chat/ChatScreen';
-import Contacts from "../screens/chat/Contacts";
-import Messages from "../screens/chat/Messages";
-import AddNotes from "../screens/notes/AddNotes";
-import EditNotes from "../screens/notes/EditNotes";
-import NotesHome from "../screens/notes/NotesHome";
 import AdminDashboard from '../screens/tenant/AdminDashboard';
 import BuildingDetails from '../screens/tenant/BuildingDetails';
 import Dashboard from '../screens/tenant/Dashboard';
@@ -34,13 +28,12 @@ import TenantSignUp from "../screens/tenant/TenantSignUp";
 import TenantsList from '../screens/tenant/TenantsList';
 import TransactionsList from '../screens/tenant/TransactionsList';
 import UserDashboard from '../screens/tenant/user/UserDashboard';
+import ViewTenantPdfFile from "../screens/tenant/ViewTenantPdfFile";
 
 const Tab = createBottomTabNavigator();
 const ProfileStack = createStackNavigator();
 const HomeStack = createStackNavigator();
 const TransactionsStack = createStackNavigator();
-const NotesStack = createStackNavigator();
-const MessageStack = createStackNavigator();
 
 
 
@@ -289,52 +282,6 @@ const Tabs = () => {
                     )
                 }}
             />
-
-            <Tab.Screen
-                name="Notes"
-                component={NotesStackScreen}
-                options={{
-                    tabBarIcon: ({ focused }) => (
-                        <Image
-                            source={icons.notes}
-                            resizeMode="contain"
-                            style={{
-                                width: 25,
-                                height: 25,
-                                tintColor: focused ? COLORS.primary : COLORS.secondary
-                            }}
-                        />
-                    ),
-                    tabBarButton: (props) => (
-                        <TabBarCustomButton
-                            {...props}
-                        />
-                    )
-                }}
-            />
-            <Tab.Screen
-                name="Message"
-                component={MessageStackScreen}
-                options={{
-                    tabBarIcon: ({ focused }) => (
-                        <Image
-                            source={icons.chat}
-                            resizeMode="contain"
-                            style={{
-                                width: 25,
-                                height: 25,
-                                tintColor: focused ? COLORS.primary : COLORS.secondary
-                            }}
-                        />
-                    ),
-                    tabBarButton: (props) => (
-                        <TabBarCustomButton
-                            {...props}
-                        />
-                    )
-                }}
-            />
-
             <Tab.Screen
                 name="Profile"
                 component={ProfileStackScreen}
@@ -362,106 +309,6 @@ const Tabs = () => {
     )
 }
 
-const MessageStackScreen = ({ navigation }) => {
-    const { colors } = useTheme();
-
-    return (
-        <MessageStack.Navigator
-            screenOptions={{
-                headerStyle: {
-                    backgroundColor: colors.background,
-                    shadowColor: colors.background, // iOS
-                    elevation: 0, // Android
-                },
-                headerTintColor: colors.text,
-                headerTitleStyle: {
-                    fontWeight: 'bold',
-                },
-            }}>
-
-            <MessageStack.Screen
-                        name="Message screen"
-                        component={Messages}
-                        options={({ route }) => ({
-                            //title: route.params.title,
-                            title: "Messages",
-                            headerBackTitleVisible: false,
-                            headerShown: true,
-                        })}
-            />
-            <MessageStack.Screen
-                name="ChatScreen"
-                component={ChatScreen}
-                options={({ route }) => ({
-                    //title: route.params.title,
-                    title: "ChatScreen",
-                    headerBackTitleVisible: false,
-                    headerShown: false,
-                })}
-            />
-            <MessageStack.Screen
-                name="contacts"
-                component={Contacts}
-                options={({ route }) => ({
-                    //title: route.params.title,
-                    title: "Contacts",
-                    headerBackTitleVisible: false,
-                    headerShown: false,
-                })}
-            />
-        </MessageStack.Navigator>
-    );
-};
-
-const NotesStackScreen = ({ navigation }) => {
-    const { colors } = useTheme();
-
-    return (
-        <NotesStack.Navigator
-            screenOptions={{
-                headerStyle: {
-                    backgroundColor: colors.background,
-                    shadowColor: colors.background, // iOS
-                    elevation: 0, // Android
-                },
-                headerTintColor: colors.text,
-                headerTitleStyle: {
-                    fontWeight: 'bold',
-                },
-            }}>
-            <NotesStack.Screen
-                name="Home Note"
-                component={NotesHome}
-                options={({ route }) => ({
-                    //title: route.params.title,
-                    title: "NotesHome",
-                    headerBackTitleVisible: false,
-                    headerShown: false,
-                })}
-            />
-            <NotesStack.Screen
-                name="AddNotes"
-                component={AddNotes}
-                options={({ route }) => ({
-                    //title: route.params.title,
-                    title: "AddNotes",
-                    headerBackTitleVisible: false,
-                    headerShown: false,
-                })}
-            />
-            <NotesStack.Screen
-                name="EditNotes"
-                component={EditNotes}
-                options={({ route }) => ({
-                    //title: route.params.title,
-                    title: "EditNotes",
-                    headerBackTitleVisible: false,
-                    headerShown: false,
-                })}
-            />
-        </NotesStack.Navigator>
-    );
-};
 
 
 const TransactionsStackScreen = ({ navigation }) => {
@@ -571,6 +418,16 @@ const HomeStackScreen = ({ navigation }) => {
                 })}
             />
             <HomeStack.Screen
+                name="ViewTenantPdfFile"
+                component={ViewTenantPdfFile}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "ViewTenantPdfFile",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <HomeStack.Screen
                 name="TenantsList"
                 component={TenantsList}
                 options={({ route }) => ({
@@ -662,8 +519,8 @@ const ProfileStackScreen = ({ navigation }) => {
                 name="ProfileScreen"
                 component={ProfileScreen}
                 options={{
-                    title: '',
-                    headerShown: false,
+                    title: 'Profile',
+                    headerShown: true,
                     headerBackTitleVisible: true,
                     headerLeft: () => (
                         <View style={{ marginLeft: 10 }}>

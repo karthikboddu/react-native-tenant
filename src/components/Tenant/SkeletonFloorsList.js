@@ -53,8 +53,8 @@ const SkeletonFloorsList = () => {
               backgroundColor="#c0b5b5"
               foregroundColor="#ecebeb"
               >
-              <Rect x="48" y="8" rx="3" ry="3" width="120" height="6" />
-              <Rect x="48" y="23" rx="3" ry="3" width="120" height="6" />
+              <Rect x="48" y="8" rx="3" ry="3" width="180" height="6" />
+              <Rect x="48" y="23" rx="3" ry="3" width="180" height="6" />
               <Circle cx="22" cy="22" r="22" />
               </ContentLoader>
           </View>

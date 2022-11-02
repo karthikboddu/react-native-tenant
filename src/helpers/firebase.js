@@ -18,13 +18,13 @@ export async function pickProfileImage() {
 } 
 
 export async function openCameraProfileImage() {
-    // let result = await ImagePicker.openCamera({
-    //         width: 1200,
-    //         height: 780,
-    //         cropping: true,
-    //     });
+    let result = await ImagePicker.openCamera({
+            width: 1200,
+            height: 780,
+            cropping: true,
+        });
 
-    //     return result;
+        return result;
 }
 export async function pickImageFromGallery() {
     let result = await ImagePicker.launchImageLibraryAsync({

@@ -1,26 +1,23 @@
 import JWT from 'expo-jwt';
 import AllInOneSDKManager from 'paytm_allinone_react-native';
-// import { Popup } from 'popup-ui';
+import { Popup } from 'popup-ui';
 import React, { createContext, useReducer } from 'react';
 import { CONSTANTS } from '../constants';
 import endpoints from '../endpoints';
+import { showToast } from '../helpers/ToastMessageHelper';
 import {
     getUserActivityDetailsFromToken, getUserDetailsFromToken,
     login, logout, ssoLogin, updateUserDetailsFromToken, verifyAccessToken, verifyRefreshToken
 } from '../services/auth';
-import {
-    listAllTenantLastConversations, listTenantConversations, saveTenantConversations
-} from '../services/chatService';
 import deviceStorage from '../services/deviceStorage';
-import { showFlashMessage } from '../services/FlashMessageService';
 import { getTasksList } from '../services/tasks';
-import { findAllNotes } from '../services/tenant/noteService';
 import { bulkInitTenantOrderPayment, saveOrderDetailsAndComplete } from '../services/tenant/orderService';
 import { unlinkTenantRoomContract } from '../services/tenant/roomService';
 import {
     createTenantAndToRoom, generatePaytmToken, getRecentAllTenantsRoomOrderDetails, getTenantList, getTenantRoomDetails, getTenantSettings, initTenantRoomPayment, listFloorsByBuildingsId, listRoomDetailsByRoomId,
     listRoomsByFloorId, listTenantBuildings, listTenantBuildingsById, updatePaymentDetails
 } from '../services/tenant/tenantService';
+import { uploadTenantAsset } from '../services/tenant/uploadService';
 import AppReducer from './AppReducer';
 
 
@@ -52,10 +49,8 @@ const initialLoginState = {
     tenantSettingsList: [],
     createOrderDetailsAndComplete : [],
     skeletonLoading: false,
-    tenantConversations : [],
-    tenantLastConversations : [],
+    isHeaderVisible: true,
     tenantDetailsList : [],
-    tenantNotesList: [],
     bulkTenantRoomPayment :[]
 };
 
@@ -77,7 +72,7 @@ export const GlobalProvider = ({ children }) => {
         });
     } catch (err) {
         console.log(err)
-        showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+        showToast('error', 'Oops, Something went wrong ...')
         dispatch({
             type: 'TASKS_ERROR',
             payload: err
@@ -99,7 +94,6 @@ export const GlobalProvider = ({ children }) => {
                     deviceStorage.saveKey("tenant_token", res.data.accessToken);
                     // const decode = JWT.decode(res.data.refreshtoken, endpoints.jwtSecret);
                     const decode = 'user';
-                    console.log(res.data, "response")
                     if (res.data.isAdmin) {
                         setIsAdmin(true)
                     }      
@@ -113,12 +107,12 @@ export const GlobalProvider = ({ children }) => {
                     type: 'SIGN_IN',
                     payload: null
                 });
-                showFlashMessage('Error', 'Invalid username or password.', 'danger', 'danger');
+                showToast('error', 'Invalid username or password.')
             }
 
         } catch (err) {
             console.log(err)
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'SIGN_IN_ERROR',
                 payload: err
@@ -134,7 +128,6 @@ export const GlobalProvider = ({ children }) => {
             let res = await response.json();
 
             if (res.status == "200") {
-                console.log(res.status, "response")
                 setScreenLoading(false);
                 if (res.data) {
                     deviceStorage.saveKey("id_token", res.data.accessToken);
@@ -156,11 +149,11 @@ export const GlobalProvider = ({ children }) => {
                     type: 'SIGN_IN',
                     payload: null
                 });
-                showFlashMessage('Error', 'Invalid username or password.', 'danger', 'danger');
+                showToast('error', 'Invalid username or password.')
             }
 
         } catch (err) {
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'SIGN_IN_ERROR',
                 payload: err
@@ -178,7 +171,7 @@ export const GlobalProvider = ({ children }) => {
                 payload: res
             });
         } catch (err) {
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'LOGOUT_ERROR',
                 payload: err
@@ -203,7 +196,7 @@ export const GlobalProvider = ({ children }) => {
                     auth = res;
 
                 } else if (refreshToken != null) {
-                    showFlashMessage('Success', 'Session Out !!! , Re authenticating!!', 'success', 'success')
+                    showToast('success', 'Session Out !!! , Re authenticating!!')
                     let refreshResponse = await verifyRefreshToken(refreshToken);
                     let resJson = await refreshResponse.json();
 
@@ -226,7 +219,7 @@ export const GlobalProvider = ({ children }) => {
         } catch (err) {
 
             console.log(err)
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'RETRIEVE_TOKEN_ERR',
                 payload: err
@@ -241,7 +234,7 @@ export const GlobalProvider = ({ children }) => {
                 payload: true
             });
         } catch (error) {
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'SET_DARK_THEME_ERR',
                 payload: err
@@ -256,7 +249,7 @@ export const GlobalProvider = ({ children }) => {
                 payload: value
             });
         } catch (error) {
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'SET_USERTYPE_ADMIN_ERR',
                 payload: err
@@ -277,7 +270,7 @@ export const GlobalProvider = ({ children }) => {
                 payload: resJson.data
             });
         } catch (error) {
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_USER_DETAILS_ERR',
                 payload: error
@@ -301,7 +294,7 @@ export const GlobalProvider = ({ children }) => {
             });
         } catch (error) {
             setScreenLoading(false);
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'PATCH_USER_DETAILS_ERR',
                 payload: error
@@ -316,7 +309,7 @@ export const GlobalProvider = ({ children }) => {
                 payload: isLoading
             });
         } catch (error) {
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'SET_LOADING_ERR',
                 payload: error
@@ -330,9 +323,24 @@ export const GlobalProvider = ({ children }) => {
                 payload: skeletonLoading
             });
         } catch (error) {
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'SET_SKELETON_LOADING_ERR',
+                payload: error
+            });
+        }
+    }
+
+    async function setHeaderVisible(isHeaderVisible) {
+        try {
+            dispatch({
+                type: 'SET_HEADER_VISIBLE',
+                payload: isHeaderVisible
+            });
+        } catch (error) {
+            showToast('error', 'Oops, Something went wrong ...')
+            dispatch({
+                type: 'SET_HEADER_VISIBLE_ERR',
                 payload: error
             });
         }
@@ -345,7 +353,7 @@ export const GlobalProvider = ({ children }) => {
                 payload: screenLoading
             });
         } catch (error) {
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'SET_SCREEN_ERR',
                 payload: error
@@ -360,7 +368,7 @@ export const GlobalProvider = ({ children }) => {
                 payload: popupLoading
             });
         } catch (error) {
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'SET_POPUP_ERR',
                 payload: error
@@ -405,7 +413,7 @@ export const GlobalProvider = ({ children }) => {
                 payload: resJson.data
             });
         } catch (error) {
-            showFlashMessage('Error', 'Something went wrong !!.', 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_USERACTIVITY_ERR',
                 payload: error
@@ -429,7 +437,7 @@ export const GlobalProvider = ({ children }) => {
         } catch (error) {
             setScreenLoading(false);
             console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_TENANTBUILDING_LIST_ERR',
                 payload: error
@@ -447,7 +455,6 @@ export const GlobalProvider = ({ children }) => {
 
             let resJson = await tenantBuildingsDetails.json();
             setScreenLoading(false);
-            console.log(resJson, "buildingId")
             dispatch({
                 type: 'GET_TENANTBUILDING_BYID_LIST',
                 payload: resJson
@@ -455,7 +462,7 @@ export const GlobalProvider = ({ children }) => {
         } catch (error) {
             console.log(error)
             setScreenLoading(false);
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_TENANTBUILDING_BYID_LIST_ERR',
                 payload: error
@@ -471,14 +478,13 @@ export const GlobalProvider = ({ children }) => {
             let tenantBuildingsFloorDetails = await listFloorsByBuildingsId(res, buildingId);
 
             let resJson = await tenantBuildingsFloorDetails.json();
-            console.log(resJson, "FloorId")
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_BYID_LIST',
                 payload: resJson
             });
         } catch (error) {
             console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_BYID_LIST_ERR',
                 payload: error
@@ -502,7 +508,7 @@ export const GlobalProvider = ({ children }) => {
         } catch (error) {
             setSkeletionLoading(false)
             console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_ROOM_BYID_LIST_ERR',
                 payload: error
@@ -515,11 +521,11 @@ export const GlobalProvider = ({ children }) => {
 
             const res = await deviceStorage.loadJWT();
 
-            setScreenLoading(true)
+            setSkeletionLoading(true)
             let tenantBuildingsFloorRoomsDetails = await listRoomDetailsByRoomId(res, roomId, query);
 
             let resJson = await tenantBuildingsFloorRoomsDetails.json();
-            setScreenLoading(false)
+            setSkeletionLoading(false)
 
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_ROOM_BYROOMID_LIST',
@@ -527,8 +533,8 @@ export const GlobalProvider = ({ children }) => {
             });
         } catch (error) {
             console.log(error)
-            setScreenLoading(false);
-            showFlashMessage('Error', error, 'danger', 'danger');
+            setSkeletionLoading(false);
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_TENANTBUILDINGFLOOR_ROOM_BYROOMID_LIST_ERR',
                 payload: error
@@ -558,16 +564,16 @@ export const GlobalProvider = ({ children }) => {
             //await logout();
 
             let token = await generatePaytmToken(res, raw);
-
+              
             let resJson = await token.json();
-            console.log(resJson, "paytmtoken")
+            console.log(resJson,"token")
             dispatch({
                 type: 'GET_TENANT_PAYTM_TOKEN',
                 payload: resJson.data?.body?.txnToken
             });
         } catch (error) {
             console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_TENANT_PAYTM_TOKEN_ERR',
                 payload: error
@@ -594,9 +600,7 @@ export const GlobalProvider = ({ children }) => {
                     .then((result) => {
                         setScreenLoading(false);
                         successPopup();
-                        console.log(result.STATUS,"result.STATUS")
                         if (result.RESPCODE = CONSTANTS.RESPCODE) {
-                            console.log(result,"Paytm response")
                             updatePaytmPaymentDetails(orderId, "C", result, buildingId, oldBuildingAmount, amount)
                         } else {
                             updatePaytmPaymentDetails(orderId, "F", result, buildingId, oldBuildingAmount, amount)
@@ -622,7 +626,7 @@ export const GlobalProvider = ({ children }) => {
             console.log(error.message)
             updatePaytmPaymentDetails(orderId, "F", '',buildingId, 0, 0)
             getTenantRoomOrderDetails('P,F',1)
-            showFlashMessage('Error', error.message, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'START_PAYTM_TRANSACTION_ERR',
                 payload: error
@@ -640,7 +644,6 @@ export const GlobalProvider = ({ children }) => {
                 buildingAmount: oldBuildingAmount,
                 amount : amt
               });
-              console.log(raw,"Rwa")
               const res = await deviceStorage.loadJWT();
 
               updatePaymentDetails(res, raw);
@@ -650,14 +653,13 @@ export const GlobalProvider = ({ children }) => {
         try {
             setScreenLoading(true);
             const res = await deviceStorage.loadJWT();
-            console.log(res,"res")
-            //await logout();
+
 
             let tenantBuildingsOrderRoomsDetails = await getTenantRoomDetails(res, params, page);
 
             let resJson = await tenantBuildingsOrderRoomsDetails.json();
             setScreenLoading(false);
-            console.log(resJson,"resjson")
+            console.log(resJson,"tenantRoomOrderDetails")
             dispatch({
                 type: 'GET_TENANT_ORDER_ROOM_LIST',
                 payload: resJson.data
@@ -665,7 +667,7 @@ export const GlobalProvider = ({ children }) => {
         } catch (error) {
             console.log(error)
             setScreenLoading(false);
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_TENANT_ORDER_ROOM_LIST_ERR',
                 payload: error
@@ -681,7 +683,6 @@ export const GlobalProvider = ({ children }) => {
 
             let resJson = await tenantBuildingsAllOrderRoomsDetails.json();
             setScreenLoading(false);
-            console.log(resJson,"resjson")
             dispatch({
                 type: 'GET_TENANT_ORDER_ROOM_ALL_LIST',
                 payload: resJson.data
@@ -689,7 +690,7 @@ export const GlobalProvider = ({ children }) => {
         } catch (error) {
             console.log(error)
             setScreenLoading(false);
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_TENANT_ORDER_ROOM_LIST_ALL_ERR',
                 payload: error
@@ -702,16 +703,15 @@ export const GlobalProvider = ({ children }) => {
         try {
 
             const res = await deviceStorage.loadJWT();
-            //await logout();
-            console.log(query,"query")
             let initPaymentRoomsDetails = await initTenantRoomPayment(res, payload, query);
 
             let resJson = await initPaymentRoomsDetails.json();
             setScreenLoading(false);
             getTenantRoomOrderDetails('P,F', 1);
-            console.log(resJson,"resjson")
             if  (resJson.status == 200) {
-                showFlashMessage('Success', 'Room Payment Added. ', 'success', 'success')
+                showToast('success', 'Room Payment Added. ')
+            } else {
+                showToast('error', resJson.message ? resJson.message : 'Tenant Payment failed .. ')
             }
             dispatch({
                 type: 'POST_INIT_TENANT_ORDER_ROOM_PAYMENT',
@@ -719,7 +719,7 @@ export const GlobalProvider = ({ children }) => {
             });
         } catch (error) {
             console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'POST_INIT_TENANT_ORDER_ROOM_PAYMENT_ERR',
                 payload: error
@@ -729,12 +729,14 @@ export const GlobalProvider = ({ children }) => {
 
     async function unLinkTenantRoomContract(payload) {
         try {
-
+            setScreenLoading(true);
             const res = await deviceStorage.loadJWT();
-            console.log(payload,"payload")
             let updateTenantRoomContract = await unlinkTenantRoomContract(res, payload);
 
             let resJson = await updateTenantRoomContract.json();
+            if (resJson.status == 200) {
+                showToast('success', 'Tenant Unlinked Successfully. ')
+            }
             setScreenLoading(false);
             getTenantRoomOrderDetails('P,F', 1);
 
@@ -744,7 +746,8 @@ export const GlobalProvider = ({ children }) => {
             });
         } catch (error) {
             console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
+            setScreenLoading(false);
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'PATCH_UPDATE_TENANT_ROOM_CONTRACT_ERR',
                 payload: error
@@ -753,26 +756,37 @@ export const GlobalProvider = ({ children }) => {
     }
 
 
-    async function createTenantAddToRoomOrderPayment(payload) {
+    async function createTenantAddToRoomOrderPayment(payload, fileFormData) {
         try {
-            
+            setScreenLoading(true)
             const res = await deviceStorage.loadJWT();
 
             let tenantDetails = await createTenantAndToRoom(res, payload);
-
+            
             let resJson = await tenantDetails.json();
-            setScreenLoading(false);
-            getTenantRoomOrderDetails('P,F', 1);
+            console.log(resJson,"****************")
+
             if(resJson.status == 200) { 
-                showFlashMessage('Success', 'Tenant Added', 'success', 'success')
+                if (fileFormData !=null || fileFormData != 'undefined ' || resJson.data.tenant_id) {
+                    let uploadDetails = await uploadTenantAsset( fileFormData, resJson.data.tenant_id, 'identity');
+                    let uploadJson = await uploadDetails.json();
+                    console.log(uploadJson," uploadDetails ****************")
+                } 
+                showToast('success', 'Tenant Added Successfully. ')
+            } else {
+                showToast('error', resJson.message ? resJson.message : 'Tenant creation failed .. ')
             }
+
+            getTenantRoomOrderDetails('P,F', 1);
+            setScreenLoading(false);
             dispatch({
                 type: 'POST_CREATE_TENANT_ORDER_ROOM_PAYMENT',
                 payload: resJson.data
             });
         } catch (error) {
+            setScreenLoading(false);
             console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'POST_CREATE_TENANT_ORDER_ROOM_PAYMENT_ERR',
                 payload: error
@@ -797,7 +811,7 @@ export const GlobalProvider = ({ children }) => {
         } catch (error) {
             console.log(error)
             setScreenLoading(false);
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_TENANT_SETTINGS_LIST_ERR',
                 payload: error
@@ -816,7 +830,7 @@ export const GlobalProvider = ({ children }) => {
             setScreenLoading(false);
             getTenantRoomOrderDetails('P,F', 1);
             if(resJson.status == 200) { 
-                showFlashMessage('Success', 'Room Payment Updated . ', 'success', 'success')
+                showToast('success', 'Room Payment Updated .')
             }
             dispatch({
                 type: 'POST_CREATE_ORDER_ROOM_PAYMENT_COMPLETE',
@@ -824,7 +838,7 @@ export const GlobalProvider = ({ children }) => {
             });
         } catch (error) {
             console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'POST_CREATE_ORDER_ROOM_PAYMENT_COMPLETE_ERR',
                 payload: error
@@ -832,74 +846,7 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    async function createTenantConversations(payload) {
-        try {
-            
-            setScreenLoading(true);
-            let tenantConvDetails = await saveTenantConversations(payload);
 
-            let resJson = await tenantConvDetails.json();
-            setScreenLoading(false);
-
-            dispatch({
-                type: 'POST_CREATE_TENANT_CONVERSATIONS',
-                payload: resJson.data
-            });
-        } catch (error) {
-            console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
-            dispatch({
-                type: 'POST_CREATE_TENANT_CONVERSATIONS_ERR',
-                payload: error
-            });
-        }
-    }
-
-    async function fetchTenantConversations(payload, query) {
-        try {
-            
-            setScreenLoading(true);
-            let tenantConvDetails = await listTenantConversations(payload, query);
-            
-            let resJson = await tenantConvDetails.json();
-            setScreenLoading(false);
-
-            dispatch({
-                type: 'GET_CREATE_TENANT_CONVERSATIONS',
-                payload: resJson.data
-            });
-        } catch (error) {
-            console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
-            dispatch({
-                type: 'GET_CREATE_TENANT_CONVERSATIONS_ERR',
-                payload: error
-            });
-        }
-    }
-
-    async function fetchAllTenantLastConversations() {
-        try {
-            
-            setScreenLoading(true);
-            let tenantConvDetails = await listAllTenantLastConversations();
-            
-            let resJson = await tenantConvDetails.json();
-            setScreenLoading(false);
-
-            dispatch({
-                type: 'GET_TENANT_LAST_CONVERSATIONS',
-                payload: resJson.data
-            });
-        } catch (error) {
-            console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
-            dispatch({
-                type: 'GET_TENANT_LAST_CONVERSATIONS_ERR',
-                payload: error
-            });
-        }
-    }
 
     async function fetchAllTenantList() {
         try {
@@ -917,7 +864,7 @@ export const GlobalProvider = ({ children }) => {
             });
         } catch (error) {
             console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'GET_TENANT_LIST_ERR',
                 payload: error
@@ -925,29 +872,7 @@ export const GlobalProvider = ({ children }) => {
         }
     }    
 
-    async function fetchAllTenantNotes(query) {
-        try {
-            
-            setScreenLoading(true);
-            let notesDetails = await findAllNotes(query);
-            
-            let resJson = await notesDetails.json();
-            console.log(resJson,"resjson")
-            setScreenLoading(false);
-
-            dispatch({
-                type: 'GET_TENANT_NOTES_LIST',
-                payload: resJson.data
-            });
-        } catch (error) {
-            console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
-            dispatch({
-                type: 'GET_TENANT_NOTES_LIST_ERR',
-                payload: error
-            });
-        }
-    }
+   
 
     async function bulkInitTenantRoomPayment() {
         try {
@@ -960,7 +885,7 @@ export const GlobalProvider = ({ children }) => {
             });
         } catch (error) {
             console.log(error)
-            showFlashMessage('Error', error, 'danger', 'danger');
+            showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'BULK_INIT_PAYMENT_ERR',
                 payload: error
@@ -1023,15 +948,10 @@ export const GlobalProvider = ({ children }) => {
         updateUserDetails,
         skeletonLoading : state.skeletonLoading,
         setSkeletionLoading,
-        createTenantConversations ,
-        tenantConversations : state.tenantConversations,
-        fetchTenantConversations,
-        tenantLastConversations : state.tenantLastConversations,
-        fetchAllTenantLastConversations,
+        isHeaderVisible : state.isHeaderVisible,
+        setHeaderVisible,
         tenantDetailsList : state.tenantDetailsList,
         fetchAllTenantList,
-        tenantNotesList: state.tenantNotesList,
-        fetchAllTenantNotes,
         bulkInitTenantRoomPayment,
         bulkTenantRoomPayment: state.bulkTenantRoomPayment
     }}>

@@ -1,11 +1,13 @@
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import React, { useContext, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
 import BackButton from "../../components/BackButton";
+import Overlay from "../../components/Overlay";
 import AddRoomPayment from '../../components/Tenant/AddRoomPayment';
 import ListTenantRoomDetails from "../../components/Tenant/ListTenantRoomDetails";
+import SkeletionTenantRoomDetails from "../../components/Tenant/SkeletionTenantRoomDetails";
 import { GlobalContext } from '../../context/GlobalState';
 import { IconToggle } from '../../utils';
 
@@ -19,9 +21,9 @@ const TenantRoomDetails = ({ route, navigation }) => {
     description: '',
     amount: '',
     roomId: route.params?.item,
-    paymentForDate : new Date()
+    paymentForDate: new Date()
   };
-  
+
   const initialAddEditRoomPaymentValues = {
     pending: false,
     failed: false,
@@ -33,16 +35,19 @@ const TenantRoomDetails = ({ route, navigation }) => {
   const [addEditPaymentModal, setAddEditPaymentModall] = useState(initialAddEditRoomPaymentValues);
 
   const { getTenantRoomsDetailsByRoomId, initTenantRoomOrderPayment,
-     tenantBuildingFloorRoomsDetails, screenLoading, unLinkTenantRoomContract } = useContext(GlobalContext);
+    tenantBuildingFloorRoomsDetails, screenLoading, setScreenLoading, skeletonLoading, setSkeletonLoading, unLinkTenantRoomContract } = useContext(GlobalContext);
 
   useEffect(() => {
     setLoader(true)
     getTenantRoomsDetailsByRoomId(route.params?.item)
     setLoader(false)
-    
-    console.log("tennat room details ", route.params,tenantBuildingFloorRoomsDetails)
-  }, [route.params?.items])
 
+    console.log("tennat room details ", route.params, tenantBuildingFloorRoomsDetails)
+  }, [route.params?.item])
+
+  const callRefresh = async () => {
+    getTenantRoomsDetailsByRoomId(route.params?.item)
+  }
 
   const onChangeInput = (inputValue, inputName) => {
     setAddEditPaymentModall({
@@ -55,31 +60,34 @@ const TenantRoomDetails = ({ route, navigation }) => {
   }
 
 
-const initRoomPayment = async () => {
+  const initRoomPayment = async () => {
 
     const payload = JSON.stringify(addEditPaymentModal.data);
 
-    console.log(payload, "paytmPayload",'&tenantId=' )
+    console.log(payload, "paytmPayload", '&tenantId=', screenLoading)
+    setScreenLoading(true);
     setAddEditPaymentModall((prevState) => ({
       ...prevState,
-      pending : true
+      pending: true
     }));
+    console.log("paytmPayload", '&tenantId=', screenLoading)
+
     initTenantRoomOrderPayment(payload, '?tenantId=' + tenantBuildingFloorRoomsDetails[0]?.contractDetails?.tenant_id);
     if (!screenLoading) {
       setAddEditPaymentModall((prevState) => ({
         ...prevState,
         visible: false,
-        pending : false
+        pending: false
       }));
     }
 
-}
-  
-const submitAddEditPayment = async () => {
-    await initRoomPayment();
- };
+  }
 
-const openAddEditPaymentModal = (action, data) => {
+  const submitAddEditPayment = async () => {
+    await initRoomPayment();
+  };
+
+  const openAddEditPaymentModal = (action, data) => {
     setAddEditPaymentModall((prevState) => ({
       ...prevState,
       isAdd: action === 'add',
@@ -130,74 +138,88 @@ const openAddEditPaymentModal = (action, data) => {
       }
     });
   }
-  
+
   const routeDetails = {
     roomId: route.params?.item, buildingId: route.params?.buildingItemId, buildingFloorId: route.params?.buildingFloorId
- }
+  }
 
   return (
-    <ScrollView style={styles.container}>
-          {/* Header */}
-          <BackButton goBack={navigation.goBack}/>
-          {tenantBuildingFloorRoomsDetails.length > 0 ? (
-            <>
-             {tenantBuildingFloorRoomsDetails.map(data => (
-               <ListTenantRoomDetails roomDetails = {data} routeDetails = {routeDetails} key={data._id}/>
-             ))}
-            </>
-          ) : (
-            <View style={styles.titlesWrapper}>
-                    <Text style={styles.title}>Room is empty</Text>
-                    {/* <Button
-                        onPress={() =>
-                            navigation.navigate('TenantSignUp', routeDetails)}
-                    >Add tenant to room</Button> */}
-                        <IconToggle
-                          name={'book-plus-multiple'}
-                          size={25}
-                          set={'material'}
-                          color={'#298df7'}
-                          onPress={() =>
-                            navigation.navigate('TenantSignUp', routeDetails)}
-                        />
-                </View>
-          )}
-
-      <View>
-        {tenantBuildingFloorRoomsDetails.length > 0 && (
+    <View >
+    <Overlay isShow={screenLoading}/>
+    <View style={styles.container}>
+      {/* Header */}
+      <BackButton goBack={navigation.goBack} />
+      {skeletonLoading ? (
+        <SkeletionTenantRoomDetails />
+      ) : (
         <>
-        <View style={styles.titlesWrapper}>
-          <Text style={styles.titleSecond}>Room Transactions</Text>
-          <IconToggle
-            name={'book-plus-multiple'}
-            size={25}
-            set={'material'}
-            color={'#298df7'}
-            onPress={() => openAddEditPaymentModal('add', initialPaymentValues)}
-          />
-        </View>
+          {tenantBuildingFloorRoomsDetails[0] ? (<>
 
-        <TouchableOpacity onPress={() => navigation.navigate('TenantRoomTransactionList', { roomId: route.params?.item, roomPaymentId: route.params?.roomPaymentId })}>
-          <View style={styles.orderWrapper}>
-            <Text style={styles.orderText}>View Room Transactions </Text>
-            <Feather name="chevron-right" size={18} color={colors.black} />
+              <>
+                {tenantBuildingFloorRoomsDetails.map(data => (
+                  <ListTenantRoomDetails roomDetails={data} navigation={navigation} routeDetails={routeDetails} key={data._id} />
+                ))}
+              </>
+
+          </>) : <>
+            <View style={styles.titlesWrapper}>
+              <Text style={styles.title}>Room Is Empty</Text>
+              <IconToggle
+                name={'book-plus-multiple'}
+                size={25}
+                set={'material'}
+                color={'#298df7'}
+                onPress={() =>
+                  navigation.navigate('TenantSignUp', routeDetails)}
+              />
+            </View>
+          </>}
+
+
+
+
+          <View>
+            {tenantBuildingFloorRoomsDetails[0] && (<>
+              {tenantBuildingFloorRoomsDetails[0].tenantLinked && (
+                <>
+                  <View style={styles.titlesWrapper}>
+                    <Text style={styles.titleSecond}>Room Transactions</Text>
+                    <IconToggle
+                      name={'book-plus-multiple'}
+                      size={25}
+                      set={'material'}
+                      color={'#298df7'}
+                      onPress={() => openAddEditPaymentModal('add', initialPaymentValues)}
+                    />
+                  </View>
+                </>
+              )}
+            </>
+            )}
+            <TouchableOpacity onPress={() => navigation.navigate('TenantRoomTransactionList', { roomId: route.params?.item, roomPaymentId: route.params?.roomPaymentId })}>
+              <View style={styles.orderWrapper}>
+                <Text style={styles.orderText}>View Room Transactions </Text>
+                <Feather name="chevron-right" size={18} color={colors.black} />
+              </View>
+            </TouchableOpacity>
+
+
           </View>
-        </TouchableOpacity>
+          <>
+            {addEditPaymentModal.visible && (
+              <AddRoomPayment
+                addEditPaymentModal={addEditPaymentModal}
+                closeAddPaymentModal={closeAddEditPaymentModal}
+                submitAddPayment={submitAddEditPayment}
+                onChangeInput={onChangeInput}
+                handleActionMenuList={handleActionMenuList}
+              />
+            )}
+          </>
         </>
-        )}
-      </View>
-      <>
-      {addEditPaymentModal.visible && (
-        <AddRoomPayment
-          addEditPaymentModal={addEditPaymentModal}
-          closeAddPaymentModal={closeAddEditPaymentModal}
-          submitAddPayment={submitAddEditPayment}
-          onChangeInput={onChangeInput}
-          handleActionMenuList={handleActionMenuList}
-        />
       )}
-      </>
-    </ScrollView>
+      </View>
+    </View>
   )
 }
 
@@ -205,8 +227,6 @@ export default TenantRoomDetails
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    flexGrow :1
   },
   headerWrapper: {
     flexDirection: 'row',
@@ -230,6 +250,8 @@ const styles = StyleSheet.create({
   },
   titlesWrapper: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 20,
     marginTop: 30,
   },
@@ -241,9 +263,9 @@ const styles = StyleSheet.create({
   },
   titleSecond: {
     fontFamily: 'Montserrat-Bold',
-    fontSize: 20,
+    fontSize: 16,
+    paddingHorizontal: 20,
     color: colors.textDark,
-    width: '50%',
   },
   orderWrapper: {
     marginTop: 40,

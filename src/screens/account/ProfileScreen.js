@@ -6,14 +6,14 @@ import {
 } from 'react-native-paper';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { default as Icon, default as MaterialCommunityIcons } from 'react-native-vector-icons/MaterialCommunityIcons';
+import { default as Icon } from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
 import { GlobalContext } from '../../context/GlobalState';
 
 
 const ProfileScreen = ({ navigation }) => {
 
-  const {userDetails,getUserDetails}  = useContext(GlobalContext);
+  const {userDetails,getUserDetails, setH}  = useContext(GlobalContext);
      React.useEffect(() => {
     		getUserDetails();
       },[])
@@ -42,16 +42,7 @@ const ProfileScreen = ({ navigation }) => {
             }]}>{userDetails.username}</Title>
             <Caption style={styles.caption}>@{userDetails.username}</Caption>
           </View>
-        </View>
-        <View style={{ justifyContent:'flex-start' ,marginLeft:60, marginTop:10}}>
-                            <MaterialCommunityIcons.Button
-                                name="account-edit"
-                                size={25}
-                                backgroundColor={colors.background}
-                                color={colors.black}
-                                onPress={() => navigation.navigate('EditProfile')}
-      />
-        </View>        
+        </View>    
       </View>
 
       <View style={styles.userInfoSection}>
@@ -83,7 +74,7 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.menuItemText}>Payment</Text>
           </View>
         </TouchableRipple> */}
-        <TouchableRipple onPress={{}}>
+        <TouchableRipple onPress={() => {}}>
           <View style={styles.menuItem}>
             <Icon name="share-outline" color={colors.primary} size={25}/>
             <Text style={styles.menuItemText}>Tell Your Friends</Text>

@@ -64,9 +64,14 @@ const Transactions = (route) => {
     { label: 'December', value: '12' },
   ];
 
-  const yearsData = [
-    { label: '2022', value: '2022' },
-  ];
+  var dateObj = new Date();
+  var currentYear = dateObj.getUTCFullYear()
+  const yearsArrData = [];
+  var startYear = 2022;
+
+  for (let index = startYear; index <= currentYear; index++) {    
+    yearsArrData.push({ label: index.toString(), value: index.toString() });
+  }
 
   const statusData = [
     { label: 'Pending', value: 'P' },
@@ -94,11 +99,11 @@ const Transactions = (route) => {
     if (!route?.roomId) {
       return ;
     }
-    setYear(2022);
    
     let isSubscribed = true
     if (isSubscribed) {
       if (isAdmin && (route?.roomId || route?.roomPaymentId)) {
+        console.log(startDate,"startdate")
         getRecentAllTenantsRoomOrderDetails('P,C,F', page, startDate, route?.roomId)
       } else {
         getTenantRoomAllOrderDetails('P,C,F', page);
@@ -175,6 +180,8 @@ const Transactions = (route) => {
       if (startDate) {
           query = query + '&startDate=' + startDate
       } else {
+        setDropdown(route?.month.toString());
+        setYear(route?.year.toString());
         query = query + '&startDate=' + route?.year + '-' + route?.month + '-01'
       }
   
@@ -470,8 +477,8 @@ const Transactions = (route) => {
               backgroundColor="#c0b5b5"
               foregroundColor="#ecebeb"
             >
-              <Rect x="48" y="8" rx="3" ry="3" width="120" height="6" />
-              <Rect x="48" y="23" rx="3" ry="3" width="120" height="6" />
+              <Rect x="48" y="8" rx="3" ry="3" width="200" height="6" />
+              <Rect x="48" y="23" rx="3" ry="3" width="200" height="6" />
               <Circle cx="22" cy="22" r="22" />
             </ContentLoader>
           </View>
@@ -594,7 +601,7 @@ const Transactions = (route) => {
             <Dropdown
               style={styles.dropdown}
               containerStyle={styles.shadow}
-              data={yearsData}
+              data={yearsArrData}
 
               labelField="label"
               valueField="value"

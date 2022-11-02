@@ -34,6 +34,7 @@ export const notes = require('../assets/icons/notes.png');
 export const chat = require('../assets/icons/message.png');
 export const key = require('../assets/icons/key.png');
 export const lightning = require('../assets/icons/lightning.png');
+export const paytmLogo = require('../assets/icons/Paytm_Logo.png');
 
 export const imagePlaceHolder = 'https://firebasestorage.googleapis.com/v0/b/react-native--signin-eb4b7.appspot.com/o/assets%2Ficons%2Fimage-placeholder.png?alt=media&token=015bf90c-f152-45ed-afbd-802eab8b92d0'
 export default {
@@ -72,5 +73,6 @@ export default {
     chat,
     imagePlaceHolder,
     key,
-    lightning
+    lightning,
+    paytmLogo
 }

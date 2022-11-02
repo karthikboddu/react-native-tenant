@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Keyboard,
+    Image, Keyboard,
     KeyboardAvoidingView,
     Modal,
     Platform,
@@ -9,6 +9,7 @@ import {
     View
 } from 'react-native';
 import colors from '../../assets/colors/colors';
+import { icons } from '../../constants';
 import commonStyles from '../../screens/styles';
 import {
     IconToggle,
@@ -65,7 +66,8 @@ const ProceedPaymentModal = ({ addEditPaymentModal, submitAddPayment, closeAddPa
                                 </View>
                                 <View style={styles.paymentContainer}>
                                     <View style={styles.contentContainer}>
-                                        <Text style={styles.amountContentText}>Click here for paytm  : </Text>
+                                    
+                                    <Text style={styles.amountContentText}>Click here to pay</Text>
                                     </View>
                                     <View
                                         style={[
@@ -76,7 +78,14 @@ const ProceedPaymentModal = ({ addEditPaymentModal, submitAddPayment, closeAddPa
                                         >
                                             {!addEditPaymentModal.loading ?
                                                 <View style={styles.orderWrapper}>
-                                                    <Text style={styles.orderText}>Pay now</Text>
+                                                <Image
+                                                    source={icons.paytmLogo}
+                                                    resizeMode="contain"
+                                                    style={{
+                                                        width: 100,
+                                                        height: 100,
+                                                    }}
+                                                />  
                                                     <IconToggle set={'feather'} name="chevron-right" size={18} color={colors.black} />
                                                 </View>
                                                 :
@@ -198,7 +207,6 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 20,
         marginHorizontal: 10,
-        backgroundColor: colors.orange,
         borderRadius: 50,
         width: 80,
         paddingVertical: 10,

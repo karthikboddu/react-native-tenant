@@ -18,7 +18,6 @@ const Modals = ({ show, onRetry, isRetrying }) => {
 
   // hide show modal
   const displayModal = (show) => {
-    console.log(show)
     setState({ isVisible: show })
 
   }

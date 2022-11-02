@@ -1,21 +1,24 @@
 import { useNavigation } from '@react-navigation/native';
-// import CheckBox from "expo-checkbox";
+import CheckBox from "expo-checkbox";
 import { LinearGradient } from 'expo-linear-gradient';
+import mime from "mime";
 import React, { useState } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ImageBackground, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import BackButton from '../../components/BackButton';
 import { Loading } from '../../components/common';
+import { COLORS } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
-
+import { pickImage } from '../../helpers/firebase';
 
 const TenantSignUp = ({route, routeDetails}) => {
 
     const navigation = useNavigation();
-
+    const [image, setImage] = useState(null);
+    const [disable, setDisable] = useState(false);
     console.log(route.params)
     const [data, setData] = React.useState({
         username: '',
@@ -31,6 +34,8 @@ const TenantSignUp = ({route, routeDetails}) => {
         balanceAmount: 0,
         noOfPersons : 0,
         advancePaid: false,
+        startDateOfMonth : 0,
+        amountPaid : false,
         checkFullNameChange: false,
         checkUsernameChange : false,
         checkEmailChange : false,
@@ -42,6 +47,8 @@ const TenantSignUp = ({route, routeDetails}) => {
         checkAtualPriceChange : false,
         checkPriceChange : false,
         checkNoOfPersonsChange : false,
+        checkStartDateOfMonth : false,
+        checkAmountPaid : false,
         secureTextEntry: true,
         confirm_secureTextEntry: true,
         isValidFullname : true,
@@ -54,11 +61,15 @@ const TenantSignUp = ({route, routeDetails}) => {
         isValidActualPrice : true,
         isValidPrice : true,
         isValidNoofPersons : true,
+        isValidStartDateOfMonth: true,
+        isValidAmountPaid : true,
         isValidConfirmPassword : true,
         addRoomContract: true
     });
 
     const [isSelected, setSelection] = useState(false);
+    const [amountPaid, setAmountPaid] = useState(false);
+
     const { screenLoading, setScreenLoading, isAdmin, createTenantAddToRoomOrderPayment,createTenantAddToRoomContractList } = React.useContext(GlobalContext);
 
 
@@ -240,6 +251,29 @@ const TenantSignUp = ({route, routeDetails}) => {
         }
         
     }
+
+    const handleStartDateMonthChange = (val) => {
+        var dateNow = new Date();
+        var lastDate = new Date(dateNow.getFullYear(), dateNow.getMonth() + 1, 0);
+        var currentDay = lastDate.getUTCDate();
+        if( val > 0 && val <= currentDay) { 
+
+            setData({
+                ...data,
+                startDateOfMonth : val,
+                isValidStartDateOfMonth : true,
+                checkStartDateOfMonth : true
+            });
+        } else {
+            setData({
+                ...data,
+                startDateOfMonth: val,
+                isValidStartDateOfMonth : false,
+                checkStartDateOfMonth : false
+            });
+        }
+        
+    }
     
     const handlePasswordChange = (val) => {
         if( val.trim().length >= 6 ) {
@@ -293,8 +327,8 @@ const TenantSignUp = ({route, routeDetails}) => {
         });
     }
 
-    const signUpHandle = (fullName,email, username,password,aadharId, mobileNo, address,actualPrice,
-        price,advancePaid,noOfPersons,balanceAmount, buildingId,buildingFloorId,roomId, addRoomContract) => {
+    const signUpHandle = async(fullName,email, username,password,aadharId, mobileNo, address,actualPrice,
+        price,advancePaid,noOfPersons,balanceAmount, buildingId,buildingFloorId,roomId, addRoomContract, startDateOfMonth, amountPaid) => {
         const payload = {
             fullName,
             email,
@@ -311,11 +345,14 @@ const TenantSignUp = ({route, routeDetails}) => {
             buildingId,
             buildingFloorId,
             roomId,
-            addRoomContract
+            addRoomContract,
+            startDateOfMonth,
+            amountPaid
         }
-        if ( username.length == 0 || password.length == 0 || aadharId.length ==0 || email.length ==0 ||
-            fullName.length==0 || mobileNo.length ==0 || address.length ==0  || price ==0
-            || noOfPersons ==0) {
+        if ( username.length == 0 || password.length == 0 || email.length ==0 ||
+            fullName.length==0 || mobileNo.length ==0 || address.length ==0  || (amountPaid ? false : price ==0)
+            || noOfPersons ==0 || !image || !data.isValidStartDateOfMonth) {
+                console.log(image,"image")
             Alert.alert('Wrong Input!', 'Some fields cannot be empty.', [
                 {text: 'Okay'}
             ]);
@@ -323,16 +360,41 @@ const TenantSignUp = ({route, routeDetails}) => {
             return;
         }
         console.log(payload)
-        setScreenLoading(true)
-        createTenantAddToRoomOrderPayment(JSON.stringify(payload))
+        const fileFormData = new FormData();
+        if (image) {
+            const newImageUri =  "file:///" + image.uri.split("file:/").join("");
+
+        
+            let str=image.uri.replace('///','//')
+            fileFormData.append('photos',{
+                uri: newImageUri,
+                type: mime.getType(newImageUri),
+                name: image.uri.split('/').pop()
+            });
+            console.log(image)
+        }
+        setScreenLoading(true);
+        createTenantAddToRoomOrderPayment(JSON.stringify(payload), fileFormData)
         // if (createTenantAddToRoomContractList?.status) {
             // navigation.navigate('TenantRoomDetails')
         // }
+        console.log(screenLoading,"Screenloading")
         if (!screenLoading) {
+            console.log(screenLoading,"Screenloading")
             navigation.goBack();
         }
 
     }
+
+    const takePhotoFromCamera = async () => {
+        let result = await pickImage();
+        const imageUri = Platform.OS === 'ios' ? result.sourceURL : result.uri;
+        if (!result.cancelled) {
+          setImage(result);
+          setDisable(true)
+        }
+        console.log(result)
+    };
 
     return (
       <View style={styles.container}>
@@ -513,7 +575,7 @@ const TenantSignUp = ({route, routeDetails}) => {
             </Animatable.View>
             }
 
-            <Text style={styles.text_footer}>Aadhar Id</Text>
+            {/* <Text style={styles.text_footer}>Aadhar Id</Text>
             <View style={styles.action}>
                 <FontAwesome 
                     name="id-card-o"
@@ -545,7 +607,7 @@ const TenantSignUp = ({route, routeDetails}) => {
             <Animatable.View animation="fadeInLeft" duration={500}>
             <Text style={styles.errorMsg}>Aadhar Id must be 12 characters long.</Text>
             </Animatable.View>
-            }
+            } */}
 
             {/* <Text style={styles.text_footer}>Enter Actual Room Amount</Text>
             <View style={styles.action}>
@@ -582,6 +644,17 @@ const TenantSignUp = ({route, routeDetails}) => {
             </Animatable.View>
             } */}
 
+            <View style={styles.checkboxContainer}>
+                <CheckBox
+                value={amountPaid}
+                onValueChange={setAmountPaid}
+                style={styles.checkbox}
+                />
+                <Text style={styles.checkBoxLabel}>Amount Already paid</Text>
+            </View>
+
+            {!amountPaid && (
+                <>
             <Text style={styles.text_footer}>Enter Room Amount paid</Text>
             <View style={styles.action}>
                 <FontAwesome 
@@ -590,7 +663,7 @@ const TenantSignUp = ({route, routeDetails}) => {
                     size={20}
                 />
                 <TextInput 
-                    placeholder="amount"
+                    placeholder="Amount"
                     style={styles.textInput}
                     keyboardType='numeric'
                     maxLength={10} 
@@ -615,7 +688,7 @@ const TenantSignUp = ({route, routeDetails}) => {
             <Text style={styles.errorMsg}>Price must not be empty.</Text>
             </Animatable.View>
             }             
-
+            </> )}
             <Text style={styles.text_footer}>Number of persons</Text>
             <View style={styles.action}>
                 <Fontisto 
@@ -624,7 +697,7 @@ const TenantSignUp = ({route, routeDetails}) => {
                     size={20}
                 />
                 <TextInput 
-                    placeholder="number of persons"
+                    placeholder="Number of persons"
                     style={styles.textInput}
                     keyboardType='numeric'
                     maxLength={3} 
@@ -650,17 +723,55 @@ const TenantSignUp = ({route, routeDetails}) => {
             </Animatable.View>
             }
 
-
-            {/* <View style={styles.checkboxContainer}>
+            {!amountPaid && (
+            <View style={styles.checkboxContainer}>
                 <CheckBox
                 value={isSelected}
                 onValueChange={setSelection}
                 style={styles.checkbox}
                 />
-                <Text style={styles.label}>Advance paid</Text>
+                <Text style={styles.checkBoxLabel}>Advance paid</Text>
             </View>
-            <Text>Is CheckBox selected: {isSelected ? "👍" : "👎"}</Text>      */}
+            )}
 
+
+            {amountPaid && (
+                <>
+            <Text style={styles.text_footer}>Enter Start Date Of Month.</Text>
+            <View style={styles.action}>
+                <Fontisto 
+                    name="persons"
+                    color="#05375a"
+                    size={20}
+                />
+                <TextInput 
+                    placeholder="number of persons"
+                    style={styles.textInput}
+                    keyboardType='numeric'
+                    maxLength={3} 
+                    autoCapitalize="none"
+                    onChangeText={(val) => handleStartDateMonthChange(val)}
+                />
+                {data.checkStartDateOfMonth ? 
+                <Animatable.View
+                    animation="bounceIn"
+                >
+                    <Feather 
+                        name="check-circle"
+                        color="green"
+                        size={20}
+                    />
+                </Animatable.View>
+                : null}
+            </View>  
+
+            { data.isValidStartDateOfMonth ? null : 
+            <Animatable.View animation="fadeInLeft" duration={500}>
+            <Text style={styles.errorMsg}>Enter Valid Start Date Of Month.</Text>
+            </Animatable.View>
+            }
+            </>
+            )}
 
             <Text style={[styles.text_footer, {
                 marginTop: 35
@@ -743,6 +854,30 @@ const TenantSignUp = ({route, routeDetails}) => {
             <Text style={styles.errorMsg}>Password must be 6 characters long.</Text>
             </Animatable.View>
             }
+            <Text style={[styles.text_footer, {
+                marginTop: 35
+            }]}>Please Upload Government identity.</Text>
+            {image && (
+            <ImageBackground
+              source={{
+                uri: image.uri,
+              }}
+              style={{ height: 100, width: 100 }}
+              imageStyle={{ borderRadius: 15 }}>
+
+              </ImageBackground>
+              )}
+            <Text style={[{
+                marginTop: 35
+            }]}>{image ? image.uri.split('/').pop(): ""}</Text>
+            
+            <TouchableOpacity
+                disabled={disable}
+                style={styles.buttonStyle}
+                activeOpacity={0.5}
+                onPress={takePhotoFromCamera}>
+                <Text style={styles.buttonTextStyle}>Select File</Text>
+            </TouchableOpacity>
 
             <View style={styles.textPrivate}>
                 <Text style={styles.color_textPrivate}>
@@ -757,7 +892,7 @@ const TenantSignUp = ({route, routeDetails}) => {
                     style={styles.signIn}
                     onPress={() => {signUpHandle(data.fullName,data.email, data.username,data.password
                     ,data.aadharId, data.mobileNo, data.address,data.actualPrice,data.price,isSelected
-                    ,data.noOfPersons,data.balanceAmount,route.params?.buildingId,route.params?.buildingFloorId,route.params?.roomId, data.addRoomContract)}}
+                    ,data.noOfPersons,data.balanceAmount,route.params?.buildingId,route.params?.buildingFloorId,route.params?.roomId, data.addRoomContract, data.startDateOfMonth, amountPaid)}}
                 >
                 <LinearGradient
                     colors={['#000000', '#000000']}
@@ -783,7 +918,7 @@ export default TenantSignUp;
 const styles = StyleSheet.create({
     container: {
       flex: 1, 
-      backgroundColor: '#000000'
+      backgroundColor: COLORS.primary
     },
     header: {
         flex: 1,
@@ -848,4 +983,28 @@ const styles = StyleSheet.create({
         color: '#FF0000',
         fontSize: 14,
     },
+    buttonStyle: {
+        backgroundColor: '#307ecc',
+        borderWidth: 0,
+        color: '#FFFFFF',
+        borderColor: '#307ecc',
+        height: 40,
+        alignItems: 'center',
+        borderRadius: 30,
+        marginLeft: 35,
+        marginRight: 35,
+        marginTop: 15,
+      },
+      buttonTextStyle: {
+        color: '#FFFFFF',
+        paddingVertical: 10,
+        fontSize: 16,
+      },
+      checkboxContainer : {
+        flexDirection: 'row',
+        marginTop:10
+      },
+      checkBoxLabel: {
+          marginLeft :10
+      }
   });

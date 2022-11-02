@@ -1,48 +1,65 @@
 import { useActionSheet } from "@expo/react-native-action-sheet";
-import storage from '@react-native-firebase/storage';
+import mime from "mime";
+// import storage from '@react-native-firebase/storage';
 import React, { useContext, useState } from 'react';
-import {
-  ImageBackground, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View
-} from 'react-native';
+import { ImageBackground, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import Toast from 'react-native-toast-message';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
-import { Loading } from '../../components/common';
+import { Loading } from "../../components/common";
 import { GlobalContext } from '../../context/GlobalState';
-import { openCameraProfileImage, pickProfileImage } from '../../helpers/firebase';
+import { pickImage, pickProfileImage } from '../../helpers/firebase';
+import { uploadTenantProfileAsset } from "../../services/tenant/uploadService";
 import { IconToggle } from "../../utils";
-
 const EditProfileScreen = ({ navigation }) => {
 
   const [image, setImage] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
   const { colors } = useTheme();
   const { userDetails, updateUserDetails, screenLoading, setScreenLoading, getUserDetails } = useContext(GlobalContext);
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
 
   React.useEffect(() => {
-    setImage(userDetails.photoUrl)
+    console.log(userDetails)
+    setImageUrl(userDetails.photoUrl)
   }, []);
 
 
-  const pickImage = async () => {
+
+  const showToast = () => {
+    Toast.show({
+      type: 'success',
+      text1: 'Profile Updated Successfully. ',
+      position: 'bottom',
+      bottomOffset:60,
+      config : {}
+    });
+  }
+  
+  const pickImageFromGallery = async () => {
     // No permissions request is necessary for launching the image library
     let result = await pickProfileImage();
-
+    const imageUri = Platform.OS === 'ios' ? result.sourceURL : result.uri;
+    setImageUrl(imageUri)
     console.log(result);
 
     if (!result.cancelled) {
-      setImage(result.uri);
+      setImage(result);
     }
   };
 
   const takePhotoFromCamera = async () => {
-    let result = await openCameraProfileImage();
-    const imageUri = Platform.OS === 'ios' ? result.sourceURL : result.path;
+    let result = await pickImage();
+    console.log(result,"image")
+    const imageUri = Platform.OS === 'ios' ? result.sourceURL : result.uri;
+    setImageUrl(imageUri)
+
     if (!result.cancelled) {
-      setImage(imageUri);
+      setImage(result);
     }
   };
 
@@ -50,53 +67,59 @@ const EditProfileScreen = ({ navigation }) => {
     if (image == null) {
       return null;
     }
-    const uploadUri = image;
-    let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+    // const uploadUri = image;
+    // let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
 
-    // Add timestamp to File Name
-    const extension = filename.split('.').pop();
-    const name = filename.split('.').slice(0, -1).join('.');
-    filename = name + Date.now() + '.' + extension;
+    // // Add timestamp to File Name
+    // const extension = filename.split('.').pop();
+    // const name = filename.split('.').slice(0, -1).join('.');
+    // filename = name + Date.now() + '.' + extension;
 
     setUploading(true);
     setScreenLoading(true);
-    setTransferred(0);
+    // setTransferred(0);
 
-    const storageRef = storage().ref(`photos/${filename}`);
-    const task = storageRef.putFile(uploadUri);
+    // const storageRef = storage().ref(`photos/${filename}`);
+    // const task = storageRef.putFile(uploadUri);
 
-    // Set transferred state
-    task.on('state_changed', (taskSnapshot) => {
-      console.log(
-        `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
-      );
+    // // Set transferred state
+    // task.on('state_changed', (taskSnapshot) => {
+    //   console.log(
+    //     `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
+    //   );
 
-      setTransferred(
-        Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
-        100,
-      );
-    });
+    //   setTransferred(
+    //     Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
+    //     100,
+    //   );
+    // });
 
     try {
-      await task;
+      // await task;
 
-      const url = await storageRef.getDownloadURL();
+      // const url = await storageRef.getDownloadURL();
+      const newImageUri =  "file:///" + image.uri.split("file:/").join("");
 
+      const fileFormData = new FormData();
+      fileFormData.append('assets',{
+          uri: newImageUri,
+          type: mime.getType(newImageUri),
+          name: image.uri.split('/').pop()
+      });
       setUploading(false);
       setImage(null);
 
-      const payload = {
-        photoUrl: url
-      }
-      updateUserDetails(JSON.stringify(payload))
+      // const payload = {
+      //   photoUrl: url
+      // }
+      // updateUserDetails(JSON.stringify(payload))
+      await uploadTenantProfileAsset(fileFormData, 'profile_pic')
+      setScreenLoading(true);
       if (!screenLoading) {
-        console.log("end")
+        showToast()
         navigation.goBack();
         getUserDetails()
       }
-
-
-      return url;
 
     } catch (e) {
       console.log(e);
@@ -113,12 +136,12 @@ const EditProfileScreen = ({ navigation }) => {
     />,
     <IconToggle
       set={'fontAwesome'}
-      name={'edit'}
+      name={'camera'}
       size={22}
     />,
     <IconToggle
       set={'fontAwesome'}
-      name={'trash'}
+      name={'photo'}
       size={22}
     />
   ];
@@ -139,7 +162,7 @@ const EditProfileScreen = ({ navigation }) => {
         takePhotoFromCamera()
       } else if (buttonIndex === 2) {
 
-        pickImage()
+        pickImageFromGallery()
       }
     });
   }
@@ -173,7 +196,7 @@ const EditProfileScreen = ({ navigation }) => {
             }}>
             <ImageBackground
               source={{
-                uri: image,
+                uri: imageUrl,
               }}
               style={{ height: 100, width: 100 }}
               imageStyle={{ borderRadius: 15 }}>
@@ -205,7 +228,7 @@ const EditProfileScreen = ({ navigation }) => {
         </Text>
       </View>
 
-      <View style={styles.action}>
+      {/* <View style={styles.action}>
         <FontAwesome name="user-o" color={colors.text} size={20} />
         <TextInput
           placeholder="First Name"
@@ -220,15 +243,15 @@ const EditProfileScreen = ({ navigation }) => {
             },
           ]}
         />
-      </View>
+      </View> */}
       <View style={styles.action}>
         <FontAwesome name="user-o" color={colors.text} size={20} />
         <TextInput
-          placeholder="Last Name"
+          placeholder="Full Name"
           placeholderTextColor="#666666"
           autoCorrect={false}
           editable={false}
-          value={userDetails.lastName}
+          value={userDetails.full_name}
           style={[
             styles.textInput,
             {
@@ -245,6 +268,7 @@ const EditProfileScreen = ({ navigation }) => {
           keyboardType="number-pad"
           autoCorrect={false}
           editable={false}
+          value={userDetails.mobile_no.toString()}
           style={[
             styles.textInput,
             {
@@ -270,7 +294,7 @@ const EditProfileScreen = ({ navigation }) => {
           ]}
         />
       </View>
-      <View style={styles.action}>
+      {/* <View style={styles.action}>
         <FontAwesome name="globe" color={colors.text} size={20} />
         <TextInput
           placeholder="Country"
@@ -284,14 +308,15 @@ const EditProfileScreen = ({ navigation }) => {
             },
           ]}
         />
-      </View>
+      </View> */}
       <View style={styles.action}>
         <Icon name="map-marker-outline" color={colors.text} size={20} />
         <TextInput
-          placeholder="City"
+          placeholder="Address"
           placeholderTextColor="#666666"
           autoCorrect={false}
           editable={false}
+          value={userDetails.address}
           style={[
             styles.textInput,
             {
@@ -304,9 +329,10 @@ const EditProfileScreen = ({ navigation }) => {
         {!screenLoading ?
           <Text style={styles.panelButtonTitle}>Submit</Text>
           :
-          <Loading size={'small'} />}
+          <Loading size={'small'} /> }
       </TouchableOpacity>
     </View>
+
   );
 };
 
@@ -318,7 +344,17 @@ const styles = StyleSheet.create({
   },
   commandButton: {
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 30,
+    marginTop: 40,
+    marginBottom: 50,
+    marginHorizontal: 100,
+    
+    backgroundColor: colors.primary,
+    borderRadius: 50,
+    paddingVertical: 15,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: colors.primary,
     alignItems: 'center',
     marginTop: 10,
@@ -401,6 +437,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 10,
     marginBottom: 10,
+    marginLeft:20,
     borderBottomWidth: 1,
     borderBottomColor: '#f2f2f2',
     paddingBottom: 5,

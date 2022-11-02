@@ -18,6 +18,7 @@ import { GlobalContext } from '../../context/GlobalState';
 import endpoints from '../../endpoints';
 import deviceStorage from '../../services/deviceStorage';
 import { IconToggle } from '../../utils';
+import HeaderProfileScreen from '../account/HeaderProfileScreen';
 
 
 const TransactionsList = (route) => {
@@ -155,10 +156,11 @@ const TransactionsList = (route) => {
         }
       }).then((response) => response.json())
         .then((json) => {
+          console.log(json,"json")
           setPage(page + 1)
           setScreenLoading(false);
           setSkeletionLoading(false);
-          setData([...data, ...json?.data])
+          setData([...data, ...json?.data.orderDetails])
         }).catch((error) => {
           console.log(error)
         })
@@ -203,7 +205,7 @@ const TransactionsList = (route) => {
         }
       }).then((response) => response.json())
         .then((json) => {
-          console.log(page, "page",data.length)
+          console.log(page, "page", data.length)
           setSkeletionLoading(false);
           setScreenLoading(false);
           setData([...data, ...json?.data?.orderDetails])
@@ -264,13 +266,12 @@ const TransactionsList = (route) => {
             ]}>
 
 
-            {isAdmin ? (
               <View style={styles.avatarWrapperFirst}>
-                {item.tenant[0] && (
+                {item.tenant && (
                   <>
-                    {item.tenant[0].photoUrl ? (
+                    {item.tenant.photoUrl ? (
                       <Avatar.Image
-                        source={{ uri: item.tenant[0].photoUrl }}
+                        source={{ uri: item.tenant.photoUrl }}
                         size={50}
                         style={{ marginRight: 10 }}
                       />) : (
@@ -282,25 +283,6 @@ const TransactionsList = (route) => {
                   </>
                 )}
               </View>
-            ) : (
-              <View style={styles.avatarWrapperFirst}>
-                {item.tenant_id && (
-                  <>
-                    {item.tenant_id.photoUrl ? (
-                      <Avatar.Image
-                        source={{ uri: item.tenant_id.photoUrl }}
-                        size={50}
-                        style={{ marginRight: 10 }}
-                      />) : (
-                      <Avatar.Image
-                        source={require('../../assets/avatar.png')}
-                        size={50}
-                        style={{ marginRight: 10 }}
-                      />)}
-                  </>
-                )}
-              </View>
-            )}
 
             <View
               style={[
@@ -308,36 +290,13 @@ const TransactionsList = (route) => {
               ]}>
 
               <View style={styles.popularTitlesWrapperFirst}>
-                {isAdmin ? (
-                  <>
                     {item.tenant && (
-
-
                       <View style={styles.popularTitlesWrapper}>
-
-                        {item.tenant.map(t => (
-                          <Text style={styles.popularTitlesTitle} key={t._id}>
-                            {t.full_name}
+                          <Text style={styles.popularTitlesTitle} >
+                            {item.tenant.full_name}
                           </Text>
-                        ))}
                       </View>
-
                     )}
-                  </>
-                ) : <>
-                  {item.tenant_id && (
-
-
-                    <View style={styles.popularTitlesWrapper}>
-                      <Text style={styles.popularTitlesTitle} >
-                        {item.tenant_id.full_name}
-                      </Text>
-                    </View>
-
-                  )}
-                </>}
-
-
 
                 <View style={styles.popularTitlesWrapper1}>
                   <Text style={styles.popularTitlesTitle}>
@@ -371,21 +330,46 @@ const TransactionsList = (route) => {
                   </Text> */}
                   {item.room_payment_type == "ROOM_RENT" ? (
                     <Avatar.Image
-                        source={icons.key}
-                        size={20}
-                        style={styles.popularTitlesTitle}
-                      />
+                      source={icons.key}
+                      size={20}
+                      style={styles.popularTitlesTitle}
+                    />
                   ) : (
-                    <>{item.room_payment_type == "ELECTRICITY" ?  (
-                    <Avatar.Image
+                    <>
+                    {item.room_payment_type == "ELECTRICITY" ? 
+                    (
+                      <Avatar.Image
                         source={icons.lightning}
                         size={20}
                         style={styles.popularTitlesTitle}
                       />
-                  ) : (                    
-                    <Text style={styles.popularTitlesTitle}>
-                    {item.room_payment_type}
-                  </Text>)}</>)}
+                    ) : 
+                    (
+                      <>
+                      {item.room_payment_type == "BALANCE_AMOUNT" ? (
+                        <IconToggle
+                          set="material"
+                          name="progress-clock"
+                          color="#777777" size={16}
+                        />
+                        ) : (
+                          <>
+                          {item.room_payment_type == "GARBAGE" ? (
+                        <IconToggle
+                          set="Ionicons"
+                          name="trash-bin-outline"
+                          color="#777777" size={16}
+                        />
+                        ) : (
+                      
+                      <Text style={styles.popularTitlesTitle}>
+                        {item.room_payment_type}
+                      </Text>
+                        )}</>
+                      )}</>
+                    )}
+                    </>
+                    )}
 
                 </View>
 
@@ -402,42 +386,42 @@ const TransactionsList = (route) => {
                     <Moment fromNow key={item._id} element={Text}>{item.updated_at}</Moment>
                   </Text>
                 </View>
-                {item.contractDetails[0] && (
-                <View style={styles.popularTitlesWrapper}>
-                  <View>
-                    <IconToggle
-                      set={"fontawesome"}
-                      name="building" size={16}
-                      color={colors.primary}
-                    />
+                {item.contractDetails && (
+                  <View style={styles.popularTitlesWrapper}>
+                    <View>
+                      <IconToggle
+                        set={"fontawesome"}
+                        name="building" size={16}
+                        color={colors.primary}
+                      />
+                    </View>
+                    <Text style={styles.popularTitlesTitleTime}>
+                      {item.contractDetails ? (item.contractDetails.buildingDetails.building_name) : ""}
+                    </Text>
                   </View>
-                  <Text style={styles.popularTitlesTitleTime}>
-                   {item.contractDetails[0] ? (item.contractDetails[0].buildingDetails[0].building_name) : ""}
-                  </Text>
-                </View>
                 )}
               </View>
 
             </View>
             {isAdmin && (
 
-                <View
-                  style={[
-                    styles.detailsListIcon,
-                    {
-                      backgroundColor: colors.primary,
-                    },
-                  ]}>
-                  <Feather
-                    name="chevron-right"
-                    size={35}
-                    color={colors.white}
-                    onPress= {() =>
-                      navigation.navigate('TenantRoomDetails', {
-                        item: item.floor_room_id, buildingItemId: item.contractDetails[0].building_id, roomPaymentId: item._id
-                      })}
-                    />
-                </View>
+              <View
+                style={[
+                  styles.detailsListIcon,
+                  {
+                    backgroundColor: colors.primary,
+                  },
+                ]}>
+                <Feather
+                  name="chevron-right"
+                  size={35}
+                  color={colors.white}
+                  onPress={() =>
+                    navigation.navigate('TenantRoomDetails', {
+                      item: item.floor_room_id, buildingItemId: item.contractDetails.building_id, roomPaymentId: item._id
+                    })}
+                />
+              </View>
             )}
           </View>
         </TouchableRipple>
@@ -453,7 +437,7 @@ const TransactionsList = (route) => {
           <View
             key={item.id}
             style={[
-              styles.popularCardWrapper
+              styles.skeletionPopularCardWrapper
             ]}>
             <ContentLoader
               speed={2}
@@ -463,8 +447,8 @@ const TransactionsList = (route) => {
               backgroundColor="#c0b5b5"
               foregroundColor="#ecebeb"
             >
-              <Rect x="48" y="8" rx="3" ry="3" width="120" height="6" />
-              <Rect x="48" y="23" rx="3" ry="3" width="120" height="6" />
+              <Rect x="48" y="8" rx="3" ry="3" width="200" height="6" />
+              <Rect x="48" y="23" rx="3" ry="3" width="200" height="6" />
               <Circle cx="22" cy="22" r="22" />
             </ContentLoader>
           </View>
@@ -495,8 +479,6 @@ const TransactionsList = (route) => {
             showsHorizontalScrollIndicator={false}
             keyExtractor={item => item ? `${item._id}` : 0}
             renderItem={renderItem}
-            onRefresh={callRefresh}
-            refreshing={screenLoading}
             contentContainerStyle={{ paddingVertical: SIZES.padding * 2 }}
             ListFooterComponent={renderFooter}
           />
@@ -512,6 +494,8 @@ const TransactionsList = (route) => {
   return (
 
     <View style={styles.container}>
+      <HeaderProfileScreen navigation={navigation}/>
+
       <SafeAreaView>
 
 
@@ -628,7 +612,24 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: 25,
     paddingTop: 10,
-
+    marginBottom: 10,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    shadowColor: colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+    height: 70,
+  },
+  skeletionPopularCardWrapper: {
+    backgroundColor: colors.white,
+    borderRadius: 25,
+    paddingTop: 10,
+    paddingLeft: 20,
     marginBottom: 10,
     flexDirection: 'row',
     overflow: 'hidden',
@@ -679,6 +680,7 @@ const styles = StyleSheet.create({
   avatarWrapperFirst: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginLeft: 10,
   },
   popularTitlesWrapperFirst: {
     flexDirection: 'row',

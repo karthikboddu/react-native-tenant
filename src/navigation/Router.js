@@ -79,7 +79,7 @@ export default function Router(props) {
 
   return (
     <NavigationContainer theme={theme}>
-      <StatusBar backgroundColor='#000' barStyle="light-content" />
+      <StatusBar backgroundColor="#CDCDD2" barStyle="light-content" />
 
 
       {/* <Overlay isShow={screenLoading} /> */}

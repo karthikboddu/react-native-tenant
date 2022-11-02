@@ -165,32 +165,22 @@ export default (state, action) => {
         ...state,
         createOrderDetailsAndComplete: action.payload
       };
-
-    case 'GET_CREATE_TENANT_CONVERSATIONS':
-      return {
-        ...state,
-        tenantConversations: action.payload
-      };
-    case 'GET_TENANT_LAST_CONVERSATIONS':
-      return {
-        ...state,
-        tenantLastConversations: action.payload
-      };
     case 'GET_TENANT_LIST':
       return {
         ...state,
         tenantDetailsList: action.payload
-      };
-    case 'GET_TENANT_NOTES_LIST':
-      return {
-        ...state,
-        tenantNotesList: action.payload
       };
     case 'BULK_INIT_PAYMENT':
       return {
         ...state,
         tenantNotesList: action.payload
       };
+      case 'SET_HEADER_VISIBLE':
+        return {
+          ...state,
+          isHeaderVisible: action.payload
+        };      
+      
     default:
       return state;
   }

@@ -52,9 +52,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Montserrat-Bold',
     fontSize: 25,
     color: colors.darkGray,
-    marginTop: 5,
+    marginTop: 8,
     marginBottom: 10,
-    paddingLeft: 10
+    paddingLeft: 23
   },
   searchWrapper: {
     flexDirection: 'row',

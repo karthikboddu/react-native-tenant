@@ -93,7 +93,6 @@ async function generatePaytmToken(accessToken1='', payload) {
 
     try {
         const accessToken = await deviceStorage.loadJWT();
-        console.log("acc",accessToken)
         let response = await fetch(`${API_URL}` + `${endpoints.generatePaytmToken}`, {
             method: 'POST',
             headers: {
@@ -214,7 +213,6 @@ async function getRecentAllTenantsRoomOrderDetails (params, page) {
   async function createTenantAndToRoom(accessToken, payload) {
 
     try {
-        console.log(payload,"payload")
         let response = await fetch(`${API_URL}` + `${endpoints.addTenantToRoom}`, {
             method: 'POST',
             headers: {

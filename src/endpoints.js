@@ -1,6 +1,9 @@
 const endpoints = {
-    apiUrl : 'https://nodejs-authentication-production.up.railway.app',
-    apiUrlBeta : 'https://tenant.adaptable.app',
+    apiUrlBeta : 'https://nodejs-authentication-production.up.railway.app',
+    apiUrl2 : 'https://tenant.adaptable.app',
+    apiUrl1: 'http://192.168.0.126:8000',
+    apiUrl3 : 'https://api-tenant.cyclic.app',
+    apiUrl : 'https://tenant.adaptable.app',
     tenantLogin : '/api/tenant/login',
     ssoLogin : '/api/tenant/SSOLogin',
     verifyAccessToken : '/api/auth/verifyAccessToken',
@@ -30,8 +33,12 @@ const endpoints = {
     listNotes : '/api/tutorials',
     jwtSecret : "karthik-secret-key",
     bulkInitRoomPayment : '/api/order/bulkInitRoomPayment',
+    updateRoomDetails : '/api/room/#',
 
-
+    uploadAsset : '/api/upload/assets/#',
+    uploadTenantProfileAsset : '/api/upload/assets',
+    assetUrl : '/api/upload/url/#',
+    
     createNotes : '/api/note/notes',
     findAllNotes : '/api/note/notes',
     updateNotes : '/api/note/notes/#',

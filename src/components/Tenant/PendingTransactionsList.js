@@ -9,7 +9,6 @@ import colors from '../../assets/colors/colors';
 import { SIZES } from "../../constants";
 import { GlobalContext } from '../../context/GlobalState';
 import { generatePaytmToken } from '../../services/tenant/tenantService';
-import { Loading } from "../common";
 import ProceedPaymentModal from "./ProceedPaymentModal";
 
 const PendingTransactionsList = () => {
@@ -106,6 +105,7 @@ const PendingTransactionsList = () => {
     
         const token = await generatePaytmToken("", raw);
         let resJson = await token.json();
+        console.log("gateway response1", resJson);
         const txnToken = resJson.data?.body?.txnToken;
         console.log("gateway response1", resJson);
     
@@ -195,14 +195,10 @@ const PendingTransactionsList = () => {
                         <TouchableOpacity
                             onPress={() => openAddEditPaymentModal('add', initialPaymentValues, item.price, item._id, item.room_contract_id)}
                         >
-                            {!screenLoading ?
                                 <View style={styles.orderWrapper}>
                                     <Text style={styles.orderText}>Pay</Text>
                                     <Feather name="chevron-right" size={18} color={colors.black} />
                                 </View>
-                                :
-                                <Loading size={'small'} />
-                            }
 
                         </TouchableOpacity>
                     </View>
@@ -261,6 +257,8 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         elevation: 2,
         height: 100,
+        paddingLeft: 20,
+        margin: 20
       },
       popularCardWrapperAmount: {
         borderRadius: 25,

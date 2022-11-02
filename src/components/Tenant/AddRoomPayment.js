@@ -11,12 +11,13 @@ import {
     TouchableWithoutFeedback,
     View
 } from 'react-native';
+import * as Animatable from 'react-native-animatable';
 import commonStyles from '../../screens/styles';
 import {
     IconToggle,
     Ripple
 } from '../../utils';
-
+import { Loading } from '../common';
 
 
 
@@ -36,6 +37,10 @@ const AddRoomPayment = ({ addEditPaymentModal, submitAddPayment, onChangeInput, 
         },
         {
             id: 3,
+            category_name: 'GARBAGE'
+        },
+        {
+            id: 4,
             category_name: 'OTHERS'
         }
     ];
@@ -45,6 +50,11 @@ const AddRoomPayment = ({ addEditPaymentModal, submitAddPayment, onChangeInput, 
             animationType="fade"
             transparent={true}
             visible={addEditPaymentModal.visible}
+        >
+        
+        <Animatable.View 
+            animation="fadeInUpBig"
+            style={styles.footer}
         >
             <View style={styles.modalWrapper}>
                 <Pressable style={styles.modalOverlay} onPress={() => closeAddPaymentModal()} />
@@ -71,7 +81,7 @@ const AddRoomPayment = ({ addEditPaymentModal, submitAddPayment, onChangeInput, 
                                             color: addEditPaymentModal.data.type ? '#298df7': '#ccc'
                                         }]}
                                     >
-                                        {addEditPaymentModal.pending ? 'Submitting' : 'Submit'}
+                                        {addEditPaymentModal.pending ? <Loading size={'small'}/> : 'Submit'}
                                     </Text>
                                 </Ripple>
                             </View>
@@ -79,8 +89,8 @@ const AddRoomPayment = ({ addEditPaymentModal, submitAddPayment, onChangeInput, 
                                 <View style={styles.inputContainer}>
                                     <View>
                                         <IconToggle
-                                            name={"book"}
-                                            set={"entypo"}
+                                            name={"category"}
+                                            set={"materialicons"}
                                             color={inputFieldValidation}
                                             size={30}
                                         />
@@ -110,8 +120,8 @@ const AddRoomPayment = ({ addEditPaymentModal, submitAddPayment, onChangeInput, 
                                 <View style={commonStyles.row}>
                                     <View>
                                         <IconToggle
-                                            name={"account-tie"}
-                                            set={"material"}
+                                            name={"description"}
+                                            set={"materialicons"}
                                             color={"#6d6d6d"}
                                             size={30}
 
@@ -128,8 +138,8 @@ const AddRoomPayment = ({ addEditPaymentModal, submitAddPayment, onChangeInput, 
                                 <View style={commonStyles.row}>
                                     <View>
                                         <IconToggle
-                                            name={"pricetags"}
-                                            set={"ionicons"}
+                                            name={"rupee"}
+                                            set={"FontAwesome"}
                                             color={"#6d6d6d"}
                                             size={30}
 
@@ -148,6 +158,7 @@ const AddRoomPayment = ({ addEditPaymentModal, submitAddPayment, onChangeInput, 
                     </TouchableWithoutFeedback>
                 </KeyboardAvoidingView>
             </View>
+            </Animatable.View>
         </Modal>
     );
 }
@@ -160,7 +171,6 @@ const styles = StyleSheet.create({
     },
     modalWrapper: {
         flex: 1,
-        backgroundColor:'rgba(0,0,0,0.2)'
     },
     modalOverlay: {
         flex:0.6
@@ -244,6 +254,12 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
         width: '100%'
 	},
+    footer: {
+        flex: Platform.OS === 'ios' ? 3 : 5,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 30,
+        paddingVertical: 70
+    },
 });
 
 

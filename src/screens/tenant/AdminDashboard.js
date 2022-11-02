@@ -220,7 +220,7 @@ const AdminDashboard = () => {
 
             {/* Header */}
             <SafeAreaView>
-                <HeaderProfileScreen />
+                <HeaderProfileScreen navigation={navigation}/>
             </SafeAreaView>
 
 
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 20,
-        marginTop: 30,
+        marginTop: 10,
     },
     search: {
         flex: 1,

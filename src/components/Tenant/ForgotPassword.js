@@ -4,7 +4,6 @@ import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 const ForgotPassword = () => {
     const navigation = useNavigation();
-    console.log(navigation,"navigation");
     return (
         <TouchableOpacity
            onPress={() => navigation.navigate('TenantSignUp', {

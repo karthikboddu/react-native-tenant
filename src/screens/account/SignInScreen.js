@@ -12,13 +12,11 @@ import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import colors from '../../assets/colors/colors';
 import { Loading } from '../../components/common';
-import ForgotPassword from '../../components/Tenant/ForgotPassword';
 import { GlobalContext } from '../../context/GlobalState';
 
 
 const SignInScreen = (navigation) => {
 
-    console.log(navigation,"vaaga");
     const [data, setData] = React.useState({
         username: '',
         password: '',
@@ -299,7 +297,7 @@ const SignInScreen = (navigation) => {
             }
             
 
-            <ForgotPassword navigatte = {navigation}/>
+            {/* <ForgotPassword navigatte = {navigation}/> */}
             <View style={styles.button}>
                 <TouchableOpacity
                     style={styles.signIn}

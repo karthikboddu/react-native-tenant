@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Moment from 'react-moment';
 import {
     ActivityIndicator,
-    FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View
+    FlatList, Linking, Platform, SafeAreaView, StyleSheet, Text, TouchableOpacity, View
 } from 'react-native';
 import { TouchableRipple } from 'react-native-paper';
 import Feather from 'react-native-vector-icons/Feather';
@@ -13,6 +13,7 @@ import { SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
 import endpoints from '../../endpoints';
 import deviceStorage from '../../services/deviceStorage';
+import { IconToggle } from '../../utils';
 
 const TenantsList = (route) => {
 
@@ -60,6 +61,16 @@ const TenantsList = (route) => {
         }
     }, []);
 
+    const openDialScreen = (no) => {
+        let number = '';
+        if (Platform.OS === 'ios') {
+          number = `telprompt:${no}`;
+        } else {
+          number = `tel:${no}`;
+        }
+        Linking.openURL(number);
+      };
+
 
     const renderFooter = () => {
         return (
@@ -102,8 +113,12 @@ const TenantsList = (route) => {
                             ]}>
 
                             <View style={styles.popularTitlesWrapper}>
-                                <Text style={styles.infoItemTitle}>Name</Text>
-
+                                <IconToggle 
+                                    name="user-o"
+                                    set= "FontAwesome"
+                                    color="#777777"
+                                    size={20}
+                                />
                                 <Text style={styles.popularTitlesTitle} >
                                     {item.tenant_id.full_name}
                                 </Text>
@@ -111,14 +126,23 @@ const TenantsList = (route) => {
                             </View>
 
                             <View style={styles.popularTitlesWrapper}>
-                                <Text style={styles.infoItemTitle}>Address</Text>
+                                <IconToggle
+                                        set = "FontAwesome"
+                                        name = "map-marker"
+                                        color="#777777" size={20}
+                                />
                                 <Text style={styles.popularTitlesTitle}>
                                     {item.tenant_id.address}
                                 </Text>
                             </View>
 
                             <View style={styles.popularTitlesWrapper}>
-                                <Text style={styles.infoItemTitle}>Mobile No</Text>
+                                <IconToggle
+                                    set = "materialcommunityicons"
+                                    name = "phone"
+                                    color="#777777" size={20}
+                                    onPress={() => openDialScreen(item.tenant_id.mobile_no)}
+                                />
                                 <Text style={styles.popularTitlesTitle}>
                                     {item.tenant_id.mobile_no}
                                 </Text>
@@ -220,6 +244,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat-Bold',
         fontSize: 16,
         color: '#000',
+        marginTop:10,
         marginBottom: 10
     },
     popularCardWrapper: {
@@ -237,11 +262,10 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 10,
         elevation: 2,
-        height: 140,
+        
     },
     popularCardWrapperAmount: {
         borderRadius: 25,
-        paddingTop: 20,
 
         paddingLeft: 20,
         flexDirection: 'column',
@@ -259,7 +283,6 @@ const styles = StyleSheet.create({
     },
     popularTitlesWrapper: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         flexWrap : 'wrap',
         alignItems: 'center',
     },

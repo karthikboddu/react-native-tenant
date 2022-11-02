@@ -136,6 +136,9 @@ def reactNativeArchitectures() {
 }
 
 android {
+    packagingOptions {
+        pickFirst 'lib/*/libc++_shared.so'
+    }
     ndkVersion rootProject.ext.ndkVersion
 
     compileSdkVersion rootProject.ext.compileSdkVersion

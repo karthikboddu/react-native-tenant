@@ -1,10 +1,9 @@
 import React, { useContext } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   Avatar,
   Title
 } from 'react-native-paper';
-import { COLORS } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
 
 
@@ -21,21 +20,24 @@ const HeaderProfileScreen = ({ navigation }) => {
     
          <View style={styles.headerWrapper}>
           {userDetails.photoUrl ? (
+            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
           <Avatar.Image 
             source={{uri: userDetails.photoUrl }}
             size={40}
             style={styles.profileImage}
-            onPress={() => navigation.navigate('ProfileScreen')}
-          /> ) : ( 
+          />
+          </TouchableOpacity> ) : ( 
+            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
           <Avatar.Image 
             source={require('../../assets/avatar.png')}
             size={40}
             style={styles.profileImage}
-            onPress={() => navigation.navigate('ProfileScreen')}
-          />)}
+          />
+          </TouchableOpacity>
+          )}
           <View style={{marginLeft: 20}}>
             <Title style={[styles.caption, {
-              marginTop:15,
+              marginTop:8,
               marginBottom: 5,
               
             }]}>Welcome, {userDetails.full_name}</Title>
@@ -49,22 +51,23 @@ const HeaderProfileScreen = ({ navigation }) => {
 export default HeaderProfileScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.lightGray
-  },
   headerWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 8,
+    paddingBottom: 10,
     alignItems: 'center',
+    backgroundColor : '#fff'
   },
   profileImage: {
     width: 40,
     height: 40,
     borderRadius: 40,
   },
+  caption: {
+    fontSize :15
+  }
   
   });
   
