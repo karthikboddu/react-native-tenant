@@ -11,7 +11,7 @@ import { Loading } from '../common';
 
 const ListTenantRoomDetails = ({ roomDetails, navigation, routeDetails }) => {
 
-  const { getTenantRoomsDetailsByRoomId, initTenantRoomOrderPayment, tenantBuildingFloorRoomsDetails, screenLoading, unLinkTenantRoomContract } = useContext(GlobalContext);
+  const { getTenantRoomsDetailsByRoomId, screenLoading, setScreenLoading, unLinkTenantRoomContract } = useContext(GlobalContext);
   const [showBox, setShowBox] = useState(true);
   const [showSave, setShowSave] = useState(false);
 
@@ -57,10 +57,11 @@ const ListTenantRoomDetails = ({ roomDetails, navigation, routeDetails }) => {
 
 const submitUpdates = async(room_amount) => {
   const payload = {
-    room_amount}
+    room_amount
+  }
+  setScreenLoading(true);
   const response = await updateTenantRoomDetails(routeDetails.roomId, JSON.stringify(payload));
-  let resJson = await response.json();
-  console.log(resJson,"resJson",routeDetails.roomId);
+  setScreenLoading(false);
   getTenantRoomsDetailsByRoomId(routeDetails.roomId)
 }
   const showConfirmDialog = (tenantId, contractId) => {

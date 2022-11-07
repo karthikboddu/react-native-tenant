@@ -1,9 +1,7 @@
-import JWT from 'expo-jwt';
 import AllInOneSDKManager from 'paytm_allinone_react-native';
-import { Popup } from 'popup-ui';
+//import { Popup } from 'popup-ui';
 import React, { createContext, useReducer } from 'react';
 import { CONSTANTS } from '../constants';
-import endpoints from '../endpoints';
 import { showToast } from '../helpers/ToastMessageHelper';
 import {
     getUserActivityDetailsFromToken, getUserDetailsFromToken,
@@ -50,6 +48,7 @@ const initialLoginState = {
     createOrderDetailsAndComplete : [],
     skeletonLoading: false,
     isHeaderVisible: true,
+    isTransParentStatusBar : false,
     tenantDetailsList : [],
     bulkTenantRoomPayment :[]
 };
@@ -92,8 +91,7 @@ export const GlobalProvider = ({ children }) => {
                     deviceStorage.saveKey("id_token", res.data.accessToken);
                     deviceStorage.saveKey("refresh_token", res.data.refreshtoken);
                     deviceStorage.saveKey("tenant_token", res.data.accessToken);
-                    // const decode = JWT.decode(res.data.refreshtoken, endpoints.jwtSecret);
-                    const decode = 'user';
+                    setTransparentStatus(true)
                     if (res.data.isAdmin) {
                         setIsAdmin(true)
                     }      
@@ -194,7 +192,7 @@ export const GlobalProvider = ({ children }) => {
 
                 if (result.status == 200) {
                     auth = res;
-
+                    setTransparentStatus(true)
                 } else if (refreshToken != null) {
                     showToast('success', 'Session Out !!! , Re authenticating!!')
                     let refreshResponse = await verifyRefreshToken(refreshToken);
@@ -205,11 +203,12 @@ export const GlobalProvider = ({ children }) => {
                     auth = resJson.data.accessToken;
                 }
                 if (auth !=null) {
-                    const decode = JWT.decode(res, endpoints.jwtSecret);
+                    setIsAdmin(result.data.isAdmin)
+                    // const decode = JWT.decode(res, endpoints.jwtSecret);
                     
-                    if (decode.type == CONSTANTS.userTypeAdmin) {
-                        setIsAdmin(true)
-                    }
+                    // if (decode.type == CONSTANTS.userTypeAdmin) {
+                    //     setIsAdmin(true)
+                    // }
                 }            
             }
             dispatch({
@@ -341,6 +340,21 @@ export const GlobalProvider = ({ children }) => {
             showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'SET_HEADER_VISIBLE_ERR',
+                payload: error
+            });
+        }
+    }
+
+    async function setTransparentStatus(isTransParentStatusBar) {
+        try {
+            dispatch({
+                type: 'SET_TRANSPARENET_STATUS_BAR',
+                payload: isTransParentStatusBar
+            });
+        } catch (error) {
+            showToast('error', 'Oops, Something went wrong ...')
+            dispatch({
+                type: 'SET_TRANSPARENET_STATUS_BAR_ERR',
                 payload: error
             });
         }
@@ -566,7 +580,6 @@ export const GlobalProvider = ({ children }) => {
             let token = await generatePaytmToken(res, raw);
               
             let resJson = await token.json();
-            console.log(resJson,"token")
             dispatch({
                 type: 'GET_TENANT_PAYTM_TOKEN',
                 payload: resJson.data?.body?.txnToken
@@ -599,7 +612,7 @@ export const GlobalProvider = ({ children }) => {
                 )
                     .then((result) => {
                         setScreenLoading(false);
-                        successPopup();
+                        //successPopup();
                         if (result.RESPCODE = CONSTANTS.RESPCODE) {
                             updatePaytmPaymentDetails(orderId, "C", result, buildingId, oldBuildingAmount, amount)
                         } else {
@@ -610,11 +623,10 @@ export const GlobalProvider = ({ children }) => {
                             type: 'START_PAYTM_TRANSACTION',
                             payload: result
                         });
-                        console.log("gateway response", result);
                     })
                     .catch((err) => {
                         setScreenLoading(false);
-                        failedPopup()
+                        //failedPopup()
                         getTenantRoomOrderDetails('P,F',1)
                         updatePaytmPaymentDetails(orderId, "F",'',buildingId, 0, 0)
                         console.log("gateway error", err);
@@ -622,7 +634,7 @@ export const GlobalProvider = ({ children }) => {
 
         } catch (error) {
             setScreenLoading(false);
-            failedPopup()
+            //failedPopup()
             console.log(error.message)
             updatePaytmPaymentDetails(orderId, "F", '',buildingId, 0, 0)
             getTenantRoomOrderDetails('P,F',1)
@@ -659,7 +671,6 @@ export const GlobalProvider = ({ children }) => {
 
             let resJson = await tenantBuildingsOrderRoomsDetails.json();
             setScreenLoading(false);
-            console.log(resJson,"tenantRoomOrderDetails")
             dispatch({
                 type: 'GET_TENANT_ORDER_ROOM_LIST',
                 payload: resJson.data
@@ -764,13 +775,11 @@ export const GlobalProvider = ({ children }) => {
             let tenantDetails = await createTenantAndToRoom(res, payload);
             
             let resJson = await tenantDetails.json();
-            console.log(resJson,"****************")
 
             if(resJson.status == 200) { 
                 if (fileFormData !=null || fileFormData != 'undefined ' || resJson.data.tenant_id) {
                     let uploadDetails = await uploadTenantAsset( fileFormData, resJson.data.tenant_id, 'identity');
                     let uploadJson = await uploadDetails.json();
-                    console.log(uploadJson," uploadDetails ****************")
                 } 
                 showToast('success', 'Tenant Added Successfully. ')
             } else {
@@ -950,6 +959,8 @@ export const GlobalProvider = ({ children }) => {
         setSkeletionLoading,
         isHeaderVisible : state.isHeaderVisible,
         setHeaderVisible,
+        setTransparentStatus,
+        isTransParentStatusBar : state.isTransParentStatusBar,
         tenantDetailsList : state.tenantDetailsList,
         fetchAllTenantList,
         bulkInitTenantRoomPayment,

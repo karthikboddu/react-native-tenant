@@ -1,4 +1,5 @@
 import { useActionSheet } from "@expo/react-native-action-sheet";
+import { LinearGradient } from 'expo-linear-gradient';
 import mime from "mime";
 // import storage from '@react-native-firebase/storage';
 import React, { useContext, useState } from 'react';
@@ -14,6 +15,7 @@ import { GlobalContext } from '../../context/GlobalState';
 import { pickImage, pickProfileImage } from '../../helpers/firebase';
 import { uploadTenantProfileAsset } from "../../services/tenant/uploadService";
 import { IconToggle } from "../../utils";
+  
 const EditProfileScreen = ({ navigation }) => {
 
   const [image, setImage] = useState(null);
@@ -24,7 +26,6 @@ const EditProfileScreen = ({ navigation }) => {
   const [transferred, setTransferred] = useState(0);
 
   React.useEffect(() => {
-    console.log(userDetails)
     setImageUrl(userDetails.photoUrl)
   }, []);
 
@@ -45,7 +46,6 @@ const EditProfileScreen = ({ navigation }) => {
     let result = await pickProfileImage();
     const imageUri = Platform.OS === 'ios' ? result.sourceURL : result.uri;
     setImageUrl(imageUri)
-    console.log(result);
 
     if (!result.cancelled) {
       setImage(result);
@@ -54,7 +54,6 @@ const EditProfileScreen = ({ navigation }) => {
 
   const takePhotoFromCamera = async () => {
     let result = await pickImage();
-    console.log(result,"image")
     const imageUri = Platform.OS === 'ios' ? result.sourceURL : result.uri;
     setImageUrl(imageUri)
 
@@ -109,10 +108,6 @@ const EditProfileScreen = ({ navigation }) => {
       setUploading(false);
       setImage(null);
 
-      // const payload = {
-      //   photoUrl: url
-      // }
-      // updateUserDetails(JSON.stringify(payload))
       await uploadTenantProfileAsset(fileFormData, 'profile_pic')
       setScreenLoading(true);
       if (!screenLoading) {
@@ -125,6 +120,11 @@ const EditProfileScreen = ({ navigation }) => {
       console.log(e);
       return null;
     }
+
+          // const payload = {
+      //   photoUrl: url
+      // }
+      // updateUserDetails(JSON.stringify(payload))
 
   };
 
@@ -315,8 +315,8 @@ const EditProfileScreen = ({ navigation }) => {
           placeholder="Address"
           placeholderTextColor="#666666"
           autoCorrect={false}
-          editable={false}
-          value={userDetails.address}
+          editable={true}
+          defaultValue={userDetails.address}
           style={[
             styles.textInput,
             {
@@ -325,12 +325,30 @@ const EditProfileScreen = ({ navigation }) => {
           ]}
         />
       </View>
-      <TouchableOpacity style={styles.commandButton} onPress={() => uploadImage()}>
+      <View style={styles.button}>
+                <TouchableOpacity
+                    style={styles.signIn}
+                    onPress={() => uploadImage()}
+                >
+                <LinearGradient
+                    colors={['#000000', '#000000']}
+                    style={styles.signIn}
+                >
+                {!screenLoading ? 
+                    <Text style={[styles.textSign, {
+                        color:'#fff'
+                    }]}>Submit</Text>
+                    :  <Loading size={'large'} />}
+                </LinearGradient>
+                </TouchableOpacity>
+
+            </View>
+      {/* <TouchableOpacity style={styles.commandButton} onPress={() => uploadImage()}>
         {!screenLoading ?
           <Text style={styles.panelButtonTitle}>Submit</Text>
           :
           <Loading size={'small'} /> }
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
 
   );
@@ -455,4 +473,18 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     color: '#05375a',
   },
+  button: {
+    alignItems: 'center'
+},
+signIn: {
+    width: '50%',
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10
+},
+textSign: {
+    fontSize: 18,
+    fontWeight: 'bold'
+}
 });

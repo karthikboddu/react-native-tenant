@@ -31,7 +31,6 @@ const endpoints = {
     listConversationsByTenantId : '/api/chat/chats/#',
     listAllLastConversationsByTenantId : '/api/chat/conversations',
     listNotes : '/api/tutorials',
-    jwtSecret : "karthik-secret-key",
     bulkInitRoomPayment : '/api/order/bulkInitRoomPayment',
     updateRoomDetails : '/api/room/#',
 

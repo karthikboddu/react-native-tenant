@@ -12,7 +12,6 @@ const CardCustom = ({ itemData }) => {
 
   const { screenLoading } = useContext(GlobalContext);
   const navigation = useNavigation();
-  console.log(itemData)
 
   if (itemData.totalAmount <= 0 && !itemData.isContract) {
     return (<></>);

@@ -2,8 +2,6 @@
 import {
   DarkTheme as NavigationDarkTheme, DefaultTheme as NavigationDefaultTheme, NavigationContainer
 } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { useFonts } from 'expo-font';
 import LottieView from 'lottie-react-native';
 import React, { useContext, useEffect } from 'react';
 import { ActivityIndicator, Platform, StatusBar, View } from 'react-native';
@@ -14,16 +12,13 @@ import { GlobalContext } from '../context/GlobalState';
 import Tabs from '../navigation/tabs';
 import SignInScreen from '../screens/account/SignInScreen';
 
-const Stack = createStackNavigator();
-//const Drawer = createDrawerNavigator();
-
 
 export default function Router(props) {
 
 
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
 
-  const { userToken, getUserToken, screenLoading } = useContext(GlobalContext);
+  const { userToken, getUserToken, screenLoading, isTransParentStatusBar } = useContext(GlobalContext);
 
   const { isLoading } = useContext(GlobalContext);
   const { allstate } = useContext(GlobalContext);
@@ -79,8 +74,11 @@ export default function Router(props) {
 
   return (
     <NavigationContainer theme={theme}>
+      {!isTransParentStatusBar ? (
+        <StatusBar translucent backgroundColor="transparent" />) 
+        : (
       <StatusBar backgroundColor="#CDCDD2" barStyle="light-content" />
-
+      )}
 
       {/* <Overlay isShow={screenLoading} /> */}
       {userToken !== null ? (

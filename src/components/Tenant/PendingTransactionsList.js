@@ -101,13 +101,10 @@ const PendingTransactionsList = () => {
           buildingAmount: tenantRoomOrderDetails.buildingDetails[0].total_amount ? tenantRoomOrderDetails.buildingDetails[0].total_amount : 0
         });
     
-        console.log(raw, "paytmPayload")
     
         const token = await generatePaytmToken("", raw);
         let resJson = await token.json();
-        console.log("gateway response1", resJson);
         const txnToken = resJson.data?.body?.txnToken;
-        console.log("gateway response1", resJson);
     
         startPaytmTransaction(resJson.data?.orderId, amount, txnToken, resJson.data?.buildingId, resJson.data?.buildingAmount);
         closeAddEditPaymentModal();

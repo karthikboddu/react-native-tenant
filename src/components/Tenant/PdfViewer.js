@@ -7,7 +7,6 @@ const PdfViewer = ({assetDetails}) => {
         return (<></>);
     }
     const source = { uri: assetDetails.url, cache: true };
-    console.log(assetDetails,"asset")
 
     return (
         <View style={styles.container}>
@@ -16,16 +15,13 @@ const PdfViewer = ({assetDetails}) => {
                 source={source}
                 password={assetDetails.key}
                 onLoadComplete={(numberOfPages, filePath) => {
-                    console.log(`Number of pages: ${numberOfPages}`);
                 }}
                 onPageChanged={(page, numberOfPages) => {
-                    console.log(`Current page: ${page}`);
                 }}
                 onError={(error) => {
                     console.log(error);
                 }}
                 onPressLink={(uri) => {
-                    console.log(`Link pressed: ${uri}`);
                 }}
                 style={styles.pdf} />
         </View>

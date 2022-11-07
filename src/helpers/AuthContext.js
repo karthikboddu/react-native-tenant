@@ -1,5 +1,5 @@
-import React, { createContext, useReducer,useState,useEffect,useContext } from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, useEffect, useState } from 'react';
 
 // Create a context
 const AuthContext = createContext({});
@@ -16,7 +16,6 @@ const AuthProvider = ({ children }) => {
     try {
       
       const authDataString = await AsyncStorage.getItem("id_token");
-      console.log("asdf**** 33",authDataString)
       
       // Configure axios headers
       //configureAxiosHeaders(authDataString, authData.phone);

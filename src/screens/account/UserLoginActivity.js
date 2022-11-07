@@ -1,6 +1,6 @@
-import React,{useContext, useEffect} from 'react'
-import { StyleSheet, Text, View,ScrollView } from 'react-native'
-import { GlobalContext } from '../../context/GlobalState'
+import React, { useContext, useEffect } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { GlobalContext } from '../../context/GlobalState';
 
 const UserLoginActivity = () => {
 
@@ -9,7 +9,6 @@ const UserLoginActivity = () => {
         getUserLoginActivity() 
 
       },[]);
-    //console.log(userLoginActivity,"userLoginActivity")
 
     return (
         <ScrollView 

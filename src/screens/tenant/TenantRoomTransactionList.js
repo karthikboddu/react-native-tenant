@@ -9,7 +9,6 @@ const TenantRoomTransactionList = ({route, navigation}) => {
   var currentMonth = dateObj.getUTCMonth() + 1; //months from 1-12
   var currentDay = dateObj.getUTCDate();
   var currentYear = dateObj.getUTCFullYear();
-  console.log(route.params.roomId, route.params.roomPaymentId,"roomPaymentId",route)
   return (
     <View>
         <BackButton goBack={navigation.goBack}/>

@@ -1,4 +1,4 @@
-import storage from '@react-native-firebase/storage';
+// import storage from '@react-native-firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
 
 
@@ -40,56 +40,56 @@ export async function askForPermission() {
     return status;
 }
 
-export async function uploadImage(uri, path, fName) {
-    // Why are we using XMLHttpRequest? See:
-    // https://github.com/expo/expo/issues/2402#issuecomment-443726662
-    // const blob = await new Promise((resolve, reject) => {
-    //     const xhr = new XMLHttpRequest();
-    //     xhr.onload = function () {
-    //         resolve(xhr.response);
-    //     };
-    //     xhr.onerror = function (e) {
-    //         console.log(e);
-    //         reject(new TypeError("Network request failed"));
-    //     };
-    //     xhr.responseType = "blob";
-    //     xhr.open("GET", uri, true);
-    //     xhr.send(null);
-    // });
+// export async function uploadImage(uri, path, fName) {
+//     // Why are we using XMLHttpRequest? See:
+//     // https://github.com/expo/expo/issues/2402#issuecomment-443726662
+//     // const blob = await new Promise((resolve, reject) => {
+//     //     const xhr = new XMLHttpRequest();
+//     //     xhr.onload = function () {
+//     //         resolve(xhr.response);
+//     //     };
+//     //     xhr.onerror = function (e) {
+//     //         console.log(e);
+//     //         reject(new TypeError("Network request failed"));
+//     //     };
+//     //     xhr.responseType = "blob";
+//     //     xhr.open("GET", uri, true);
+//     //     xhr.send(null);
+//     // });
 
 
-    if (uri == null) {
-        return null;
-    }
-    const uploadUri = uri;
-    let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+//     if (uri == null) {
+//         return null;
+//     }
+//     const uploadUri = uri;
+//     let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
 
-    // Add timestamp to File Name
-    const extension = filename.split('.').pop();
-    const name = filename.split('.').slice(0, -1).join('.');
-    filename = name + Date.now() + '.' + extension;
+//     // Add timestamp to File Name
+//     const extension = filename.split('.').pop();
+//     const name = filename.split('.').slice(0, -1).join('.');
+//     filename = name + Date.now() + '.' + extension;
 
-    const fileName = filename;
-    const storageRef = storage().ref(`${path}/${fileName}`);
+//     const fileName = filename;
+//     const storageRef = storage().ref(`${path}/${fileName}`);
 
-    const task = storageRef.putFile(uploadUri);
+//     const task = storageRef.putFile(uploadUri);
 
 
-    // Set transferred state
-    task.on('state_changed', (taskSnapshot) => {
-        console.log(
-            `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
-        );
-    });
+//     // Set transferred state
+//     task.on('state_changed', (taskSnapshot) => {
+//         console.log(
+//             `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
+//         );
+//     });
 
-    try {
-        await task;
-        const url = await storageRef.getDownloadURL();
-        return { url, fileName };
-    } catch (error) {
-        console.log(e);
-        return null;
-    }
+//     try {
+//         await task;
+//         const url = await storageRef.getDownloadURL();
+//         return { url, fileName };
+//     } catch (error) {
+//         console.log(e);
+//         return null;
+//     }
     
 
-}
+// }

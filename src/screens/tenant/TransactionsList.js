@@ -144,7 +144,6 @@ const TransactionsList = (route) => {
   const getTenantRoomAllOrderDetails = async (params, page) => {
 
     try {
-      console.log(page, "----page")
       setScreenLoading(true);
       const res = await deviceStorage.loadJWT();
       await fetch(`${API_URL}` + `${endpoints.tenantRoomOrderDetails}` + `?paymentStatus=` + `${params}` + `&page=` + `${page}` + `&size=` + `${15}`, {
@@ -156,7 +155,6 @@ const TransactionsList = (route) => {
         }
       }).then((response) => response.json())
         .then((json) => {
-          console.log(json,"json")
           setPage(page + 1)
           setScreenLoading(false);
           setSkeletionLoading(false);
@@ -193,7 +191,6 @@ const TransactionsList = (route) => {
       } else {
         query = query + '&paymentStatus=' + params
       }
-      console.log(query, "----page")
       const res = await deviceStorage.loadJWT();
       await fetch(`${API_URL}` + `${endpoints.recentAllTenantsRoomOrderDetails}`
         + `?page=` + `${page}` + `&size=` + `${15}` + query, {
@@ -205,7 +202,6 @@ const TransactionsList = (route) => {
         }
       }).then((response) => response.json())
         .then((json) => {
-          console.log(page, "page", data.length)
           setSkeletionLoading(false);
           setScreenLoading(false);
           setData([...data, ...json?.data?.orderDetails])
@@ -239,7 +235,6 @@ const TransactionsList = (route) => {
   };
 
   const getNextPageData = () => {
-    console.log(page, "firstpage")
     let pageNumber = page;
     setPage(page + 1)
     if (isAdmin) {

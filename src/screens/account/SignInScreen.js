@@ -36,18 +36,18 @@ const SignInScreen = (navigation) => {
     
 
     const { allstate,signIn,ssoLogIn, setScreenLoading,screenLoading,
-        tenantSettingsList, getTenantSettigsDetails } = useContext(GlobalContext);
+        tenantSettingsList, getTenantSettigsDetails, setTransparentStatus } = useContext(GlobalContext);
 
     React.useEffect(() => {
         // if (response?.type === 'success') {
         //   const { authentication } = response;
-        //   console.log(response,"response")
         //   setAccessTokenGoogle(response.authentication.accessToken);
         //   getUserData(response.authentication.accessToken);
         // }
         //   GoogleSignin.configure({
         //     webClientId: '474733627251-bpov4509muv7285kmmqevf0ocebe5vk0.apps.googleusercontent.com'
         //   });
+        setTransparentStatus(false)
       }, []);        
 
     const textInputChange = (val) => {
@@ -120,7 +120,6 @@ const SignInScreen = (navigation) => {
         }
         //setScreenLoading(true)
         Keyboard.dismiss();
-        //console.log(allstate.isLoading,"allstate")
         await signIn(payload);
         
        
@@ -137,14 +136,12 @@ const SignInScreen = (navigation) => {
     //  androidClientId: tenantSettingsList.googleSettings ? tenantSettingsList.googleSettings.androidClientId : '123',
     //  webClientId: tenantSettingsList.googleSettings ? tenantSettingsList.googleSettings.webClientId : '123',
    // });
-    console.log(tenantSettingsList)
 
     // async function onGoogleButtonPress() {
     //     // Get the users ID token
     //     const {user} = await GoogleSignin.signIn();      
     //     // Create a Google credential with the token
     //     // const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-    //     console.log(user,"*******")
     //     if (user) {
     //         setAccessTokenGoogle(user);
     //         sooLoginHandle(user.name,user.id, user.email, user.photo);
@@ -159,7 +156,6 @@ const SignInScreen = (navigation) => {
         });
     
         userInfoResponse.json().then(data => {
-            console.log(data.name,data.id, data.email, data.picture,"gmail")
           setUserInfoGoogle(data);
           sooLoginHandle(data.name,data.id, data.email, data.picture);
         });
@@ -186,7 +182,6 @@ const SignInScreen = (navigation) => {
             username,
             photoUrl
         }
-        console.log(payload,"payload")
         if ( username.length == 0 ) {
             Alert.alert('Wrong Input!', 'Username or password field cannot be empty.', [
                 {text: 'Okay'}
@@ -194,7 +189,6 @@ const SignInScreen = (navigation) => {
             return;
         }
         //setScreenLoading(true)
-        //console.log(allstate.isLoading,"allstate")
         await ssoLogIn(payload);
         
        
@@ -332,12 +326,12 @@ const SignInScreen = (navigation) => {
                 </TouchableOpacity>
                 ) : null}
                 {false ? (
-                    <GoogleSigninButton
+                    {/* <GoogleSigninButton
                 style={{ width: 192, height: 70 }}
                 size={GoogleSigninButton.Size.Wide}
                 color={GoogleSigninButton.Color.Dark}
                 onPress={() => onGoogleButtonPress().then(() => console.log('Signed in with Google!'))}
-                />
+                /> */}
               
                 ) : null}
             </View>

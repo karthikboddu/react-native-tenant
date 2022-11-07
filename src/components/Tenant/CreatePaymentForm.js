@@ -21,7 +21,6 @@ const CreatePaymentForm = ({roomId}) => {
         isValidUser: true,
         isValidPassword: true,
     });
-    console.log(roomId,"roomId")
     const textInputChange = (val) => {
         if (val.trim().length >= 4) {
             setData({
@@ -60,7 +59,6 @@ const CreatePaymentForm = ({roomId}) => {
 
 
     const loginHandle = async (amount, type) => {
-        console.log(type, "type")
         if (amount.length == 0 || type.length == 0) {
             Alert.alert('Wrong Input!', 'Username or password field cannot be empty.', [
                 { text: 'Okay' }
@@ -86,7 +84,6 @@ const CreatePaymentForm = ({roomId}) => {
             paymentForDate: NewDate,
             type: type ? type : 'ROOM_RENT'
         });
-        console.log(raw, "paytmPayload")
 
         initTenantRoomOrderPayment(raw);
         // getTenantRoomOrderDetails('P,F', 1);

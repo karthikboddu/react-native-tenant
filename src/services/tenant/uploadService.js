@@ -8,10 +8,8 @@ const API_URL = endpoints.apiUrl;
 
 async function uploadTenantAsset (payload, tenantId, deliveryType) {
     try {
-        console.log(payload, " --- ", tenantId)
         const accessToken = await deviceStorage.loadJWT();
         let url = `${API_URL}` + `${endpoints.uploadAsset}` + '?deliveryType=' + deliveryType;
-        console.log(url," -- url --" , url.replace('#',tenantId))
         let response = await fetch(url.replace('#',tenantId), {
             method: 'POST',
             headers: {
@@ -30,10 +28,8 @@ async function uploadTenantAsset (payload, tenantId, deliveryType) {
 
 async function uploadTenantProfileAsset (payload, deliveryType) {
     try {
-        console.log(payload, " --- ", deliveryType)
         const accessToken = await deviceStorage.loadJWT();
         let url = `${API_URL}` + `${endpoints.uploadTenantProfileAsset}` + '?deliveryType=' + deliveryType;
-        console.log(url," -- url --")
         let response = await fetch(url, {
             method: 'POST',
             headers: {

@@ -175,12 +175,18 @@ export default (state, action) => {
         ...state,
         tenantNotesList: action.payload
       };
-      case 'SET_HEADER_VISIBLE':
-        return {
-          ...state,
-          isHeaderVisible: action.payload
-        };      
-      
+    case 'SET_HEADER_VISIBLE':
+      return {
+        ...state,
+        isTransParentStatusBar: action.payload
+      };
+
+    case 'SET_TRANSPARENET_STATUS_BAR':
+      return {
+        ...state,
+        isTransParentStatusBar: action.payload
+      };
+
     default:
       return state;
   }

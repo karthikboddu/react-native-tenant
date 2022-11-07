@@ -77,7 +77,6 @@ const RecentTransactions = ({ }) => {
   const getTenantRoomAllOrderDetails = async (params, page) => {
 
     try {
-      console.log(page, "----page")
 
       const res = await deviceStorage.loadJWT();
       await fetch(`${API_URL}` + `${endpoints.tenantRoomOrderDetails}` + `?paymentStatus=` + `${params}` + `&page=` + `${page}` + `&size=` + `${5}`, {
@@ -104,7 +103,6 @@ const RecentTransactions = ({ }) => {
   const getRecentAllTenantsRoomOrderDetails = async (params, page) => {
 
     try {
-      console.log(page, "----page")
       setScreenLoading(true);
       const res = await deviceStorage.loadJWT();
       await fetch(`${API_URL}` + `${endpoints.recentAllTenantsRoomOrderDetails}` + `?paymentStatus=` + `${params}` + `&page=` + `${page}` + `&size=` + `${5}`, {
@@ -116,7 +114,6 @@ const RecentTransactions = ({ }) => {
         }
       }).then((response) => response.json())
         .then((json) => {
-          console.log(page, "page")
           setPage(page + 1)
           setScreenLoading(false);
           setData([...data, ...json?.data?.orderDetails])

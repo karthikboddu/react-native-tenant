@@ -3,7 +3,7 @@ import { useNetInfo } from "@react-native-community/netinfo";
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
-import FlashMessage from 'react-native-flash-message';
+// import FlashMessage from 'react-native-flash-message';
 import {
   Provider as PaperProvider
 } from 'react-native-paper';
@@ -62,7 +62,7 @@ export default function App() {
         isRetrying={false}
       />}
       <Toast config={toastConfig}/>
-      <FlashMessage position="bottom" floating />
+      {/* <FlashMessage position="bottom" floating /> */}
     </PaperProvider>
 
   );

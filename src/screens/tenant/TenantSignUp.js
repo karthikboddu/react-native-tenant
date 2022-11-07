@@ -19,7 +19,6 @@ const TenantSignUp = ({route, routeDetails}) => {
     const navigation = useNavigation();
     const [image, setImage] = useState(null);
     const [disable, setDisable] = useState(false);
-    console.log(route.params)
     const [data, setData] = React.useState({
         username: '',
         password: '',
@@ -352,14 +351,11 @@ const TenantSignUp = ({route, routeDetails}) => {
         if ( username.length == 0 || password.length == 0 || email.length ==0 ||
             fullName.length==0 || mobileNo.length ==0 || address.length ==0  || (amountPaid ? false : price ==0)
             || noOfPersons ==0 || !image || !data.isValidStartDateOfMonth) {
-                console.log(image,"image")
             Alert.alert('Wrong Input!', 'Some fields cannot be empty.', [
                 {text: 'Okay'}
             ]);
-            console.log("Aaaaaaaaaa",payload)
             return;
         }
-        console.log(payload)
         const fileFormData = new FormData();
         if (image) {
             const newImageUri =  "file:///" + image.uri.split("file:/").join("");
@@ -371,16 +367,13 @@ const TenantSignUp = ({route, routeDetails}) => {
                 type: mime.getType(newImageUri),
                 name: image.uri.split('/').pop()
             });
-            console.log(image)
         }
         setScreenLoading(true);
         createTenantAddToRoomOrderPayment(JSON.stringify(payload), fileFormData)
         // if (createTenantAddToRoomContractList?.status) {
             // navigation.navigate('TenantRoomDetails')
         // }
-        console.log(screenLoading,"Screenloading")
         if (!screenLoading) {
-            console.log(screenLoading,"Screenloading")
             navigation.goBack();
         }
 
@@ -393,7 +386,6 @@ const TenantSignUp = ({route, routeDetails}) => {
           setImage(result);
           setDisable(true)
         }
-        console.log(result)
     };
 
     return (

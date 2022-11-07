@@ -42,7 +42,6 @@ const TenantRoomDetails = ({ route, navigation }) => {
     getTenantRoomsDetailsByRoomId(route.params?.item)
     setLoader(false)
 
-    console.log("tennat room details ", route.params, tenantBuildingFloorRoomsDetails)
   }, [route.params?.item])
 
   const callRefresh = async () => {
@@ -64,13 +63,11 @@ const TenantRoomDetails = ({ route, navigation }) => {
 
     const payload = JSON.stringify(addEditPaymentModal.data);
 
-    console.log(payload, "paytmPayload", '&tenantId=', screenLoading)
     setScreenLoading(true);
     setAddEditPaymentModall((prevState) => ({
       ...prevState,
       pending: true
     }));
-    console.log("paytmPayload", '&tenantId=', screenLoading)
 
     initTenantRoomOrderPayment(payload, '?tenantId=' + tenantBuildingFloorRoomsDetails[0]?.contractDetails?.tenant_id);
     if (!screenLoading) {

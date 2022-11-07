@@ -30,8 +30,8 @@ export const backgroundDot = `${cdnUrl}/assets/background_dot.png`;
 export const logo = `${cdnUrl}/assets/logo.png`;
 export const transactions = require('../assets/icons/transaction.png')
 export const gmail = require('../assets/icons/gmail.png');
-export const notes = require('../assets/icons/notes.png');
-export const chat = require('../assets/icons/message.png');
+// export const notes = require('../assets/icons/notes.png');
+// export const chat = require('../assets/icons/message.png');
 export const key = require('../assets/icons/key.png');
 export const lightning = require('../assets/icons/lightning.png');
 export const paytmLogo = require('../assets/icons/Paytm_Logo.png');
@@ -69,8 +69,6 @@ export default {
     logo,
     transactions,
     gmail,
-    notes,
-    chat,
     imagePlaceHolder,
     key,
     lightning,

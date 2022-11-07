@@ -26,7 +26,6 @@ function register(payload) {
 async function login(payload) {
 
     try {
-        console.log(payload,"login",API_URL)
         let response = await fetch(`${API_URL}` + `${endpoints.tenantLogin}`, {
             method: 'POST',
             headers: {

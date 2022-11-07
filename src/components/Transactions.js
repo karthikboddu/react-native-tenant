@@ -15,7 +15,7 @@ import { icons, SIZES } from '../constants';
 import { GlobalContext } from '../context/GlobalState';
 import endpoints from '../endpoints';
 import deviceStorage from '../services/deviceStorage';
-
+import { IconToggle } from '../utils';
 
 const Transactions = (route) => {
 
@@ -103,7 +103,6 @@ const Transactions = (route) => {
     let isSubscribed = true
     if (isSubscribed) {
       if (isAdmin && (route?.roomId || route?.roomPaymentId)) {
-        console.log(startDate,"startdate")
         getRecentAllTenantsRoomOrderDetails('P,C,F', page, startDate, route?.roomId)
       } else {
         getTenantRoomAllOrderDetails('P,C,F', page);
@@ -170,7 +169,6 @@ const Transactions = (route) => {
   const getRecentAllTenantsRoomOrderDetails = async (params, page, startDate, roomId) => {
 
     try {
-      console.log(startDate,"startDate")
       setScreenLoading(true);
       let query = "";
 
@@ -211,7 +209,6 @@ const Transactions = (route) => {
         }
       }).then((response) => response.json())
         .then((json) => {
-          console.log(page, "page")
           
           setScreenLoading(false);
           setData([...data, ...json?.data?.orderDetails])
@@ -311,13 +308,12 @@ const Transactions = (route) => {
             ]}>
 
 
-            {isAdmin ? (
-              <View style={styles.avatarWrapperFirst}>
-                {item.tenant[0] && (
+<View style={styles.avatarWrapperFirst}>
+                {item.tenant && (
                   <>
-                    {item.tenant[0].photoUrl ? (
+                    {item.tenant.photoUrl ? (
                       <Avatar.Image
-                        source={{ uri: item.tenant[0].photoUrl }}
+                        source={{ uri: item.tenant.photoUrl }}
                         size={50}
                         style={{ marginRight: 10 }}
                       />) : (
@@ -329,25 +325,6 @@ const Transactions = (route) => {
                   </>
                 )}
               </View>
-            ) : (
-              <View style={styles.avatarWrapperFirst}>
-                {item.tenant_id && (
-                  <>
-                    {item.tenant_id.photoUrl ? (
-                      <Avatar.Image
-                        source={{ uri: item.tenant_id.photoUrl }}
-                        size={50}
-                        style={{ marginRight: 10 }}
-                      />) : (
-                      <Avatar.Image
-                        source={require('../../assets/avatar.png')}
-                        size={50}
-                        style={{ marginRight: 10 }}
-                      />)}
-                  </>
-                )}
-              </View>
-            )}
 
             <View
               style={[
@@ -355,36 +332,13 @@ const Transactions = (route) => {
               ]}>
 
               <View style={styles.popularTitlesWrapperFirst}>
-                {isAdmin ? (
-                  <>
                     {item.tenant && (
-
-
                       <View style={styles.popularTitlesWrapper}>
-
-                        {item.tenant.map(t => (
-                          <Text style={styles.popularTitlesTitle} key={t._id}>
-                            {t.full_name}
+                          <Text style={styles.popularTitlesTitle} >
+                            {item.tenant.full_name}
                           </Text>
-                        ))}
                       </View>
-
                     )}
-                  </>
-                ) : <>
-                  {item.tenant_id && (
-
-
-                    <View style={styles.popularTitlesWrapper}>
-                      <Text style={styles.popularTitlesTitle} >
-                        {item.tenant_id.full_name}
-                      </Text>
-                    </View>
-
-                  )}
-                </>}
-
-
 
                 <View style={styles.popularTitlesWrapper1}>
                   <Text style={styles.popularTitlesTitle}>
@@ -413,27 +367,52 @@ const Transactions = (route) => {
 
 
                 <View style={styles.popularTitlesWrapper}>
-                  {/* <Text style={styles.infoItemTitle}>Type</Text> */}
                   {/* <Text style={styles.popularTitlesTitle}>
                     {item.room_payment_type}
                   </Text> */}
                   {item.room_payment_type == "ROOM_RENT" ? (
                     <Avatar.Image
-                        source={icons.key}
-                        size={30}
-                        style={styles.popularTitlesTitle}
-                      />
+                      source={icons.key}
+                      size={20}
+                      style={styles.popularTitlesTitle}
+                    />
                   ) : (
-                    <>{item.room_payment_type == "ELECTRICITY" ?  (
-                    <Avatar.Image
+                    <>
+                    {item.room_payment_type == "ELECTRICITY" ? 
+                    (
+                      <Avatar.Image
                         source={icons.lightning}
-                        size={30}
+                        size={20}
                         style={styles.popularTitlesTitle}
                       />
-                  ) : (                    
-                    <Text style={styles.popularTitlesTitle}>
-                    {item.room_payment_type}
-                  </Text>)}</>)}
+                    ) : 
+                    (
+                      <>
+                      {item.room_payment_type == "BALANCE_AMOUNT" ? (
+                        <IconToggle
+                          set="material"
+                          name="progress-clock"
+                          color="#777777" size={16}
+                        />
+                        ) : (
+                          <>
+                          {item.room_payment_type == "GARBAGE" ? (
+                        <IconToggle
+                          set="Ionicons"
+                          name="trash-bin-outline"
+                          color="#777777" size={16}
+                        />
+                        ) : (
+                      
+                      <Text style={styles.popularTitlesTitle}>
+                        {item.room_payment_type}
+                      </Text>
+                        )}</>
+                      )}</>
+                    )}
+                    </>
+                    )}
+
                 </View>
 
                 <View style={styles.popularTitlesWrapper}>
@@ -445,12 +424,26 @@ const Transactions = (route) => {
                     />
 
                   </Text>
-                  <Text style={styles.popularTitlesTitle}>
+                  <Text style={styles.popularTitlesTitleTime}>
                     <Moment fromNow key={item._id} element={Text}>{item.updated_at}</Moment>
                   </Text>
                 </View>
-
+                {item.contractDetails && (
+                  <View style={styles.popularTitlesWrapper}>
+                    <View>
+                      <IconToggle
+                        set={"fontawesome"}
+                        name="building" size={16}
+                        color={colors.primary}
+                      />
+                    </View>
+                    <Text style={styles.popularTitlesTitleTime}>
+                      {item.contractDetails ? (item.contractDetails.buildingDetails.building_name) : ""}
+                    </Text>
+                  </View>
+                )}
               </View>
+
             </View>
 
           </View>
@@ -610,7 +603,6 @@ const Transactions = (route) => {
               value={dropdown}
               onChange={item => {
                 setYear(item.value);
-                console.log('selected', item);
               }}
 
               renderItem={item => _renderItem(item)}
@@ -628,7 +620,6 @@ const Transactions = (route) => {
               onChange={item => {
                 setStatus(item.value);
                 setData([])
-                console.log('selected', item);
               }}
 
               renderItem={item => _renderItem(item)}

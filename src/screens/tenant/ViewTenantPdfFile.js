@@ -5,7 +5,6 @@ import PdfViewer from '../../components/Tenant/PdfViewer'
 import { getAssetUrl } from '../../services/tenant/uploadService'
 
 const ViewTenantPdfFile = ({navigation,route}) => {
-    console.log(route.params.tenantId)
     const [assetData, setAssetData] = useState(null)
     useEffect(() => {
         getAssetUrlByTenant()
@@ -14,7 +13,6 @@ const ViewTenantPdfFile = ({navigation,route}) => {
     const getAssetUrlByTenant = async()=> {
         const assetDetails = await getAssetUrl(route.params.tenantId, 'identity');
         const assetResult = await assetDetails.json();
-        console.log(assetResult, "asset")
         setAssetData(assetResult.data)
     }
 

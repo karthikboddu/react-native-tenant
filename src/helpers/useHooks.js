@@ -74,7 +74,6 @@ export default function useContacts() {
           fields: [Contacts.Fields.Emails,Contacts.Fields.PhoneNumbers],
         });
         if (data.length > 0) {
-          // console.log(numbers,"numbers");
           setContacts(
             data
               .filter(
