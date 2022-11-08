@@ -11,7 +11,7 @@ import {
 import { GlobalContext } from '../context/GlobalState';
 import Tabs from '../navigation/tabs';
 import SignInScreen from '../screens/account/SignInScreen';
-
+import { useFonts } from 'expo-font';
 
 export default function Router(props) {
 

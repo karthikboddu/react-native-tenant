@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
-import Pdf from 'react-native-pdf';
+//import Pdf from 'react-native-pdf';
 
 const PdfViewer = ({assetDetails}) => {
     if (!assetDetails) {
@@ -10,7 +10,7 @@ const PdfViewer = ({assetDetails}) => {
 
     return (
         <View style={styles.container}>
-            <Pdf
+  {/*          <Pdf
                 trustAllCerts={false}
                 source={source}
                 password={assetDetails.key}
@@ -23,7 +23,7 @@ const PdfViewer = ({assetDetails}) => {
                 }}
                 onPressLink={(uri) => {
                 }}
-                style={styles.pdf} />
+                style={styles.pdf} />*/}
         </View>
     )
 }
