@@ -235,6 +235,16 @@ const submitUpdates = async(room_amount) => {
             </View>
             <View style={styles.infoItemWrapper}>
               <IconToggle
+                set="FontAwesome"
+                name="hourglass-end"
+                color="#777777" size={16}
+              />
+              <Text style={styles.infoItemText}>
+                <Moment format="D MMM YYYY" element={Text}>{roomDetails.contractDetails.tenantDetails ? roomDetails.contractDetails.tenantDetails.start_at : ""}</Moment>
+              </Text>
+            </View>
+            <View style={styles.infoItemWrapper}>
+              <IconToggle
                 set="material"
                 name="progress-clock"
                 color="#777777" size={16}

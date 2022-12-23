@@ -2,6 +2,7 @@
 import {
   DarkTheme as NavigationDarkTheme, DefaultTheme as NavigationDefaultTheme, NavigationContainer
 } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
 import LottieView from 'lottie-react-native';
 import React, { useContext, useEffect } from 'react';
 import { ActivityIndicator, Platform, StatusBar, View } from 'react-native';
