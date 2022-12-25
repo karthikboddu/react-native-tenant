@@ -186,7 +186,22 @@ export default (state, action) => {
         ...state,
         isTransParentStatusBar: action.payload
       };
-
+    case 'POST_CREATE_TENANT_BUILDING':
+      return {
+        ...state,
+        creatNewBuilding: action.payload
+      };
+    case 'POST_CREATE_TENANT_FLOOR_BUILDING':
+      return {
+        ...state,
+        createTenantFloorData: action.payload
+      };
+      case 'POST_CREATE_TENANT_FLOOR_ROOM':
+        return {
+          ...state,
+          createTenantRoomFloorData: action.payload
+        };      
+      
     default:
       return state;
   }

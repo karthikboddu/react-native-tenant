@@ -9,8 +9,10 @@ import {
 } from '../services/auth';
 import deviceStorage from '../services/deviceStorage';
 import { getTasksList } from '../services/tasks';
+import { createNewBuildingData } from '../services/tenant/buildingService';
+import { createNewBuildingFloorData } from '../services/tenant/floorService';
 import { bulkInitTenantOrderPayment, saveOrderDetailsAndComplete } from '../services/tenant/orderService';
-import { unlinkTenantRoomContract } from '../services/tenant/roomService';
+import { createNewBuildingRoomData, unlinkTenantRoomContract } from '../services/tenant/roomService';
 import {
     createTenantAndToRoom, generatePaytmToken, getRecentAllTenantsRoomOrderDetails, getTenantList, getTenantRoomDetails, getTenantSettings, initTenantRoomPayment, listFloorsByBuildingsId, listRoomDetailsByRoomId,
     listRoomsByFloorId, listTenantBuildings, listTenantBuildingsById, updatePaymentDetails
@@ -50,7 +52,10 @@ const initialLoginState = {
     isHeaderVisible: true,
     isTransParentStatusBar : false,
     tenantDetailsList : [],
-    bulkTenantRoomPayment :[]
+    bulkTenantRoomPayment :[],
+    creatNewBuilding : [],
+    createTenantFloorData : [],
+    createTenantRoomFloorData: []
 };
 
 export const GlobalContext = createContext(initialLoginState);
@@ -902,6 +907,114 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
+    async function createTenantNewBuilding(payload, fileFormData) {
+        try {
+            setScreenLoading(true)
+            const res = await deviceStorage.loadJWT();
+            let tenantBuildingDetails = await createNewBuildingData(payload);
+            
+            let resJson = await tenantBuildingDetails.json();
+
+            if(resJson.status == 200) { 
+                // if (fileFormData !=null || fileFormData != 'undefined ' || resJson.data.tenant_id) {
+                //     let uploadDetails = await uploadTenantAsset( fileFormData, resJson.data.tenant_id, 'identity');
+                //     let uploadJson = await uploadDetails.json();
+                // } 
+                showToast('success', 'Tenant Building Added Successfully. ')
+                await listTenantBuildings(res);
+            } else {
+                showToast('error', resJson.message ? resJson.message : 'Tenant Building creation failed .. ')
+            }
+            console.log(resJson.data,"resJson.data")
+            setScreenLoading(false);
+            dispatch({
+                type: 'POST_CREATE_TENANT_BUILDING',
+                payload: resJson.data
+            });
+        } catch (error) {
+            setScreenLoading(false);
+            console.log(error)
+            showToast('error', 'Oops, Something went wrong ...')
+            dispatch({
+                type: 'POST_CREATE_TENANT_BUILDING_ERR',
+                payload: error
+            });
+        }
+    }
+
+    async function createTenantNewFloor(payload, buildingId) {
+        try {
+            setScreenLoading(true)
+            const res = await deviceStorage.loadJWT();
+            let tenantFloorDetails = await createNewBuildingFloorData(payload, buildingId);
+            
+            let resJson = await tenantFloorDetails.json();
+
+            if(resJson.status == 200) { 
+                // if (fileFormData !=null || fileFormData != 'undefined ' || resJson.data.tenant_id) {
+                //     let uploadDetails = await uploadTenantAsset( fileFormData, resJson.data.tenant_id, 'identity');
+                //     let uploadJson = await uploadDetails.json();
+                // } 
+                showToast('success', 'Tenant Building Floor Added Successfully. ')
+                await getTenantFloorsBuildingId(resJson.data.building_id);
+            } else {
+                showToast('error', resJson.message ? resJson.message : 'Tenant Floor creation failed .. ')
+            }
+            console.log(resJson.data,"resJson.data")
+            
+            setScreenLoading(false);
+            dispatch({
+                type: 'POST_CREATE_TENANT_FLOOR_BUILDING',
+                payload: resJson.data
+            });
+        } catch (error) {
+            setScreenLoading(false);
+            console.log(error)
+            showToast('error', 'Oops, Something went wrong ...')
+            dispatch({
+                type: 'POST_CREATE_TENANT_FLOOR_BUILDING_ERR',
+                payload: error
+            });
+        }
+    }    
+
+    async function createTenantNewRoomFloor(payload, floorId) {
+        try {
+            setScreenLoading(true)
+            const res = await deviceStorage.loadJWT();
+            let tenantFloorDetails = await createNewBuildingRoomData(payload, floorId);
+            
+            let resJson = await tenantFloorDetails.json();
+
+            if(resJson.status == 200) { 
+                // if (fileFormData !=null || fileFormData != 'undefined ' || resJson.data.tenant_id) {
+                //     let uploadDetails = await uploadTenantAsset( fileFormData, resJson.data.tenant_id, 'identity');
+                //     let uploadJson = await uploadDetails.json();
+                // } 
+                showToast('success', 'Tenant Room Added Successfully. ')
+                //await getTenantFloorsBuildingId(resJson.data.building_id);
+                await getTenantRoomsByFloorId(floorId)
+            } else {
+                showToast('error', resJson.message ? resJson.message : 'Tenant Room creation failed .. ')
+            }
+            console.log(resJson.data,"resJson.data")
+            
+            setScreenLoading(false);
+            dispatch({
+                type: 'POST_CREATE_TENANT_FLOOR_ROOM',
+                payload: resJson.data
+            });
+        } catch (error) {
+            setScreenLoading(false);
+            console.log(error)
+            showToast('error', 'Oops, Something went wrong ...')
+            dispatch({
+                type: 'POST_CREATE_TENANT_FLOOR_ROOM_ERR',
+                payload: error
+            });
+        }
+    }        
+
     return (<GlobalContext.Provider value={{
         error: state.error,
         isLoading: state.isLoading,
@@ -964,7 +1077,13 @@ export const GlobalProvider = ({ children }) => {
         tenantDetailsList : state.tenantDetailsList,
         fetchAllTenantList,
         bulkInitTenantRoomPayment,
-        bulkTenantRoomPayment: state.bulkTenantRoomPayment
+        bulkTenantRoomPayment: state.bulkTenantRoomPayment,
+        createTenantNewBuilding,
+        creatNewBuilding : state.creatNewBuilding,
+        createTenantNewFloor,
+        createTenantFloorData : state.createTenantFloorData,
+        createTenantNewRoomFloor,
+        createTenantRoomFloorData : state.createTenantRoomFloorData
     }}>
         {children}
     </GlobalContext.Provider>);

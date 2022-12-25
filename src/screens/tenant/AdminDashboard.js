@@ -99,7 +99,7 @@ const AdminDashboard = () => {
                     onPress={() =>
 
                         navigation.navigate('BuildingDetails', {
-                            items: item._id,
+                            items: item._id, noOfFloors : item.no_of_floors, noOfRooms : item.no_of_rooms
                         })
                     }>
                     <View
@@ -132,6 +132,60 @@ const AdminDashboard = () => {
                     >
                         {item.building_name}
                     </Text>
+                </TouchableOpacity>
+            )
+        }
+
+        const footerItem = () => {
+
+            return (
+                <TouchableOpacity
+                    style={{
+                        padding: SIZES.padding *3,
+                        paddingBottom: SIZES.padding * 10,
+                        backgroundColor: COLORS.lightGray,
+                        borderRadius: SIZES.radius,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginRight: SIZES.padding,
+                        shadowOffset: {
+                            width: 0,
+                            height: 2,
+                        },
+                        marginLeft:10,
+                        shadowOpacity: 0.05,
+                        shadowRadius: 10,
+                        elevation: 2,
+                        ...styles.shadow
+                    }}
+                    onPress={() =>
+
+                        navigation.navigate('CreateBuilding')
+                    }>
+                    <View
+                        style={{
+                            backgroundColor: '#78ADF9',
+                            marginBottom: 15,
+                            marginTop:55,
+                            borderRadius: 20,
+
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: COLORS.white
+                        }}
+                    >
+                        <Feather name="plus" size={23} color={colors.textDark} />
+                    </View>
+
+                    {/* <Text
+                        style={{
+                            marginTop: SIZES.padding,
+                            color: COLORS.black,
+                            ...FONTS.body5
+                        }}
+                    >
+                        Footer
+                    </Text> */}
                 </TouchableOpacity>
             )
         }
@@ -204,6 +258,7 @@ const AdminDashboard = () => {
                         showsHorizontalScrollIndicator={false}
                         keyExtractor={item => `${item._id}`}
                         renderItem={renderItem}
+                        ListFooterComponent={footerItem}
                         contentContainerStyle={{ paddingVertical: SIZES.padding * 2 }}
                         refreshing={screenLoading}
                         onRefresh={callRefresh}

@@ -6,7 +6,7 @@ import { COLORS } from '../../../constants'
 import HeaderProfileScreen from '../../account/HeaderProfileScreen'
 import CardListScreen from './CardListScreen'
 
-const UserDashboard = () => {
+const UserDashboard = ({navigation}) => {
 
 
   React.useEffect(() => {
@@ -17,7 +17,7 @@ const UserDashboard = () => {
     <View style={styles.container}>
       {/* Header */}
       <SafeAreaView>
-        <HeaderProfileScreen />
+        <HeaderProfileScreen navigation={navigation}/>
       </SafeAreaView>
 
 
