@@ -1,4 +1,5 @@
 // import storage from '@react-native-firebase/storage';
+import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 
 
@@ -39,6 +40,16 @@ export async function askForPermission() {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     return status;
 }
+
+export async function getFileInfo (fileURI) {
+    const fileInfo = await FileSystem.getInfoAsync(fileURI)
+    return fileInfo
+ }
+ 
+ export async function isLessThanTheMB (fileSize, smallerThanSizeMB) {
+    const isOk = fileSize / 1024 / 1024 < smallerThanSizeMB
+    return isOk
+ }
 
 // export async function uploadImage(uri, path, fName) {
 //     // Why are we using XMLHttpRequest? See:

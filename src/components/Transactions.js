@@ -296,7 +296,8 @@ const Transactions = (route) => {
         <TouchableRipple key={item._id}
                 onPress={() =>
                 navigation.navigate('EditOrderDetails', {
-                  roomId : route?.roomId, roomPaymentId : item._id, tenantId : item.tenant[0] ? item.tenant[0]._id : null 
+                  roomId : route?.roomId, roomPaymentId : item._id, tenantId : item.tenant[0] ? item.tenant[0]._id : null ,
+                  color: '#f4511e'
                 })
             }
             style = {{borderRadius: 15}}

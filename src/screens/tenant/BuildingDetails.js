@@ -23,7 +23,7 @@ const BuildingDetails = ({ route, navigation }) => {
   const [selectedFloors, setSelectedFloors] = useState(null)
 
   let { items } = route.params;
-  let { noOfFloors, noOfRooms} = route.params
+  let { noOfFloors, noOfRooms } = route.params
 
 
   const { tenantBuildingListById, getTenantBuildingsById,
@@ -66,11 +66,11 @@ const BuildingDetails = ({ route, navigation }) => {
   }
 
   const initialFloorValues = {
-    floorName : '',
-    noOfRooms : 0,
-    roomName : '',
-    roomAmount : 0,
-    buildingId : route.params?.item,
+    floorName: '',
+    noOfRooms: 0,
+    roomName: '',
+    roomAmount: 0,
+    buildingId: route.params?.item,
   };
   const initialAddEditFloorValues = {
     pending: false,
@@ -78,7 +78,7 @@ const BuildingDetails = ({ route, navigation }) => {
     visible: false,
     data: initialFloorValues,
     isAdd: null,
-    isAddRoom : null
+    isAddRoom: null
   };
 
   const [addEditFloorModal, setAddEditFloorModal] = useState(initialAddEditFloorValues);
@@ -130,7 +130,7 @@ const BuildingDetails = ({ route, navigation }) => {
       ...prevState,
       isAdd: action === 'add',
       visible: true,
-      isAddRoom : isAddRoomBool,
+      isAddRoom: isAddRoomBool,
       data
     }));
   }
@@ -209,18 +209,18 @@ const BuildingDetails = ({ route, navigation }) => {
     return (
       <View style={{ padding: SIZES.padding * 2 }}>
         <View style={styles.titlesAddWrapper}>
-        <Text style={{ ...FONTS.h1 }}>List of Floors</Text>
-        { noOfFloors > tenantBuildingFloorList.length  && (
-                    <IconToggle
-                      name={'book-plus-multiple'}
-                      size={25}
-                      set={'material'}
-                      color={'#298df7'}
-                      onPress={() => openAddEditFloorModal('add',initialFloorValues, false)}
-                    />
+          <Text style={{ ...FONTS.h1 }}>List of Floors</Text>
+          {noOfFloors > tenantBuildingFloorList.length && (
+            <IconToggle
+              name={'book-plus-multiple'}
+              size={25}
+              set={'material'}
+              color={'#298df7'}
+              onPress={() => openAddEditFloorModal('add', initialFloorValues, false)}
+            />
 
-          ) }
-          </View>
+          )}
+        </View>
         <FlatList
           data={tenantBuildingFloorList}
           horizontal
@@ -240,28 +240,28 @@ const BuildingDetails = ({ route, navigation }) => {
       <View style={styles.popularWrapper}>
         <View style={styles.titlesAddWrapper}>
           <Text style={styles.popularTitle}>List of rooms</Text>
-          { selectedFloors && selectedFloors.no_of_rooms > tenantBuildingFloorRoomsList.length  && (
-          <IconToggle
-                      name={'book-plus-multiple'}
-                      size={25}
-                      set={'material'}
-                      color={'#298df7'}
-                      onPress={() => openAddEditFloorModal('add',initialFloorValues, true)}
-          />
+          {selectedFloors && selectedFloors.no_of_rooms > tenantBuildingFloorRoomsList.length && (
+            <IconToggle
+              name={'book-plus-multiple'}
+              size={25}
+              set={'material'}
+              color={'#298df7'}
+              onPress={() => openAddEditFloorModal('add', initialFloorValues, true)}
+            />
           )}
         </View>
         {skeletonLoading ? (
-            <SkeletonFloorsList/>
+          <SkeletonFloorsList />
         ) : (
           <>
-        {tenantBuildingFloorRoomsList.length > 0 ? tenantBuildingFloorRoomsList.map((item) => (
-          <FloorsList key={item.created_at} data={item} buildingId={route.params?.items} loading={loader} navigation={navigation} />
-        ))  
-        : 
-        (<> 
-        </>
-        )}
-        </>
+            {tenantBuildingFloorRoomsList.length > 0 ? tenantBuildingFloorRoomsList.map((item) => (
+              <FloorsList key={item.created_at} data={item} buildingId={route.params?.items} loading={loader} navigation={navigation} />
+            ))
+              :
+              (<>
+              </>
+              )}
+          </>
         )}
       </View>
     )
@@ -313,12 +313,12 @@ const BuildingDetails = ({ route, navigation }) => {
 
   return (
     <ScrollView
-           refreshControl={
-            <RefreshControl
-            refreshing={screenLoading}
-            onRefresh={callRefresh}
-          />
-        }
+      refreshControl={
+        <RefreshControl
+          refreshing={screenLoading}
+          onRefresh={callRefresh}
+        />
+      }
     >
       <View style={styles.container}>
         {/* Header */}
@@ -381,21 +381,21 @@ const BuildingDetails = ({ route, navigation }) => {
             ))}
           </>
         )}
-        
 
 
-        {renderFloorList()} 
 
-            {addEditFloorModal.visible && (
-              <AddTenantFloors
-                addEditPaymentModal={addEditFloorModal}
-                closeAddPaymentModal={closeAddEditPaymentModal}
-                submitAddPayment={submitAddEditPayment}
-                onChangeInput={onChangeInput}
-                handleActionMenuList={handleActionMenuList}
-              />
-            )}
-        
+        {renderFloorList()}
+
+        {addEditFloorModal.visible && (
+          <AddTenantFloors
+            addEditPaymentModal={addEditFloorModal}
+            closeAddPaymentModal={closeAddEditPaymentModal}
+            submitAddPayment={submitAddEditPayment}
+            onChangeInput={onChangeInput}
+            handleActionMenuList={handleActionMenuList}
+          />
+        )}
+
 
 
         {renderRoomsItems()}
@@ -455,7 +455,7 @@ const styles = new StyleSheet.create({
     color: colors.textDark,
   },
   titlesAddWrapper: {
-    flexDirection :'row',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
   },

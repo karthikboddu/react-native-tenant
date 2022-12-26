@@ -1,13 +1,10 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Platform, SafeAreaView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { Platform, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Avatar, List, TouchableRipple, useTheme } from 'react-native-paper';
 import Animated from 'react-native-reanimated';
-import Feather from 'react-native-vector-icons/Feather';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import colors from '../../../assets/colors/colors';
 import { GlobalContext } from '../../../context/GlobalState';
-
 
 
 const EditOrderDetails = (route) => {
@@ -18,6 +15,7 @@ const EditOrderDetails = (route) => {
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState)
 
+    const handlePress = () => setExpanded(!expanded);
 
     useEffect(() => {
         console.log(route?.route?.params?.tenantId, "tenantId", route?.route?.params?.roomPaymentId, "roomid", route?.route?.params?.roomId)
@@ -43,21 +41,12 @@ const EditOrderDetails = (route) => {
     return (
         <View style={styles.container}>
 
-            <SafeAreaView>
-                <View style={styles.headerWrapper}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <View style={styles.headerLeft}>
-                            <Feather name="chevron-left" size={12} color={colors.textDark} />
-                        </View>
-                    </TouchableOpacity>
-                </View>
-            </SafeAreaView>
 
             {/* Titles */}
-            <View style={styles.titlesWrapper}>
+            {/* <View style={styles.titlesWrapper}>
                 <Text style={styles.title}>Edit Tenant Order Details</Text>
-                {/* <Image source={item.image} style={styles.itemImage} /> */}
-            </View>
+                <Image source={item.image} style={styles.itemImage} />
+            </View> */}
 
             {tenantBuildingFloorRoomsDetails.map(item => (
 
@@ -66,8 +55,109 @@ const EditOrderDetails = (route) => {
                     margin: 20,
                 }} key={item._id}>
 
+                <View style={styles.titlesWrapper}>
+                    <Text style={styles.title}>Received From</Text>
+                </View>
 
-                    <View key={item.contractDetails._id}>
+                <TouchableRipple key={item._id}
+                        style={{ borderRadius: 20 }}
+                        >
+
+                            <View
+                                style={[
+                                styles.popularCardWrapper
+                                ]}>
+
+
+                                <View style={styles.avatarWrapperFirst}>
+                                    {item.contractDetails.tenantDetails && (
+                                    <>
+                                        {item.contractDetails.tenantDetails.photoUrl ? (
+                                        <Avatar.Image
+                                            source={{ uri: item.contractDetails.tenantDetails.photoUrl }}
+                                            size={50}
+                                            style={{ marginRight: 10 }}
+                                        />) : (
+                                        <Avatar.Image
+                                            source={require('../../../assets/avatar.png')}
+                                            size={50}
+                                            style={{ marginRight: 10 }}
+                                        />)}
+                                    </>
+                                    )}
+                                </View>
+
+                                <View
+                                style={[
+                                    styles.popularCardWrapperAmount
+                                ]}>
+
+                                <View style={styles.popularTitlesWrapperFirst}>
+                                        {item.contractDetails.tenantDetails && (
+                                        <View style={styles.popularTitlesWrapper}>
+                                            <Text style={styles.popularTitlesTitle} >
+                                                {item.contractDetails.tenantDetails ? item.contractDetails.tenantDetails.full_name : ""}
+                                            </Text>
+                                        </View>
+                                        )}
+
+                                    <View style={styles.popularTitlesWrapper1}>
+
+                                    <Text style={styles.popularTitlesTitle}>
+                                        ₹ {item.contractDetails.orderDetails ? item.contractDetails.orderDetails.price : ""}
+                                    </Text>
+                                    </View>
+
+                                </View>
+
+                                </View>
+                                
+                            </View>
+                            </TouchableRipple>
+
+                            <List.Section >
+                                <List.Accordion
+                                    title="Transaction Details"
+                                    left={props => <List.Icon {...props} icon="format-list-bulleted" />}>
+                                    <Text style={styles.popularTitlesTitle}>Transaction Id</Text>
+                                    <Text style={styles.popularTitlesTitle}>{item.contractDetails.orderDetails._id}</Text>
+                                    {/* <List.Item title="Transaction Id" />
+                                    <List.Item title={item.contractDetails.orderDetails._id} /> */}
+                                </List.Accordion>
+
+                                </List.Section>
+
+
+                                {item.contractDetails.orderDetails && (
+                            <>
+                                {(item.contractDetails.orderDetails.payment_status == 'P') && (
+                                    <View >
+                                        <View style={styles.action}>
+                                            {!isEnabled ? (<Text>Pending</Text>) : (<Text>Success</Text>)}
+                                            <Switch
+                                                trackColor={{ false: "#767577", true: "#81b0ff" }}
+                                                thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                                                ios_backgroundColor="#3e3e3e"
+                                                onValueChange={toggleSwitch}
+                                                value={isEnabled}
+                                            />
+                                        </View>
+                                        <View>
+                                            <TouchableOpacity style={styles.commandButton}
+                                                onPress={() => {
+                                                    submitUpdateOrderDetails(item.contractDetails.buildingDetails
+                                                        ? item.contractDetails.buildingDetails._id : null, item.contractDetails.orderDetails
+                                                        ? item.contractDetails.orderDetails.price : 0, item.contractDetails.buildingDetails
+                                                        ? item.contractDetails.buildingDetails.total_amount : "")
+                                                }}>
+                                                <Text style={styles.panelButtonTitle}>Submit</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                )}
+                            </>
+                        )}                                
+                    {/* <View key={item.contractDetails._id}>
                         <View style={styles.action}>
                             <FontAwesome name="user-o" color={colors.text} size={20} />
                             <TextInput
@@ -181,7 +271,7 @@ const EditOrderDetails = (route) => {
                                 )}
                             </>
                         )}
-                    </View>
+                    </View> */}
 
 
 
@@ -302,14 +392,136 @@ const styles = StyleSheet.create({
     },
     titlesWrapper: {
         flexDirection: 'row',
-        paddingHorizontal: 20,
         marginTop: 30,
+        marginLeft : 5,
+        marginBottom :5
     },
     title: {
         fontFamily: 'Montserrat-Bold',
-        fontSize: 22,
+        fontSize: 15,
         color: colors.textDark,
         width: '50%',
     },
+    popularWrapper: {
+        paddingHorizontal: 20,
+        marginBottom: 30,
+        height: 'auto'
+      },
+      popularTitle: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 16,
+        color: '#000',
+        alignItems: 'center',
+        marginBottom: 10,
+        marginTop: 20
+      },
+      popularCardWrapper: {
+        backgroundColor: colors.white,
+        borderRadius: 25,
+        paddingTop: 10,
+        marginBottom: 10,
+        flexDirection: 'row',
+        overflow: 'hidden',
+        elevation: 2,
+        height: 70,
+      },
+      skeletionPopularCardWrapper: {
+        backgroundColor: colors.white,
+        borderRadius: 25,
+        paddingTop: 10,
+        paddingLeft: 20,
+        marginBottom: 10,
+        flexDirection: 'row',
+        overflow: 'hidden',
+        shadowColor: colors.black,
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 2,
+        height: 70,
+      },
+      loaderCardWrapper: {
+        backgroundColor: colors.white,
+        borderRadius: 25,
+        paddingTop: 10,
+        paddingLeft: 20,
+        marginBottom: 10,
+        flexDirection: 'row',
+        overflow: 'hidden',
+        shadowColor: colors.black,
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 2,
+        height: 70,
+      },
+      popularCardWrapperAmount: {
+        borderRadius: 25,
+    
+        paddingLeft: 10,
+        flexDirection: 'column',
+        height: 130,
+      },
+      popularTopWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+      },
+      popularTopText: {
+        marginLeft: 10,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 14,
+      },
+      avatarWrapperFirst: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginLeft: 10,
+      },
+      popularTitlesWrapperFirst: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+      },
+      popularTitlesWrapperSecond: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+      },
+      popularTitlesWrapper: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginRight: 10
+      },
+      popularTitlesWrapper1: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginRight: 30
+      },
+      popularTitlesTitle: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 20,
+        color: colors.textDark,
+      },
+      popularTitlesTitleTime: {
+        fontSize: 9,
+        color: colors.textDark,
+      },
+      popularTitlesWeight: {
+        fontFamily: 'Montserrat-Medium',
+        fontSize: 12,
+        color: colors.textLight,
+        // marginTop: 5,
+      },
+      popularCardBottom: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 10,
+        marginLeft: -20,
+      },
 
 })

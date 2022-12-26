@@ -907,24 +907,34 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    async function createTenantNewBuilding(payload, fileFormData) {
+    async function createTenantNewBuilding(payload, fileFormData, tenantId) {
         try {
             setScreenLoading(true)
             const res = await deviceStorage.loadJWT();
-            let tenantBuildingDetails = await createNewBuildingData(payload);
-            
-            let resJson = await tenantBuildingDetails.json();
+            var resJson;
+            if (fileFormData !=null || fileFormData != 'undefined ' || tenantId) {
+                let uploadDetails = await uploadTenantAsset( fileFormData, tenantId, 'building_asset');
+                let uploadJson = await uploadDetails.json();
 
-            if(resJson.status == 200) { 
-                // if (fileFormData !=null || fileFormData != 'undefined ' || resJson.data.tenant_id) {
-                //     let uploadDetails = await uploadTenantAsset( fileFormData, resJson.data.tenant_id, 'identity');
-                //     let uploadJson = await uploadDetails.json();
-                // } 
-                showToast('success', 'Tenant Building Added Successfully. ')
-                await listTenantBuildings(res);
-            } else {
-                showToast('error', resJson.message ? resJson.message : 'Tenant Building creation failed .. ')
-            }
+                if(uploadJson.status == 200) { 
+                    const url = uploadJson.data.secure_url ;
+                    var p = JSON.parse(payload);
+                    p.buildingImage = url;
+                    
+                    let tenantBuildingDetails = await createNewBuildingData(JSON.stringify(p));
+            
+                    resJson = await tenantBuildingDetails.json();
+
+                    showToast('success', 'Tenant Building Added Successfully. ')
+                    await listTenantBuildings(res);
+                } else {
+                    showToast('error', resJson.message ? resJson.message : 'Tenant Building creation failed .. ')
+                }
+            } 
+
+
+
+
             console.log(resJson.data,"resJson.data")
             setScreenLoading(false);
             dispatch({

@@ -5,13 +5,13 @@ import { Alert, ImageBackground, Platform, StyleSheet, Text, TextInput, Touchabl
 import * as Animatable from 'react-native-animatable'
 import colors from '../../assets/colors/colors'
 import { GlobalContext } from '../../context/GlobalState'
-import { pickImage } from '../../helpers/firebase'
+import { pickImage, pickProfileImage } from '../../helpers/firebase'
 import { IconToggle } from '../../utils'
 import { Loading } from '../common'
 
 const CreateBuildingForm = ({navigation}) => {
 
-    const { setScreenLoading, screenLoading, createTenantNewBuilding, creatNewBuilding } = useContext(GlobalContext);
+    const { setScreenLoading, screenLoading, createTenantNewBuilding, creatNewBuilding ,userDetails} = useContext(GlobalContext);
     const [image, setImage] = useState(null);
     const [buildingImage, setBuildingImage] = useState('');
     
@@ -183,7 +183,7 @@ const CreateBuildingForm = ({navigation}) => {
             return;
         }
 
-        await createTenantNewBuilding(JSON.stringify(payload));
+
 
         const fileFormData = new FormData();
         if (image) {
@@ -198,8 +198,8 @@ const CreateBuildingForm = ({navigation}) => {
             });
         }
         console.log(payload)
-
-       
+        
+        await createTenantNewBuilding(JSON.stringify(payload), fileFormData, userDetails._id);
 
         if (!screenLoading) {
             //navigation.goBack();
@@ -219,6 +219,18 @@ const CreateBuildingForm = ({navigation}) => {
             setDisable(true)
         }
     };
+
+    const pickImageFromGallery = async () => {
+        // No permissions request is necessary for launching the image library
+        let result = await pickProfileImage();
+        const imageUri = Platform.OS === 'ios' ? result.sourceURL : result.uri;
+    
+        if (!result.cancelled) {
+            setImage(result);
+            setBuildingImage(imageUri);
+            setDisable(true)
+        }
+      };
 
 
     return (
@@ -414,7 +426,7 @@ const CreateBuildingForm = ({navigation}) => {
                     disabled={disable}
                     style={styles.buttonStyle}
                     activeOpacity={0.5}
-                    onPress={takePhotoFromCamera}>
+                    onPress={pickImageFromGallery}>
                     <Text style={styles.buttonTextStyle}>Select File</Text>
                 </TouchableOpacity>
 
@@ -501,7 +513,8 @@ const styles = StyleSheet.create({
     },
     button: {
         alignItems: 'center',
-        marginTop: 50
+        marginTop: 50,
+        marginBottom : 100
     },
     signIn: {
         width: '100%',

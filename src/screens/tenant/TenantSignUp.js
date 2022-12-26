@@ -12,7 +12,7 @@ import BackButton from '../../components/BackButton';
 import { Loading } from '../../components/common';
 import { COLORS } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
-import { pickImage } from '../../helpers/firebase';
+import { getFileInfo, isLessThanTheMB, pickImage, pickProfileImage } from '../../helpers/firebase';
 
 const TenantSignUp = ({route, routeDetails}) => {
 
@@ -387,6 +387,47 @@ const TenantSignUp = ({route, routeDetails}) => {
           setDisable(true)
         }
     };
+
+    const pickImageFromGallery = async () => {
+        // No permissions request is necessary for launching the image library
+        let result = await pickProfileImage();
+        const imageUri = Platform.OS === 'ios' ? result.sourceURL : result.uri;
+        console.log(result);
+        const { uri } = result
+
+        const fileInfo = await getFileInfo(result.uri)
+        const newImageUri =  "file:///" + result.uri.split("file:/").join("");
+        const type = mime.getType(newImageUri)
+        if (!fileInfo?.size) {
+            Alert.alert("Can't select this file as the size is unknown.", [
+                {text: 'Okay'}
+            ]);
+            return;
+        }
+
+        if (type === 'image') {
+            const isLt15MB = isLessThanTheMB(fileInfo.size, 15)
+            if (!isLt15MB) {
+              Alert.alert("Image size must be smaller than 15MB!", [
+                {text: 'Okay'}
+                ]);
+              return
+            }
+        } else {
+            Alert.alert("Only Image Format is supported", [
+                {text: 'Okay'}
+                ]);
+              return
+        }
+
+
+
+
+        if (!result.cancelled) {
+            setImage(result);
+            setDisable(true)
+        }
+      };
 
     return (
       <View style={styles.container}>
@@ -867,7 +908,7 @@ const TenantSignUp = ({route, routeDetails}) => {
                 disabled={disable}
                 style={styles.buttonStyle}
                 activeOpacity={0.5}
-                onPress={takePhotoFromCamera}>
+                onPress={pickImageFromGallery}>
                 <Text style={styles.buttonTextStyle}>Select File</Text>
             </TouchableOpacity>
 
