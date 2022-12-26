@@ -44,7 +44,29 @@ async function updateTenantRoomDetails(roomId, payload) {
     }
 }
 
+
+async function createNewBuildingRoomData (payload, floorId) {
+    try {
+        const accessToken = await deviceStorage.loadJWT();
+        let url = `${API_URL}` + `${endpoints.createBuildingFloorRooms}`;
+        let response = await fetch(url.replace('#',floorId), {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': accessToken
+            },
+            body: payload
+        });
+        return response;
+    } catch (e) {
+        Alert.alert('Sorry, something went wrong.', e.message);
+        throw handler(e);
+    }
+}
+
 export {
     unlinkTenantRoomContract,
-    updateTenantRoomDetails
+    updateTenantRoomDetails,
+    createNewBuildingRoomData
 };

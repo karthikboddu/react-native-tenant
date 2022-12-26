@@ -28,7 +28,7 @@ const Dashboard = ({ navigation }) => {
 
         {/* Header */}
         <SafeAreaView>
-          <HeaderProfileScreen />
+          <HeaderProfileScreen navigation={navigation}/>
         </SafeAreaView>
 
         {/* Search */}

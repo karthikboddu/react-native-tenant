@@ -1,12 +1,14 @@
+import { useActionSheet } from "@expo/react-native-action-sheet";
 import React, { useContext, useEffect, useState } from 'react';
 import ContentLoader, { Rect } from 'react-content-loader/native';
 import { FlatList, Image, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
+import AddTenantFloors from '../../components/Tenant/AddTenantFloors';
 import SkeletonFloorsList from '../../components/Tenant/SkeletonFloorsList';
 import { CONSTANTS, FONTS, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
-import { Ripple } from '../../utils';
+import { IconToggle, Ripple } from '../../utils';
 import commonStyles from '../styles';
 import FloorsList from './FloorsList';
 
@@ -21,18 +23,32 @@ const BuildingDetails = ({ route, navigation }) => {
   const [selectedFloors, setSelectedFloors] = useState(null)
 
   let { items } = route.params;
+  let { noOfFloors, noOfRooms } = route.params
 
 
   const { tenantBuildingListById, getTenantBuildingsById,
     tenantBuildingFloorList, getTenantFloorsBuildingId,
     tenantBuildingFloorRoomsList, getTenantRoomsByFloorId,
-    clearStateVariable, screenLoading, skeletonLoading } = useContext(GlobalContext);
+    clearStateVariable, screenLoading, skeletonLoading,
+    creatNewBuilding, setScreenLoading, createTenantNewFloor,
+    createTenantNewRoomFloor } = useContext(GlobalContext);
 
   useEffect(() => {
     //clearStateVariable();
-    getTenantBuildingsById(route.params?.items);
+    if (route.params?.items) {
+      getTenantBuildingsById(route.params?.items);
+    } else {
+      getTenantBuildingsById(creatNewBuilding._id);
+    }
+    if (!noOfFloors) {
+      noOfFloors = creatNewBuilding.no_of_floors
+    }
     setBuilding(tenantBuildingListById);
-    getTenantFloorsBuildingId(route.params?.items)
+    if (route.params?.items) {
+      getTenantFloorsBuildingId(route.params?.items)
+    } else {
+      getTenantFloorsBuildingId(creatNewBuilding._id)
+    }
     setFloorList([]);
     setRoomsList([])
     setSelectedFloors(null)
@@ -48,6 +64,120 @@ const BuildingDetails = ({ route, navigation }) => {
     setLoader(false);
     setSelectedFloors(item)
   }
+
+  const initialFloorValues = {
+    floorName: '',
+    noOfRooms: 0,
+    roomName: '',
+    roomAmount: 0,
+    buildingId: route.params?.item,
+  };
+  const initialAddEditFloorValues = {
+    pending: false,
+    failed: false,
+    visible: false,
+    data: initialFloorValues,
+    isAdd: null,
+    isAddRoom: null
+  };
+
+  const [addEditFloorModal, setAddEditFloorModal] = useState(initialAddEditFloorValues);
+
+  const onChangeInput = (inputValue, inputName) => {
+    setAddEditFloorModal({
+      ...addEditFloorModal,
+      data: {
+        ...addEditFloorModal.data,
+        [inputName]: inputValue
+      }
+    });
+  }
+
+
+  const initRoomPayment = async () => {
+
+    const payload = JSON.stringify(addEditFloorModal.data);
+    console.log(payload)
+    if (addEditFloorModal.isAddRoom) {
+      await createTenantNewRoomFloor(payload, selectedFloors._id)
+    } else {
+      await createTenantNewFloor(payload, route.params?.items)
+
+    }
+
+    setAddEditFloorModal((prevState) => ({
+      ...prevState,
+      pending: true
+    }));
+
+    if (!screenLoading) {
+      setAddEditFloorModal((prevState) => ({
+        ...prevState,
+        visible: false,
+        pending: false
+      }));
+    }
+
+  }
+
+  const submitAddEditPayment = async () => {
+    await initRoomPayment();
+  };
+
+  const openAddEditFloorModal = (action, data, isAddRoomBool) => {
+
+    setAddEditFloorModal((prevState) => ({
+      ...prevState,
+      isAdd: action === 'add',
+      visible: true,
+      isAddRoom: isAddRoomBool,
+      data
+    }));
+  }
+
+  const closeAddEditPaymentModal = () => {
+    setAddEditFloorModal((prevState) => ({
+      ...prevState,
+      visible: false
+    }));
+  }
+  const { showActionSheetWithOptions } = useActionSheet();
+
+  const icons = [
+    <IconToggle
+      set={'fontAwesome'}
+      name={'close'}
+      size={22}
+    />,
+    <IconToggle
+      set={'fontAwesome'}
+      name={'edit'}
+      size={22}
+    />,
+    <IconToggle
+      set={'fontAwesome'}
+      name={'trash'}
+      size={22}
+    />
+  ];
+
+  const handleActionMenuList = (dataItem) => {
+    showActionSheetWithOptions({
+      options: ["Cancel", "Edit Book"],
+      destructiveButtonIndex: 2,
+      cancelButtonIndex: 0,
+      userInterfaceStyle: 'light',
+      icons
+    }, buttonIndex => {
+      if (buttonIndex === 0) {
+        // cancel action
+      } else if (buttonIndex === 1) {
+        // Edit Book
+        openAddEditFloorModal('edit', dataItem);
+      }
+    });
+  }
+
 
   const callRefresh = async () => {
     getTenantBuildingsById(route.params?.items);
@@ -78,8 +208,19 @@ const BuildingDetails = ({ route, navigation }) => {
 
     return (
       <View style={{ padding: SIZES.padding * 2 }}>
-        <Text style={{ ...FONTS.h1 }}>List of Floors</Text>
+        <View style={styles.titlesAddWrapper}>
+          <Text style={{ ...FONTS.h1 }}>List of Floors</Text>
+          {noOfFloors > tenantBuildingFloorList.length && (
+            <IconToggle
+              name={'book-plus-multiple'}
+              size={25}
+              set={'material'}
+              color={'#298df7'}
+              onPress={() => openAddEditFloorModal('add', initialFloorValues, false)}
+            />
 
+          )}
+        </View>
         <FlatList
           data={tenantBuildingFloorList}
           horizontal
@@ -97,15 +238,30 @@ const BuildingDetails = ({ route, navigation }) => {
     return (
 
       <View style={styles.popularWrapper}>
-        <Text style={styles.popularTitle}>List of rooms</Text>
+        <View style={styles.titlesAddWrapper}>
+          <Text style={styles.popularTitle}>List of rooms</Text>
+          {selectedFloors && selectedFloors.no_of_rooms > tenantBuildingFloorRoomsList.length && (
+            <IconToggle
+              name={'book-plus-multiple'}
+              size={25}
+              set={'material'}
+              color={'#298df7'}
+              onPress={() => openAddEditFloorModal('add', initialFloorValues, true)}
+            />
+          )}
+        </View>
         {skeletonLoading ? (
-            <SkeletonFloorsList/>
+          <SkeletonFloorsList />
         ) : (
           <>
-        {tenantBuildingFloorRoomsList.map((item) => (
-          <FloorsList key={item.created_at} data={item} buildingId={route.params?.items} loading={loader} navigation={navigation} />
-        ))}
-        </>
+            {tenantBuildingFloorRoomsList.length > 0 ? tenantBuildingFloorRoomsList.map((item) => (
+              <FloorsList key={item.created_at} data={item} buildingId={route.params?.items} loading={loader} navigation={navigation} />
+            ))
+              :
+              (<>
+              </>
+              )}
+          </>
         )}
       </View>
     )
@@ -157,12 +313,12 @@ const BuildingDetails = ({ route, navigation }) => {
 
   return (
     <ScrollView
-           refreshControl={
-            <RefreshControl
-            refreshing={screenLoading}
-            onRefresh={callRefresh}
-          />
-        }
+      refreshControl={
+        <RefreshControl
+          refreshing={screenLoading}
+          onRefresh={callRefresh}
+        />
+      }
     >
       <View style={styles.container}>
         {/* Header */}
@@ -226,7 +382,20 @@ const BuildingDetails = ({ route, navigation }) => {
           </>
         )}
 
+
+
         {renderFloorList()}
+
+        {addEditFloorModal.visible && (
+          <AddTenantFloors
+            addEditPaymentModal={addEditFloorModal}
+            closeAddPaymentModal={closeAddEditPaymentModal}
+            submitAddPayment={submitAddEditPayment}
+            onChangeInput={onChangeInput}
+            handleActionMenuList={handleActionMenuList}
+          />
+        )}
+
 
 
         {renderRoomsItems()}
@@ -278,6 +447,17 @@ const styles = new StyleSheet.create({
     fontSize: 32,
     color: colors.textDark,
     width: '50%',
+  },
+  titleSecond: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 16,
+    paddingHorizontal: 20,
+    color: colors.textDark,
+  },
+  titlesAddWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   priceWrapper: {
     marginTop: 20,

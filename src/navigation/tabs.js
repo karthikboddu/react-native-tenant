@@ -19,6 +19,7 @@ import SignUpScreen from '../screens/account/SignUpScreen';
 import UserLoginActivity from '../screens/account/UserLoginActivity';
 import AdminDashboard from '../screens/tenant/AdminDashboard';
 import BuildingDetails from '../screens/tenant/BuildingDetails';
+import CreateBuilding from "../screens/tenant/CreateBuilding";
 import Dashboard from '../screens/tenant/Dashboard';
 import EditOrderDetails from "../screens/tenant/order/EditOrderDetails";
 import PaymentDetails from '../screens/tenant/order/PaymentDetails';
@@ -388,6 +389,13 @@ const HomeStackScreen = ({ navigation }) => {
             <HomeStack.Screen
                 name="BuildingDetails"
                 component={BuildingDetails}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <HomeStack.Screen
+                name="CreateBuilding"
+                component={CreateBuilding}
                 options={{
                     headerShown: false,
                 }}

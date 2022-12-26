@@ -214,7 +214,7 @@ async function getRecentAllTenantsRoomOrderDetails (params, page) {
 
     try {
         let response = await fetch(`${API_URL}` + `${endpoints.addTenantToRoom}`, {
-            method: 'POST',
+            method: 'PATCH',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
