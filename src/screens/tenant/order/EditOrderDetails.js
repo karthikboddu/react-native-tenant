@@ -33,9 +33,9 @@ const EditOrderDetails = (route) => {
         }
 
         createRoomOrderPaymentAndComplete(JSON.stringify(payload))
-        if (!screenLoading) {
-            navigation.goBack();
-        }
+        // if (!screenLoading) {
+        //     navigation.goBack();
+        // }
     }
 
     return (
