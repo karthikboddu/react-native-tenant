@@ -150,14 +150,11 @@ const TenantsList = (route) => {
 
 
                             <View style={styles.popularTitlesWrapper}>
-                                <Text style={styles.popularTitlesTitle}>
                                     <Ionicons
                                         name="time-outline"
                                         size={20}
                                         color={colors.done}
                                     />
-
-                                </Text>
                                 <Text style={styles.popularTitlesTitle}>
                                     <Moment format="D MMM YYYY" key={item._id} element={Text}>{item.updated_at}</Moment>
                                 </Text>

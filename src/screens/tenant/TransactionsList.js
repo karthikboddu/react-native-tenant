@@ -412,9 +412,11 @@ const TransactionsList = (route) => {
                   size={35}
                   color={colors.white}
                   onPress={() =>
-                    navigation.navigate('TenantRoomDetails', {
-                      item: item.floor_room_id, buildingItemId: item.contractDetails.building_id, roomPaymentId: item._id
-                    })}
+                  navigation.navigate('EditOrderDetails', {
+                    roomId : item.floor_room_id, roomPaymentId : item._id, tenantId : item.tenant._id ,
+                    color: (item.payment_status == 'C' ?  '#228B22' : (item.payment_status == 'P' ? 'rgb(255, 141, 5)' : '#e85342')),
+                    name: (item.payment_status == 'C' ?  'Transaction Sucessfull' : (item.payment_status == 'P' ? 'Transaction Pending' : 'Transaction Failed'))
+                  })}
                 />
               </View>
             )}

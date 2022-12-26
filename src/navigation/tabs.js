@@ -214,7 +214,6 @@ const Tabs = () => {
                     )
                 }}
             />
-
             <Tab.Screen
                 name="Like"
                 component={Home}
@@ -237,7 +236,6 @@ const Tabs = () => {
                     )
                 }}
             />
-
             <Tab.Screen
                 name="User"
                 component={ProfileScreen}
@@ -410,9 +408,13 @@ const HomeStackScreen = ({ navigation }) => {
             <HomeStack.Screen
                 name="EditOrderDetails"
                 component={EditOrderDetails}
-                options={{
-                    headerShown: false,
-                }}
+                options={({ route }) => ({
+                    headerShown: true,
+                    title: route.params.name,
+                    headerStyle: {
+                        backgroundColor: route.params.color,
+                    },
+                })}
             />
 
             <HomeStack.Screen
