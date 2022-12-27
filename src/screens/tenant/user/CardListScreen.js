@@ -9,7 +9,8 @@ const CardListScreen = () => {
 
   const [loader, setLoader] = React.useState(false);
   const { startPaytmTransaction, paytmTransactionResponse
-    , screenLoading, setScreenLoading, getTenantRoomOrderDetails, tenantRoomOrderDetails } = useContext(GlobalContext);
+    , screenLoading, setScreenLoading, getTenantRoomOrderDetails, tenantRoomOrderDetails,
+    setTransparentStatusBG } = useContext(GlobalContext);
   const [roomsList, setRoomsList] = React.useState([])
   const navigation = useNavigation();
 
@@ -17,7 +18,7 @@ const CardListScreen = () => {
     //clearStateVariable();
     getTenantRoomOrderDetails('P,F', 1);
     setRoomsList(tenantRoomOrderDetails)
-
+    setTransparentStatusBG("#CDCDD2");
     const willFocusSubscription = navigation.addListener('focus', () => {
       getTenantRoomOrderDetails('P,F', 1);
       setRoomsList(tenantRoomOrderDetails)

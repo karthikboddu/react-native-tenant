@@ -9,18 +9,24 @@ import { GlobalContext } from '../../../context/GlobalState';
 
 const EditOrderDetails = (route) => {
 
-    const { getTenantRoomsDetailsByRoomId, tenantBuildingFloorRoomsDetails, screenLoading, createRoomOrderPaymentAndComplete } = useContext(GlobalContext);
+    const { getTenantRoomsDetailsByRoomId, tenantBuildingFloorRoomsDetails, screenLoading, 
+        createRoomOrderPaymentAndComplete , setTransparentStatusBG} = useContext(GlobalContext);
     const { colors } = useTheme();
     const navigation = useNavigation();
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState)
-
-    const handlePress = () => setExpanded(!expanded);
+    console.log(route)
+    const handlePress = () => setExpanded(!expanded); 
 
     useEffect(() => {
+        setTransparentStatusBG(route?.route?.params?.color);
         console.log(route?.route?.params?.tenantId, "tenantId", route?.route?.params?.roomPaymentId, "roomid", route?.route?.params?.roomId)
         let query = '?roomPaymentId=' + route?.route?.params?.roomPaymentId
         getTenantRoomsDetailsByRoomId(route?.route?.params?.roomId, query);
+        return () => {
+            setTransparentStatusBG("#CDCDD2");
+            console.log("back")
+          }
     }, []);
 
     const submitUpdateOrderDetails = (existingBuildingId, existinAmount, existingBuildingAmount) => {

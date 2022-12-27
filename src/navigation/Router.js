@@ -19,7 +19,7 @@ export default function Router(props) {
 
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
 
-  const { userToken, getUserToken, screenLoading, isTransParentStatusBar } = useContext(GlobalContext);
+  const { userToken, getUserToken, screenLoading, isTransParentStatusBar, setTransparentStatusBG, transparentStatusBG } = useContext(GlobalContext);
 
   const { isLoading } = useContext(GlobalContext);
   const { allstate } = useContext(GlobalContext);
@@ -78,7 +78,7 @@ export default function Router(props) {
       {!isTransParentStatusBar ? (
         <StatusBar translucent backgroundColor="transparent" />) 
         : (
-      <StatusBar backgroundColor="#CDCDD2" barStyle="light-content" />
+      <StatusBar backgroundColor={transparentStatusBG} barStyle="light-content" />
       )}
 
       {/* <Overlay isShow={screenLoading} /> */}

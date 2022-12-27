@@ -200,8 +200,13 @@ export default (state, action) => {
         return {
           ...state,
           createTenantRoomFloorData: action.payload
-        };      
-      
+        }; 
+        case 'SET_TRANSPARENT_STATUS_BAR_BG':
+          return {
+            ...state,
+            transparentStatusBG: action.payload
+          };              
+        
     default:
       return state;
   }

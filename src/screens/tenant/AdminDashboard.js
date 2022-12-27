@@ -13,7 +13,7 @@ const AdminDashboard = () => {
 
     const [selectedBuilding, setSelectedBuilding] = React.useState(null)
     const { tenantBuildingList, getTenantBuildings,
-         clearStateVariable, isAdmin, screenLoading,bulkInitTenantRoomPayment
+         clearStateVariable, isAdmin, screenLoading,bulkInitTenantRoomPayment,setTransparentStatusBG
     } = React.useContext(GlobalContext);
 
     const loopData = [
@@ -34,6 +34,7 @@ const AdminDashboard = () => {
         //clearStateVariable();
         getTenantBuildings();
         bulkInitTenantRoomPayment();
+        setTransparentStatusBG("#CDCDD2");
     }, [])
 
     const callRefresh = async () => {

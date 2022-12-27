@@ -396,8 +396,10 @@ const TenantSignUp = ({route, routeDetails}) => {
         const { uri } = result
 
         const fileInfo = await getFileInfo(result.uri)
+       
         const newImageUri =  "file:///" + result.uri.split("file:/").join("");
         const type = mime.getType(newImageUri)
+       
         if (!fileInfo?.size) {
             Alert.alert("Can't select this file as the size is unknown.", [
                 {text: 'Okay'}
@@ -405,7 +407,8 @@ const TenantSignUp = ({route, routeDetails}) => {
             return;
         }
 
-        if (type === 'image') {
+        if (type === 'image/png' || type=== 'image/jpeg' || type === 'image/jpg') {
+            console.log(type, "1");
             const isLt15MB = isLessThanTheMB(fileInfo.size, 15)
             if (!isLt15MB) {
               Alert.alert("Image size must be smaller than 15MB!", [
@@ -414,9 +417,10 @@ const TenantSignUp = ({route, routeDetails}) => {
               return
             }
         } else {
-            Alert.alert("Only Image Format is supported", [
+            console.log(type,"2");
+            Alert.alert('Wrong Input!', 'Onlt Images are supported', [
                 {text: 'Okay'}
-                ]);
+            ]);
               return
         }
 

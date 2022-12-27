@@ -55,7 +55,8 @@ const initialLoginState = {
     bulkTenantRoomPayment :[],
     creatNewBuilding : [],
     createTenantFloorData : [],
-    createTenantRoomFloorData: []
+    createTenantRoomFloorData: [],
+    transparentStatusBG : "#CDCDD2"
 };
 
 export const GlobalContext = createContext(initialLoginState);
@@ -360,6 +361,21 @@ export const GlobalProvider = ({ children }) => {
             showToast('error', 'Oops, Something went wrong ...')
             dispatch({
                 type: 'SET_TRANSPARENET_STATUS_BAR_ERR',
+                payload: error
+            });
+        }
+    }
+
+    async function setTransparentStatusBG(transparentStatusBG) {
+        try {
+            dispatch({
+                type: 'SET_TRANSPARENT_STATUS_BAR_BG',
+                payload: transparentStatusBG
+            });
+        } catch (error) {
+            showToast('error', 'Oops, Something went wrong ...')
+            dispatch({
+                type: 'SET_TRANSPARENT_STATUS_BAR_BG_ERR',
                 payload: error
             });
         }
@@ -1093,7 +1109,9 @@ export const GlobalProvider = ({ children }) => {
         createTenantNewFloor,
         createTenantFloorData : state.createTenantFloorData,
         createTenantNewRoomFloor,
-        createTenantRoomFloorData : state.createTenantRoomFloorData
+        createTenantRoomFloorData : state.createTenantRoomFloorData,
+        setTransparentStatusBG,
+        transparentStatusBG : state.transparentStatusBG
     }}>
         {children}
     </GlobalContext.Provider>);
