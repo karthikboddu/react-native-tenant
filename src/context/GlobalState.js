@@ -806,7 +806,8 @@ export const GlobalProvider = ({ children }) => {
             } else {
                 showToast('error', resJson.message ? resJson.message : 'Tenant creation failed .. ')
             }
-
+            const p = JSON.parse(payload);
+            getTenantRoomsDetailsByRoomId(p.roomId, '')
             getTenantRoomOrderDetails('P,F', 1);
             setScreenLoading(false);
             dispatch({
