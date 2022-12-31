@@ -174,7 +174,7 @@ const PaymentDetails = () => {
   return (
 
 
-    //<Root>
+    // <Root>
       <View style={styles.container}>
         {/* <ScrollView
 
@@ -230,7 +230,7 @@ const PaymentDetails = () => {
 
 
       </View>
-    //</Root>
+    // </Root>
   )
 }
 

@@ -4,6 +4,7 @@ import { Platform, StyleSheet, Switch, Text, TouchableOpacity, View } from 'reac
 import { Avatar, List, TouchableRipple, useTheme } from 'react-native-paper';
 import Animated from 'react-native-reanimated';
 import colors from '../../../assets/colors/colors';
+import { Loading } from '../../../components/common';
 import { GlobalContext } from '../../../context/GlobalState';
 
 
@@ -29,7 +30,7 @@ const EditOrderDetails = (route) => {
           }
     }, []);
 
-    const submitUpdateOrderDetails = (existingBuildingId, existinAmount, existingBuildingAmount) => {
+    const submitUpdateOrderDetails = async(existingBuildingId, existinAmount, existingBuildingAmount) => {
         const payload = {
             tenantId: route?.route?.params?.tenantId,
             roomPaymentId: route?.route?.params?.roomPaymentId,
@@ -37,11 +38,9 @@ const EditOrderDetails = (route) => {
             amount: existinAmount,
             buildingId: existingBuildingId
         }
-
-        createRoomOrderPaymentAndComplete(JSON.stringify(payload))
-        // if (!screenLoading) {
-        //     navigation.goBack();
-        // }
+        let query = '?roomPaymentId=' + route?.route?.params?.roomPaymentId
+        await createRoomOrderPaymentAndComplete(JSON.stringify(payload),
+        route?.route?.params?.roomId, query)
     }
 
     return (
@@ -156,7 +155,9 @@ const EditOrderDetails = (route) => {
                                                         ? item.contractDetails.orderDetails.price : 0, item.contractDetails.buildingDetails
                                                         ? item.contractDetails.buildingDetails.total_amount : "")
                                                 }}>
+                                                {screenLoading ? (<Loading size={'small'}/>) : (
                                                 <Text style={styles.panelButtonTitle}>Submit</Text>
+                                                )}
                                             </TouchableOpacity>
                                         </View>
                                     </View>

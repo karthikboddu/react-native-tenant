@@ -31,9 +31,10 @@ const initialLoginState = {
     isDarkTheme: false,
     userDetails: [],
     screenLoading: false,
+    canNavigate : false,
     userLoginActivity: [],
     tenantBuildingList: [],
-    tenantBuildingListById: [],
+    tenantBuildingListById: {},
     tenantBuildingFloorList: [],
     tenantBuildingFloorRoomsList: [],
     tenantBuildingFloorRoomsDetails: [],
@@ -396,6 +397,21 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
+    async function setSuccessfullNavigate(canNavigate) {
+        try {
+            dispatch({
+                type: 'SET_SUCESSFULL_NAVIGATE',
+                payload: canNavigate
+            });
+        } catch (error) {
+            showToast('error', 'Oops, Something went wrong ...')
+            dispatch({
+                type: 'SET_SUCESSFULL_NAVIGATE_ERR',
+                payload: error
+            });
+        }
+    }
+
     async function setPopup(popupLoading) {
         try {
             dispatch({
@@ -492,7 +508,7 @@ export const GlobalProvider = ({ children }) => {
             setScreenLoading(false);
             dispatch({
                 type: 'GET_TENANTBUILDING_BYID_LIST',
-                payload: resJson
+                payload: resJson.data.building
             });
         } catch (error) {
             console.log(error)
@@ -788,7 +804,7 @@ export const GlobalProvider = ({ children }) => {
     }
 
 
-    async function createTenantAddToRoomOrderPayment(payload, fileFormData) {
+    async function createTenantAddToRoomOrderPayment(payload, fileFormData, navigation) {
         try {
             setScreenLoading(true)
             const res = await deviceStorage.loadJWT();
@@ -801,7 +817,8 @@ export const GlobalProvider = ({ children }) => {
                 if (fileFormData !=null || fileFormData != 'undefined ' || resJson.data.tenant_id) {
                     let uploadDetails = await uploadTenantAsset( fileFormData, resJson.data.tenant_id, 'identity');
                     let uploadJson = await uploadDetails.json();
-                } 
+                }
+                navigation.goBack(); 
                 showToast('success', 'Tenant Added Successfully. ')
             } else {
                 showToast('error', resJson.message ? resJson.message : 'Tenant creation failed .. ')
@@ -851,7 +868,7 @@ export const GlobalProvider = ({ children }) => {
     } 
 
 
-    async function createRoomOrderPaymentAndComplete(payload) {
+    async function createRoomOrderPaymentAndComplete(payload, roomId, query) {
         try {
             
             setScreenLoading(true);
@@ -861,7 +878,10 @@ export const GlobalProvider = ({ children }) => {
             setScreenLoading(false);
             getTenantRoomOrderDetails('P,F', 1);
             if(resJson.status == 200) { 
-                showToast('success', 'Room Payment Updated .')
+                showToast('success', 'Room Payment Updated .');
+                getTenantRoomsDetailsByRoomId(roomId, query);
+            } else {
+                showToast('success', "Room Payment Couldn't Updated .");
             }
             dispatch({
                 type: 'POST_CREATE_ORDER_ROOM_PAYMENT_COMPLETE',
@@ -924,35 +944,46 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    async function createTenantNewBuilding(payload, fileFormData, tenantId) {
+    async function createTenantNewBuilding(payload, fileFormData, tenantId, isTobeUploaded, navigation) {
         try {
             setScreenLoading(true)
             const res = await deviceStorage.loadJWT();
             var resJson;
-            if (fileFormData !=null || fileFormData != 'undefined ' || tenantId) {
+            var p = payload;
+            if ((fileFormData !=null || fileFormData != 'undefined ' || tenantId) && isTobeUploaded ) {
                 let uploadDetails = await uploadTenantAsset( fileFormData, tenantId, 'building_asset');
                 let uploadJson = await uploadDetails.json();
 
                 if(uploadJson.status == 200) { 
                     const url = uploadJson.data.secure_url ;
-                    var p = JSON.parse(payload);
+                    p = payload;
                     p.buildingImage = url;
                     
-                    let tenantBuildingDetails = await createNewBuildingData(JSON.stringify(p));
-            
-                    resJson = await tenantBuildingDetails.json();
-
-                    showToast('success', 'Tenant Building Added Successfully. ')
-                    await listTenantBuildings(res);
                 } else {
                     showToast('error', resJson.message ? resJson.message : 'Tenant Building creation failed .. ')
                 }
-            } 
+            }
+            
+            let tenantBuildingDetails = await createNewBuildingData(JSON.stringify(p));
+            
+            resJson = await tenantBuildingDetails.json();
+            if(resJson.status == 200) { 
+                navigation.navigate('BuildingDetails', {
+                    items: resJson.data._id,
+                })
+                setSuccessfullNavigate(true)
+                showToast('success', 'Tenant Building Added Successfully. ')
+                await listTenantBuildings(res);
+            } else {
+                setSuccessfullNavigate(false)
+                showToast('error', resJson.message ? resJson.message : (resJson.errors ? resJson.errors.message : 'Tenant Building creation failed .. '))
+            }
+            
 
 
 
 
-            console.log(resJson.data,"resJson.data")
+            console.log(resJson,"resJson.data", isTobeUploaded, p)
             setScreenLoading(false);
             dispatch({
                 type: 'POST_CREATE_TENANT_BUILDING',
@@ -960,6 +991,7 @@ export const GlobalProvider = ({ children }) => {
             });
         } catch (error) {
             setScreenLoading(false);
+            setSuccessfullNavigate(false)
             console.log(error)
             showToast('error', 'Oops, Something went wrong ...')
             dispatch({
@@ -1112,7 +1144,9 @@ export const GlobalProvider = ({ children }) => {
         createTenantNewRoomFloor,
         createTenantRoomFloorData : state.createTenantRoomFloorData,
         setTransparentStatusBG,
-        transparentStatusBG : state.transparentStatusBG
+        transparentStatusBG : state.transparentStatusBG,
+        setSuccessfullNavigate,
+        canNavigate : state.canNavigate
     }}>
         {children}
     </GlobalContext.Provider>);

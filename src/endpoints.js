@@ -36,6 +36,7 @@ const endpoints = {
     createNewBuilding : '/api/building/tenantBuildings',
     createBuildingFLoor : '/api/floor/building/#',
     createBuildingFloorRooms : '/api/room/#',
+    updateBuildingDetails : '/api/building/#',
     
     uploadAsset : '/api/upload/assets/#',
     uploadTenantProfileAsset : '/api/upload/assets',

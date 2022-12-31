@@ -23,6 +23,27 @@ async function createNewBuildingData (payload) {
     }
 }
 
+
+async function updateBuildingData (payload, buildingId) {
+    try {
+        const accessToken = await deviceStorage.loadJWT();
+        let url = `${API_URL}` + `${endpoints.updateBuildingDetails}`;
+        let response = await fetch(url.replace('#',buildingId), {
+            method: 'PATCH',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': accessToken
+            },
+            body: payload
+        });
+        return response;
+    } catch (e) {
+        Alert.alert('Sorry, something went wrong.', e.message);
+        throw handler(e);
+    }
+}
 export {
-    createNewBuildingData
+    createNewBuildingData,
+    updateBuildingData
 };

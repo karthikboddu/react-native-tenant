@@ -369,13 +369,13 @@ const TenantSignUp = ({route, routeDetails}) => {
             });
         }
         setScreenLoading(true);
-        createTenantAddToRoomOrderPayment(JSON.stringify(payload), fileFormData)
+        createTenantAddToRoomOrderPayment(JSON.stringify(payload), fileFormData, navigation)
         // if (createTenantAddToRoomContractList?.status) {
             // navigation.navigate('TenantRoomDetails')
         // }
-        if (!screenLoading) {
-            navigation.goBack();
-        }
+        // if (!screenLoading) {
+        //     navigation.goBack();
+        // }
 
     }
 

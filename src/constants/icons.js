@@ -35,8 +35,11 @@ export const gmail = require('../assets/icons/gmail.png');
 export const key = require('../assets/icons/key.png');
 export const lightning = require('../assets/icons/lightning.png');
 export const paytmLogo = require('../assets/icons/Paytm_Logo.png');
-
+export const successImage = require('../assets/icons/Success.png');
+export const ErrorImage = require('../assets/icons/Error.png');
+export const WarningImage = require('../assets/icons/Warning.png');
 export const imagePlaceHolder = 'https://firebasestorage.googleapis.com/v0/b/react-native--signin-eb4b7.appspot.com/o/assets%2Ficons%2Fimage-placeholder.png?alt=media&token=015bf90c-f152-45ed-afbd-802eab8b92d0'
+export const defaultBuilding = 'https://res.cloudinary.com/dunaaeimj/image/upload/v1672218894/assets/deafult_building_mmukgo.png';
 export default {
     back,
     car,
@@ -72,5 +75,9 @@ export default {
     imagePlaceHolder,
     key,
     lightning,
-    paytmLogo
+    paytmLogo,
+    defaultBuilding,
+    successImage,
+    ErrorImage,
+    WarningImage
 }

@@ -205,7 +205,13 @@ export default (state, action) => {
           return {
             ...state,
             transparentStatusBG: action.payload
-          };              
+          };  
+          
+          case 'SET_SUCESSFULL_NAVIGATE':
+            return {
+              ...state,
+              canNavigate: action.payload
+            };            
         
     default:
       return state;

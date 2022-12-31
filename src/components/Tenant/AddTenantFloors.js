@@ -16,6 +16,7 @@ import {
     IconToggle,
     Ripple
 } from '../../utils';
+import { Loading } from '../common';
 
 
 
@@ -61,7 +62,7 @@ const AddTenantFloors = ({ addEditPaymentModal, submitAddPayment, onChangeInput,
                                                 color: addEditPaymentModal.data.floorName  || addEditPaymentModal.data.roomName ? '#298df7' : '#ccc'
                                             }]}
                                         >
-                                            {addEditPaymentModal.pending ? 'Submitting' : 'Submit'}
+                                            {addEditPaymentModal.pending ? <Loading size={'small'}/> : 'Submit'}
                                         </Text>
                                     </Ripple>
                                 </View>
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
         flex: 0.6
     },
     modalView: {
-        flex: 0.4,
+        flex: 0.3,
         overflow: 'hidden',
         backgroundColor: "white",
         borderRadius: 20,

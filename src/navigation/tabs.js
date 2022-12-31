@@ -23,6 +23,7 @@ import CreateBuilding from "../screens/tenant/CreateBuilding";
 import Dashboard from '../screens/tenant/Dashboard';
 import EditOrderDetails from "../screens/tenant/order/EditOrderDetails";
 import PaymentDetails from '../screens/tenant/order/PaymentDetails';
+import Search from "../screens/tenant/Search";
 import TenantRoomDetails from '../screens/tenant/TenantRoomDetails';
 import TenantRoomTransactionList from "../screens/tenant/TenantRoomTransactionList";
 import TenantSignUp from "../screens/tenant/TenantSignUp";
@@ -394,6 +395,13 @@ const HomeStackScreen = ({ navigation }) => {
             <HomeStack.Screen
                 name="CreateBuilding"
                 component={CreateBuilding}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <HomeStack.Screen
+                name="Search"
+                component={Search}
                 options={{
                     headerShown: false,
                 }}

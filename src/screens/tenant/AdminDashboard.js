@@ -4,7 +4,7 @@ import ContentLoader, { Rect } from 'react-content-loader/native';
 import { FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
-import { COLORS, CONSTANTS, FONTS, SIZES } from '../../constants';
+import { COLORS, CONSTANTS, FONTS, icons, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
 import HeaderProfileScreen from '../account/HeaderProfileScreen';
 
@@ -114,6 +114,7 @@ const AdminDashboard = () => {
                             backgroundColor: (selectedBuilding?.id == item._id) ? COLORS.white : COLORS.lightGray
                         }}
                     >
+                        {item.building_image ? (
                         <Image
                             source={{ uri: item.building_image }}
                             resizeMode="contain"
@@ -121,7 +122,17 @@ const AdminDashboard = () => {
                                 width: 110,
                                 height: 110,
                             }}
+                        />) :
+                        (
+                            <Image
+                            source={{ uri: icons.defaultBuilding }}
+                            resizeMode="contain"
+                            style={{
+                                width: 110,
+                                height: 110,
+                            }}
                         />
+                        )}
                     </View>
 
                     <Text
@@ -284,7 +295,10 @@ const AdminDashboard = () => {
             <View style={styles.searchWrapper}>
                 <Feather name="search" size={16} color={colors.textDark} />
                 <View style={styles.search}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Search')
+                                                        }>
                     <Text style={styles.searchText}>Search</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
 

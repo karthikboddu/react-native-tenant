@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
 import BackButton from '../../components/BackButton'
 import PdfViewer from '../../components/Tenant/PdfViewer'
+import Popup from '../../components/Tenant/Popup'
 import { getAssetUrl } from '../../services/tenant/uploadService'
 
 const ViewTenantPdfFile = ({navigation,route}) => {
@@ -15,12 +16,23 @@ const ViewTenantPdfFile = ({navigation,route}) => {
         const assetResult = await assetDetails.json();
         setAssetData(assetResult.data)
     }
+    const p = {
+      type: 'Warning',
+      title: 'Payment Failed',
+      button: true,
+      textBody: 'Payment failed, Please try again',
+      buttonText: 'Ok',
+      autoClose : true,
+      timing : 5000
+    }
 
   return (
       
     <View  style={styles.container}>
         <BackButton goBack={navigation.goBack}/>
+        {Platform.OS != 'web' ? (<><Popup config={p}/></>) : (
       <PdfViewer assetDetails={assetData}/>
+      )}
     </View>
   )
 }

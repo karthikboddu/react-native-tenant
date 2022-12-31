@@ -11,7 +11,7 @@ import { Loading } from '../common'
 
 const CreateBuildingForm = ({navigation}) => {
 
-    const { setScreenLoading, screenLoading, createTenantNewBuilding, creatNewBuilding ,userDetails} = useContext(GlobalContext);
+    const { setScreenLoading, screenLoading, createTenantNewBuilding, creatNewBuilding, canNavigate ,userDetails} = useContext(GlobalContext);
     const [image, setImage] = useState(null);
     const [buildingImage, setBuildingImage] = useState('');
     
@@ -176,7 +176,7 @@ const CreateBuildingForm = ({navigation}) => {
         }
 
         if ( buildingName.length == 0 || buildingAddress.length == 0 || noOfFloors ==0 ||
-            noOfRooms ==0 || buildingImage.length ==0  || !buildingImage ) {
+            noOfRooms ==0 ) {
             Alert.alert('Wrong Input!', 'Some fields cannot be empty.', [
                 {text: 'Okay'}
             ]);
@@ -186,6 +186,7 @@ const CreateBuildingForm = ({navigation}) => {
 
 
         const fileFormData = new FormData();
+        var isTobeUploaded = false;
         if (image) {
             const newImageUri = "file:///" + image.uri.split("file:/").join("");
 
@@ -196,17 +197,18 @@ const CreateBuildingForm = ({navigation}) => {
                 type: mime.getType(newImageUri),
                 name: image.uri.split('/').pop()
             });
+            isTobeUploaded = true;
         }
         console.log(payload)
         
-        await createTenantNewBuilding(JSON.stringify(payload), fileFormData, userDetails._id);
-
-        if (!screenLoading) {
+        await createTenantNewBuilding(payload, fileFormData, userDetails._id, isTobeUploaded, navigation);
+        console.log(screenLoading, ' -- ', canNavigate)
+        if (!screenLoading && canNavigate) {
             //navigation.goBack();
-            console.log(creatNewBuilding)
-            navigation.navigate('BuildingDetails', {
-                items: creatNewBuilding._id,
-            })
+            
+            // navigation.navigate('BuildingDetails', {
+            //     items: creatNewBuilding._id,
+            // })
         }
     }
 

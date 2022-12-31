@@ -230,9 +230,9 @@ const submitUpdates = async(room_amount) => {
                 color="#777777" size={16}
               />
               <Text style={styles.infoItemText}>
-                <Moment format="D MMM YYYY" element={Text}>{roomDetails.contractDetails.tenantDetails ? roomDetails.contractDetails.tenantDetails.end_at : ""}</Moment>
+                <Moment format="D MMM YYYY" element={Text}>{roomDetails.contractDetails.tenantDetails ? roomDetails.contractDetails.tenantDetails.start_at : ""}</Moment>
               </Text>
-            </View>
+            </View>            
             <View style={styles.infoItemWrapper}>
               <IconToggle
                 set="FontAwesome"
@@ -240,7 +240,7 @@ const submitUpdates = async(room_amount) => {
                 color="#777777" size={16}
               />
               <Text style={styles.infoItemText}>
-                <Moment format="D MMM YYYY" element={Text}>{roomDetails.contractDetails.tenantDetails ? roomDetails.contractDetails.tenantDetails.start_at : ""}</Moment>
+                <Moment format="D MMM YYYY" element={Text}>{roomDetails.contractDetails.tenantDetails ? roomDetails.contractDetails.tenantDetails.end_at : ""}</Moment>
               </Text>
             </View>
             <View style={styles.infoItemWrapper}>

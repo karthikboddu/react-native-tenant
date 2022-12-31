@@ -1,13 +1,14 @@
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import React, { useContext, useEffect, useState } from 'react';
 import ContentLoader, { Rect } from 'react-content-loader/native';
-import { FlatList, Image, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Image, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../assets/colors/colors';
 import AddTenantFloors from '../../components/Tenant/AddTenantFloors';
 import SkeletonFloorsList from '../../components/Tenant/SkeletonFloorsList';
-import { CONSTANTS, FONTS, SIZES } from '../../constants';
+import { CONSTANTS, FONTS, icons, SIZES } from '../../constants';
 import { GlobalContext } from '../../context/GlobalState';
+import { updateBuildingData } from "../../services/tenant/buildingService";
 import { IconToggle, Ripple } from '../../utils';
 import commonStyles from '../styles';
 import FloorsList from './FloorsList';
@@ -34,7 +35,7 @@ const BuildingDetails = ({ route, navigation }) => {
     createTenantNewRoomFloor } = useContext(GlobalContext);
 
   useEffect(() => {
-    //clearStateVariable();
+
     if (route.params?.items) {
       getTenantBuildingsById(route.params?.items);
     } else {
@@ -49,11 +50,16 @@ const BuildingDetails = ({ route, navigation }) => {
     } else {
       getTenantFloorsBuildingId(creatNewBuilding._id)
     }
+    console.log(tenantBuildingListById);
     setFloorList([]);
     setRoomsList([])
     setSelectedFloors(null)
     setFloorList(tenantBuildingFloorList)
     //loadData()
+    return () => {
+      clearStateVariable();
+      console.log("clearStateVariable")
+    }
   }, [route.params?.items])
 
   function onSelectFloors(item) {
@@ -72,6 +78,7 @@ const BuildingDetails = ({ route, navigation }) => {
     roomAmount: 0,
     buildingId: route.params?.item,
   };
+
   const initialAddEditFloorValues = {
     pending: false,
     failed: false,
@@ -98,6 +105,10 @@ const BuildingDetails = ({ route, navigation }) => {
 
     const payload = JSON.stringify(addEditFloorModal.data);
     console.log(payload)
+    setAddEditFloorModal((prevState) => ({
+      ...prevState,
+      pending: true
+    }));
     if (addEditFloorModal.isAddRoom) {
       await createTenantNewRoomFloor(payload, selectedFloors._id)
     } else {
@@ -105,10 +116,7 @@ const BuildingDetails = ({ route, navigation }) => {
 
     }
 
-    setAddEditFloorModal((prevState) => ({
-      ...prevState,
-      pending: true
-    }));
+
 
     if (!screenLoading) {
       setAddEditFloorModal((prevState) => ({
@@ -143,7 +151,7 @@ const BuildingDetails = ({ route, navigation }) => {
   }
   const { showActionSheetWithOptions } = useActionSheet();
 
-  const icons = [
+  const actionIcons = [
     <IconToggle
       set={'fontAwesome'}
       name={'close'}
@@ -167,7 +175,7 @@ const BuildingDetails = ({ route, navigation }) => {
       destructiveButtonIndex: 2,
       cancelButtonIndex: 0,
       userInterfaceStyle: 'light',
-      icons
+      actionIcons
     }, buttonIndex => {
       if (buttonIndex === 0) {
         // cancel action
@@ -182,6 +190,132 @@ const BuildingDetails = ({ route, navigation }) => {
   const callRefresh = async () => {
     getTenantBuildingsById(route.params?.items);
   }
+  const [showSave, setShowSave] = useState(false);
+
+  const [data, setData] = React.useState({
+    buildingName: '',
+    checkBuildingNameChange: false,
+    isValidBuildingName : true,
+    buildingAddress: '',
+    checkBuildingAddressChange: false,
+    isValidBuildingAddress : true,
+    noOfFloors: 0,
+    checkNoOfFloorsChange: false,
+    isValidNoOfFloors : true,
+    noOfRooms: 0,
+    checkNoOfRoomsChange: false,
+    isValidNoOfRooms : true,
+  });
+
+  const handleBuildginNameChange = (val) => {
+    setShowSave(true)
+    if( val.trim().length >= 6 ) {
+        setData({
+            ...data,
+            buildingName: val,
+            isValidBuildingName : true,
+            checkBuildingNameChange : true
+        });
+    } else {
+        setData({
+            ...data,
+            buildingName: val,
+            isValidBuildingName : false,
+            checkBuildingNameChange : false
+        });
+    }   
+  }
+
+  const handleBuildginAddresssChange = (val) => {
+    setShowSave(true)
+    if( val.trim().length >= 6 ) {
+        setData({
+            ...data,
+            buildingAddress: val,
+            isValidBuildingAddress : true,
+            checkBuildingAddressChange : true
+        });
+    } else {
+        setData({
+            ...data,
+            buildingAddress: val,
+            isValidBuildingAddress : false,
+            checkBuildingAddressChange : false
+        });
+    }   
+  }
+
+  const handleNoOfFloorsChange = (val) => {
+    setShowSave(true)
+    if( val.trim().length >= 6 ) {
+        setData({
+            ...data,
+            noOfFloors: val,
+            isValidNoOfFloors : true,
+            checkNoOfFloorsChange : true
+        });
+    } else {
+        setData({
+            ...data,
+            noOfFloors: val,
+            isValidNoOfFloors : false,
+            checkNoOfFloorsChange : false
+        });
+    }   
+  }
+
+  const handleNoOfRoomsChange = (val) => {
+    setShowSave(true)
+    if( val.trim().length >= 6 ) {
+        setData({
+            ...data,
+            noOfRooms: val,
+            checkNoOfRoomsChange : true,
+            isValidNoOfRooms : true
+        });
+    } else {
+        setData({
+            ...data,
+            noOfRooms: val,
+            checkNoOfRoomsChange : false,
+            isValidNoOfRooms : false
+        });
+    }   
+  }
+
+
+  const submitUpdates = async() => {
+    const buildingName = data.buildingName;
+    const buiildingAddress = data.buildingAddress;
+    const noOfFloors = data.noOfFloors;
+    const noOfRooms = data.noOfRooms;
+    const payload = {
+      buildingName,
+      buiildingAddress,
+      noOfFloors,
+      noOfRooms
+    }
+
+    if ( buildingName.length == 0 || buiildingAddress.length == 0 || noOfFloors ==0 ||
+      noOfRooms ==0 ) {
+      Alert.alert('Wrong Input!', 'Some fields cannot be empty.', [
+          {text: 'Okay'}
+      ]);
+      return;
+    }
+    console.log(payload)
+    setScreenLoading(true);
+    const response = await updateBuildingData(JSON.stringify(payload),route.params?.items)
+    console.log(await response.json())
+    if (route.params?.items) {
+      getTenantBuildingsById(route.params?.items);
+    } else {
+      getTenantBuildingsById(creatNewBuilding._id);
+    }
+    setScreenLoading(false);
+  }
+
+
 
   function renderFloorList() {
     const renderItem = ({ item }) => {
@@ -273,33 +407,23 @@ const BuildingDetails = ({ route, navigation }) => {
       <View>
         {/* Titles */}
         <View style={styles.loaderTitleWrapper}>
-          <ContentLoader
-            speed={50}
-            width={400}
-            height={150}
-            viewBox="0 0 400 150"
-            backgroundColor="#f1e9e9"
-            foregroundColor="#fafafa"
-
-          >
-            <Rect x="25" y="15" rx="5" ry="5" width="122" height="10" />
-            <Rect x="24" y="101" rx="5" ry="5" width="120" height="10" />
-            <Rect x="24" y="131" rx="5" ry="5" width="120" height="10" />
-            <Rect x="24" y="161" rx="5" ry="5" width="120" height="10" />
-            <Rect x="255" y="20" rx="15" ry="15" width="91" height="98" />
-          </ContentLoader>
-          <ContentLoader
-            speed={50}
-            width={400}
-            height={150}
-            viewBox="0 0 400 150"
-            backgroundColor="#f1e9e9"
-            foregroundColor="#fafafa"
-
-          >
-            <Rect x="25" y="15" rx="5" ry="5" width="122" height="10" />
-            <Rect x="24" y="101" rx="5" ry="5" width="120" height="10" />
-          </ContentLoader>
+        <ContentLoader 
+    speed={50}
+    width={400}
+    height={350}
+    viewBox="0 0 400 350"
+    backgroundColor="#f1e9e9"
+    foregroundColor="#fafafa"
+  >
+    <Rect x="25" y="34" rx="5" ry="5" width="122" height="20" /> 
+    <Rect x="24" y="255" rx="5" ry="5" width="80" height="10" /> 
+    <Rect x="25" y="295" rx="5" ry="5" width="80" height="10" /> 
+    <Rect x="255" y="34" rx="10" ry="10" width="130" height="70" /> 
+    <Rect x="24" y="275" rx="5" ry="5" width="80" height="10" /> 
+    <Rect x="24" y="315" rx="5" ry="5" width="80" height="10" /> 
+    <Rect x="24" y="335" rx="5" ry="5" width="80" height="10" /> 
+    <Rect x="25" y="98" rx="5" ry="5" width="50" height="30" />
+  </ContentLoader>
         </View>
 
         {/* Price */}
@@ -329,6 +453,13 @@ const BuildingDetails = ({ route, navigation }) => {
                 <Feather name="chevron-left" size={12} color={colors.textDark} />
               </View>
             </TouchableOpacity>
+            {showSave && (
+            <TouchableOpacity onPress={() => submitUpdates()}>
+            <View style={styles.headerRight}>
+                <Feather name="save" size={12} color={colors.textDark} />
+            </View>
+            </TouchableOpacity>
+            )}
           </View>
         </SafeAreaView>
 
@@ -338,21 +469,35 @@ const BuildingDetails = ({ route, navigation }) => {
           </>
         ) : (
           <>
-            {tenantBuildingListById.map((items) => (
+            {tenantBuildingListById && tenantBuildingListById._id && (
 
-              <View key={items._id}>
+              <View key={tenantBuildingListById._id}>
                 {/* Titles */}
                 <View style={styles.titlesWrapper}>
-                  <Text style={styles.title}>{items.building_name}</Text>
-                  <Image
-                    source={{ uri: items.building_image }}
+                  <TextInput style={styles.title}
+                        autoCorrect={false}
+                        editable={true}
+                        multiline={true}
+                        defaultValue={tenantBuildingListById.building_name}
+                        onChangeText={(val) => handleBuildginNameChange(val)}
+                  />
+                  {tenantBuildingListById.building_image ? (
+                    <Image
+                    source={{ uri: tenantBuildingListById.building_image }}
                     style={styles.itemImage}
                   />
+                  ) : (
+                    <Image
+                    source={{ uri: icons.defaultBuilding }}
+                    style={styles.itemImage}
+                  />
+                  )}
+
                 </View>
 
                 {/* Price */}
                 <View style={styles.priceWrapper}>
-                  <Text style={styles.priceText}>{CONSTANTS.currencySymbol} {items.total_amount}</Text>
+                  <Text style={styles.priceText}>{CONSTANTS.currencySymbol} {tenantBuildingListById.total_amount}</Text>
                 </View>
 
                 {/* Pizza info */}
@@ -362,23 +507,39 @@ const BuildingDetails = ({ route, navigation }) => {
                   <View style={styles.infoLeftWrapper}>
                     <View style={styles.infoItemWrapper}>
                       <Text style={styles.infoItemTitle}>Address</Text>
-                      <Text style={styles.infoItemText}>
-                        {items.building_address}
-                      </Text>
+                      <TextInput style={styles.infoItemText}
+                        autoCorrect={false}
+                        editable={true}
+                        multiline={true}
+                        defaultValue={tenantBuildingListById.building_address}
+                        onChangeText={(val) => handleBuildginAddresssChange(val)}
+                      />
                     </View>
                     <View style={styles.infoItemWrapper}>
                       <Text style={styles.infoItemTitle}>No of Floors</Text>
-                      <Text style={styles.infoItemText}>{items.no_of_floors}</Text>
+                      <TextInput style={styles.infoItemText}
+                        autoCorrect={false}
+                        editable={true}
+                        defaultValue={tenantBuildingListById.no_of_floors.toString()}
+                        keyboardType="number-pad"
+                        onChangeText={(val) => handleNoOfFloorsChange(val)}
+                      />
                     </View>
                     <View style={styles.infoItemWrapper}>
                       <Text style={styles.infoItemTitle}>Rooms</Text>
-                      <Text style={styles.infoItemText}>{items.no_of_rooms}</Text>
+                      <TextInput style={styles.infoItemText}
+                        autoCorrect={false}
+                        editable={true}
+                        defaultValue={tenantBuildingListById.no_of_rooms.toString()}
+                        keyboardType="number-pad"
+                        onChangeText={(val) => handleNoOfRoomsChange(val)}
+                      />
                     </View>
                   </View>
 
                 </View>
               </View>
-            ))}
+            )}
           </>
         )}
 
