@@ -8,16 +8,17 @@ import {
   Provider as PaperProvider
 } from 'react-native-paper';
 import Toast, { BaseToast } from 'react-native-toast-message';
-import OfflineNotice from "./src/components/OfflineNotice";
+import OfflineNotice from './src/components/OfflineNotice';
 import { GlobalProvider } from './src/context/GlobalState';
 import { theme } from './src/core/theme';
 import Router from './src/navigation/Router';
+
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
 
-  let netInfo = useNetInfo();
+  const netInfo = useNetInfo();
 
   const toastConfig = {
     success: ({ text1,text2, ...rest }) => (
@@ -51,11 +52,14 @@ export default function App() {
   return (
     
     <PaperProvider theme={theme}>
-        <OfflineNotice/>
         <GlobalProvider>
+        {netInfo.type !== 'unknown' && netInfo.isInternetReachable === false ? (
+          <OfflineNotice/>
+        ) : (
         <ActionSheetProvider>
           <Router />
           </ActionSheetProvider>
+          )}
         </GlobalProvider>
       <Toast config={toastConfig}/>
       {/* <FlashMessage position="bottom" floating /> */}

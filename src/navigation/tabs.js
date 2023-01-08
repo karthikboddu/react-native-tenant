@@ -21,6 +21,7 @@ import AdminDashboard from '../screens/tenant/AdminDashboard';
 import BuildingDetails from '../screens/tenant/BuildingDetails';
 import CreateBuilding from "../screens/tenant/CreateBuilding";
 import Dashboard from '../screens/tenant/Dashboard';
+import ListTenants from "../screens/tenant/ListTenants";
 import EditOrderDetails from "../screens/tenant/order/EditOrderDetails";
 import PaymentDetails from '../screens/tenant/order/PaymentDetails';
 import ParentTenantSignUp from "../screens/tenant/ParentTenantSignUp";
@@ -481,6 +482,16 @@ const HomeStackScreen = ({ navigation }) => {
                 options={({ route }) => ({
                     //title: route.params.title,
                     title: "TenantsList",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+            />
+            <HomeStack.Screen
+                name="ListTenants"
+                component={ListTenants}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "ListTenants",
                     headerBackTitleVisible: false,
                     headerShown: false,
                 })}

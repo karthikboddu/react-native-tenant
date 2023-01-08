@@ -2,6 +2,8 @@ import AllInOneSDKManager from 'paytm_allinone_react-native';
 import { Popup } from 'popup-ui';
 import React, { createContext, useReducer } from 'react';
 import { CONSTANTS } from '../constants';
+import endpoints from '../endpoints';
+import Cache from '../helpers/Cache';
 import { showToast } from '../helpers/ToastMessageHelper';
 import {
     getUserActivityDetailsFromToken, getUserDetailsFromToken,
@@ -973,12 +975,15 @@ export const GlobalProvider = ({ children }) => {
             let tenantDetails = await getTenantList();
             
             let resJson = await tenantDetails.json();
-            
+            if (resJson.status == 200) {
+                await Cache.store(endpoints.tenantsList, resJson.data.tenants); //* caching the response
+            }
             setScreenLoading(false);
-
+            const data = await Cache.get(endpoints.tenantsList);
+            console.log(data);
             dispatch({
                 type: 'GET_TENANT_LIST',
-                payload: resJson.data
+                payload: data ? data : resJson.data.tenants
             });
         } catch (error) {
             console.log(error)

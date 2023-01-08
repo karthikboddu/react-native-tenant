@@ -1,31 +1,22 @@
-import { useNetInfo } from '@react-native-community/netinfo';
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import colors from '../assets/colors/colors';
+import { COLORS } from '../constants';
+import ListTenants from '../screens/tenant/ListTenants';
 
-const OfflineNotice = () => {
-  const netInfo = useNetInfo();
+const OfflineNotice = ({navigation}) => {
 
-  if (netInfo.type !== 'unknown' && netInfo.isInternetReachable === false)
     return (
       <View style={styles.container}>
-        <Image
-          style={styles.image}
-          source={require('../assets/icons/offline.png')}
-        />
         <Text style={styles.text}>No Internet Connection</Text>
+        <ListTenants/>
       </View>
     );
-
-  return null;
 };
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-    width: '100%',
-    zIndex: 2,
+    flex : 1
   },
   image: {
     height: 500,
@@ -33,6 +24,25 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 25,
+    alignContent: 'center',
+    backgroundColor : COLORS.darkgray,
+    paddingLeft : 50
+  },
+  orderWrapper: {
+    marginTop: 40,
+    marginBottom: 50,
+    marginHorizontal: 20,
+    backgroundColor: colors.primary,
+    borderRadius: 10,
+    paddingVertical: 25,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  orderText: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 14,
+    marginRight: 10,
   },
 });
 
