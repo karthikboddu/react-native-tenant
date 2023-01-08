@@ -3,12 +3,12 @@ import * as React from 'react';
 import ContentLoader, { Rect } from 'react-content-loader/native';
 import { FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import colors from '../../assets/colors/colors';
-import { COLORS, CONSTANTS, FONTS, icons, SIZES } from '../../constants';
-import { GlobalContext } from '../../context/GlobalState';
-import HeaderProfileScreen from '../account/HeaderProfileScreen';
+import colors from '../../../assets/colors/colors';
+import { COLORS, CONSTANTS, FONTS, icons, SIZES } from '../../../constants';
+import { GlobalContext } from '../../../context/GlobalState';
+import HeaderProfileScreen from '../../account/HeaderProfileScreen';
 
-const AdminDashboard = () => {
+const TenantAdminDashboard = ({route}) => {
     const navigation = useNavigation();
 
     const [selectedBuilding, setSelectedBuilding] = React.useState(null)
@@ -32,7 +32,12 @@ const AdminDashboard = () => {
     ];
     React.useEffect(() => {
         //clearStateVariable();
-        getTenantBuildings();
+        if (route?.params?.tenantId) {
+            getTenantBuildings(route.params.tenantId);
+        } else {
+            getTenantBuildings();
+        }
+        
         bulkInitTenantRoomPayment();
         setTransparentStatusBG("#CDCDD2");
     }, [])
@@ -315,7 +320,7 @@ const AdminDashboard = () => {
     )
 }
 
-export default AdminDashboard
+export default TenantAdminDashboard
 
 
 const styles = StyleSheet.create({

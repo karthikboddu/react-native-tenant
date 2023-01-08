@@ -1,7 +1,7 @@
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
-//import { Root } from 'popup-ui';
+import { Root } from 'popup-ui';
 import React, { useContext, useEffect, useState } from 'react';
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
@@ -31,7 +31,7 @@ const PaymentDetails = () => {
   useEffect(() => {
     //clearStateVariable();
     getTenantRoomOrderDetails('P,F', 1);
-    initRoomPayment(tenantRoomOrderDetails.balance_amount, tenantRoomOrderDetails.floor_room_id)
+    //initRoomPayment(tenantRoomOrderDetails.balance_amount, tenantRoomOrderDetails.floor_room_id)
     setPrice(tenantRoomOrderDetails.balance_amount)
     setRoomId(tenantRoomOrderDetails.floor_room_id)
 
@@ -174,7 +174,7 @@ const PaymentDetails = () => {
   return (
 
 
-    // <Root>
+    <Root>
       <View style={styles.container}>
         {/* <ScrollView
 
@@ -230,7 +230,7 @@ const PaymentDetails = () => {
 
 
       </View>
-    // </Root>
+     </Root>
   )
 }
 

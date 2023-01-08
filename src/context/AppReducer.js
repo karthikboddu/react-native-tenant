@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default (state, action) => {
 
   switch (action.type) {
@@ -20,9 +21,15 @@ export default (state, action) => {
         screenLoading: false,
       };
     case 'LOGOUT':
+      clearStorage();
       return {
         ...state,
         userToken: null,
+        userDetails : [],
+        tenantBuildingFloorList: [],
+        tenantBuildingListById: [],
+        tenantBuildingFloorRoomsList: [],
+        tenantBuildingList : [],
         isLoading: false,
       };
     case 'REGISTER':
@@ -116,6 +123,11 @@ export default (state, action) => {
         ...state,
         isAdmin: action.payload,
       };
+      case 'SET_USERTYPE_SUPER_ADMIN':
+        return {
+          ...state,
+          isSuperAdmin: action.payload,
+        };
     case 'START_PAYTM_TRANSACTION':
       return {
         ...state,
@@ -148,6 +160,11 @@ export default (state, action) => {
         ...state,
         createTenantAddToRoomContractList: action.payload,
       };
+      case 'PATCH_CREATE_PARENT_TENANT':
+        return {
+          ...state,
+          parentTenantCreate: action.payload,
+        };
     case 'POST_CREATE_TENANT_ORDER_ROOM_PAYMENT_ERR':
       return {
         ...state,
@@ -211,9 +228,21 @@ export default (state, action) => {
             return {
               ...state,
               canNavigate: action.payload
-            };            
+            };
+            case 'GET_PARENT_TENANT_LIST':
+              return {
+                ...state,
+                parentTenantList: action.payload
+              };
+                      
         
     default:
       return state;
   }
 }
+
+
+
+const clearStorage = async () => {
+  await AsyncStorage.clear();
+};

@@ -65,10 +65,10 @@ const ProceedPaymentModal = ({ addEditPaymentModal, submitAddPayment, closeAddPa
                                     <Text style={styles.amountContentText}>Amount to be paid :   ₹ {addEditPaymentModal.data.amount}</Text>
                                 </View>
                                 <View style={styles.paymentContainer}>
-                                    <View style={styles.contentContainer}>
+
                                     
                                     <Text style={styles.amountContentText}>Click here to pay</Text>
-                                    </View>
+
                                     <View
                                         style={[
                                             styles.roomsListIcon

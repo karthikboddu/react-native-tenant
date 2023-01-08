@@ -1,20 +1,23 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import React, { useContext, useState } from 'react';
 import Moment from 'react-moment';
 import { Alert, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import Feather from 'react-native-vector-icons/Feather';
 import { default as MaterialCommunityIcons } from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '../../assets/colors/colors';
 import { GlobalContext } from '../../context/GlobalState';
 import { updateTenantRoomDetails } from '../../services/tenant/roomService';
+import { updateTenantDetailsFromParams } from '../../services/tenant/tenantService';
 import { IconToggle } from '../../utils';
-import { Loading } from '../common';
 
 const ListTenantRoomDetails = ({ roomDetails, navigation, routeDetails }) => {
 
-  const { getTenantRoomsDetailsByRoomId, screenLoading, setScreenLoading, unLinkTenantRoomContract } = useContext(GlobalContext);
+  const { getTenantRoomsDetailsByRoomId, screenLoading, setScreenLoading,
+     unLinkTenantRoomContract, updateUserDetails } = useContext(GlobalContext);
   const [showBox, setShowBox] = useState(true);
   const [showSave, setShowSave] = useState(false);
-
+  var expiryDate = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
+  expiryDate.setUTCHours(23, 59, 59, 999);
+  console.log(roomDetails)
   const submitUnLinkTenantRoomContract = (roomTenantId, roomContractId) => {
     const payload = JSON.stringify({
       tenantId: roomTenantId,
@@ -30,6 +33,18 @@ const ListTenantRoomDetails = ({ roomDetails, navigation, routeDetails }) => {
     checkAmountChange: false,
     isValidAmount : true,
   });
+
+  const extendRoomContract = async (tenantId) => {
+    const payload = {
+      end_at : expiryDate
+    }
+    setScreenLoading(true);
+    let userResponse = await updateTenantDetailsFromParams(tenantId, JSON.stringify(payload));
+    let resJson = await userResponse.json();
+    console.log(resJson,"update");
+    setScreenLoading(false);
+    getTenantRoomsDetailsByRoomId(routeDetails.roomId)
+  }
 
   // if (data.amount != roomDetails.room_amount) {
   //   setShowSave(true);
@@ -84,6 +99,26 @@ const submitUpdates = async(room_amount) => {
     );
   };
 
+  const showConfirmExpandDialog = (tenantId, contractId) => {
+
+    return Alert.alert(
+      "Are your sure?",
+      "Are you sure you want to Renew Contract for this tenant ?",
+      [
+        {
+          text: "Yes",
+          onPress: () => {
+            extendRoomContract(tenantId);
+            setShowBox(false);
+          },
+        },
+        {
+          text: "No",
+        },
+      ]
+    );
+  };
+
 
   const openDialScreen = (no) => {
     let number = '';
@@ -101,7 +136,31 @@ const submitUpdates = async(room_amount) => {
         <View style={styles.headerLeft}>
           <Text style={styles.title}>Tenant Details</Text>
         </View>
+        {showSave ? (<>
+
+          <TouchableOpacity onPress={() => submitUpdates(data.amount)}>
+          <View style={styles.headerRight}>
+            <Feather
+              name="save"
+              size={20}
+              color={colors.white}
+            />
+          </View>
+        </TouchableOpacity> 
+        </>) : (<>
         {roomDetails.tenantLinked && (
+        <> 
+        {!roomDetails.contractDetails.tenantDetails.isActive ? (<>
+          <TouchableOpacity onPress={() => showConfirmExpandDialog(roomDetails.contractDetails.tenantDetails._id)}>
+          <View style={styles.headerRight}>
+            <MaterialCommunityIcons
+              name="reload"
+              size={20}
+              color={colors.white}
+            />
+          </View>
+        </TouchableOpacity>          
+        </>) : (
         <TouchableOpacity onPress={() => showConfirmDialog(roomDetails.contractDetails.tenantDetails._id, roomDetails.contractDetails._id)}>
           <View style={styles.headerRight}>
             <MaterialCommunityIcons
@@ -111,7 +170,10 @@ const submitUpdates = async(room_amount) => {
             />
           </View>
         </TouchableOpacity>
+        )} 
+        </>
         )}
+        </>)}
       </View>
 
       {/* {roomDetails.contractDetails.length < 1 && (
@@ -157,25 +219,6 @@ const submitUpdates = async(room_amount) => {
                 ₹{roomDetails.room_amount}
               </Text> */}
             </View>
-            {showSave && (
-            <View style={styles.button}>
-                <TouchableOpacity
-                    style={styles.signIn}
-                    onPress={() => {submitUpdates(data.amount)}}
-                >
-                <LinearGradient
-                    colors={['#000000', '#000000']}
-                    style={styles.signIn}
-                >
-                {!screenLoading ? 
-                    <Text style={[styles.textSign, {
-                        color:'#fff'
-                    }]}>Save</Text>
-                    :  <Loading size={'large'} />}
-                </LinearGradient>
-                </TouchableOpacity>
-
-            </View>)}
 
 
             {roomDetails.tenantLinked ? (

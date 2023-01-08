@@ -3,10 +3,15 @@ import deviceStorage from "../deviceStorage";
 
 const API_URL = endpoints.apiUrl;
 
-async function listTenantBuildings(accessToken) {
+async function listTenantBuildings(accessToken, tenantId) {
     try {
-        
-        let response = await fetch(`${API_URL}`+`${endpoints.tenantBuildings}`, {
+        let url = `${API_URL}`+`${endpoints.tenantBuildings}`
+        let query = ''
+        if (tenantId) {
+            query =  query + '?tenantId=' + tenantId
+        }
+
+        let response = await fetch(url + query, {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
@@ -268,6 +273,71 @@ async function getTenantList() {
     }
 }
 
+async function updateTenantDetailsFromParams(tenantId, payload) {
+
+    try {
+        const accessToken = await deviceStorage.loadJWT();
+        let url = `${API_URL}` + `${endpoints.updateTenantDetails}`;
+        
+        let response = await fetch(url.replace('#',tenantId), {
+            method: 'PATCH',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': accessToken
+            },
+            body : payload
+        });
+        return response;
+    } catch (error) {
+        Alert.alert('Sorry, something went wrong, getUserDetailsFromToken.', error.message);
+        throw handler(error);
+    }
+
+}
+
+async function createParentTenant(payload) {
+
+    try {
+        const accessToken = await deviceStorage.loadJWT();
+        let url = `${API_URL}` + `${endpoints.createParentTenant}`;
+        
+        let response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': accessToken
+            },
+            body : payload
+        });
+        return response;
+    } catch (error) {
+        Alert.alert('Sorry, something went wrong, getUserDetailsFromToken.', error.message);
+        throw handler(error);
+    }
+
+}
+
+async function getParentTenantList() {
+
+    try {
+        const accessToken = await deviceStorage.loadJWT();
+        let response = await fetch(`${API_URL}` + `${endpoints.listParentTenants}`, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'x-access-token': accessToken
+            }
+        });
+        return response;
+    } catch (e) {
+        Alert.alert('Sorry, something went wrong.', e.message);
+        throw handler(e);
+    }
+}
+
 export {
     listTenantBuildings,
     listTenantBuildingsById,
@@ -282,5 +352,8 @@ export {
     getRecentAllTenantsRoomOrderDetails,
     createTenantAndToRoom,
     getTenantSettings,
-    getTenantList
+    getTenantList,
+    updateTenantDetailsFromParams,
+    createParentTenant,
+    getParentTenantList
 };

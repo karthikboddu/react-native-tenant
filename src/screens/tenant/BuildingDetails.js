@@ -193,16 +193,16 @@ const BuildingDetails = ({ route, navigation }) => {
   const [showSave, setShowSave] = useState(false);
 
   const [data, setData] = React.useState({
-    buildingName: '',
+    buildingName: tenantBuildingListById.building_name ? tenantBuildingListById.building_name : '',
     checkBuildingNameChange: false,
     isValidBuildingName : true,
-    buildingAddress: '',
+    buildingAddress: tenantBuildingListById.building_address ? tenantBuildingListById.building_address : '',
     checkBuildingAddressChange: false,
     isValidBuildingAddress : true,
-    noOfFloors: 0,
+    noOfFloors: tenantBuildingListById.no_of_floors ? tenantBuildingListById.no_of_floors : 0,
     checkNoOfFloorsChange: false,
     isValidNoOfFloors : true,
-    noOfRooms: 0,
+    noOfRooms: tenantBuildingListById.no_of_rooms ? tenantBuildingListById.no_of_rooms : 0,
     checkNoOfRoomsChange: false,
     isValidNoOfRooms : true,
   });
@@ -285,15 +285,27 @@ const BuildingDetails = ({ route, navigation }) => {
 
 
   const submitUpdates = async() => {
+    console.log(data);
     const buildingName = data.buildingName;
     const buiildingAddress = data.buildingAddress;
     const noOfFloors = data.noOfFloors;
     const noOfRooms = data.noOfRooms;
-    const payload = {
-      buildingName,
-      buiildingAddress,
-      noOfFloors,
-      noOfRooms
+    var payload = {}
+
+    if (buildingName.length > 0) {
+      payload.buildingName = buildingName
+    }
+
+    if (buiildingAddress.length > 0) {
+      payload.buiildingAddress = buiildingAddress
+    }
+
+    if (noOfFloors > 0) {
+      payload.noOfFloors = noOfFloors
+    }
+
+    if (noOfRooms > 0) {
+      payload.noOfRooms = noOfRooms
     }
 
     if ( buildingName.length == 0 || buiildingAddress.length == 0 || noOfFloors ==0 ||

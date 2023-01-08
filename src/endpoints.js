@@ -1,9 +1,9 @@
 const endpoints = {
     apiUrlBeta : 'https://nodejs-authentication-production.up.railway.app',
     apiUrl2 : 'https://tenant.adaptable.app',
-    apiUrl1: 'http://192.168.0.126:8000',
+    apiUrl: 'http://192.168.0.126:8000',
     apiUrl3 : 'https://api-tenant.cyclic.app',
-    apiUrl : 'https://tenant.adaptable.app',
+    apiUrl1 : 'https://tenant.adaptable.app',
     tenantLogin : '/api/tenant/login',
     ssoLogin : '/api/tenant/SSOLogin',
     verifyAccessToken : '/api/auth/verifyAccessToken',
@@ -37,7 +37,10 @@ const endpoints = {
     createBuildingFLoor : '/api/floor/building/#',
     createBuildingFloorRooms : '/api/room/#',
     updateBuildingDetails : '/api/building/#',
-    
+    updateTenantDetails : '/api/tenant/tenant/#',
+    createParentTenant : '/api/tenant/parentTenant',
+    listParentTenants : '/api/tenant/parentTenants',
+
     uploadAsset : '/api/upload/assets/#',
     uploadTenantProfileAsset : '/api/upload/assets',
     assetUrl : '/api/upload/url/#',

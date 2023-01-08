@@ -14,7 +14,8 @@ import { createNewBuildingFloorData } from '../services/tenant/floorService';
 import { bulkInitTenantOrderPayment, saveOrderDetailsAndComplete } from '../services/tenant/orderService';
 import { createNewBuildingRoomData, unlinkTenantRoomContract } from '../services/tenant/roomService';
 import {
-    createTenantAndToRoom, generatePaytmToken, getRecentAllTenantsRoomOrderDetails, getTenantList, getTenantRoomDetails, getTenantSettings, initTenantRoomPayment, listFloorsByBuildingsId, listRoomDetailsByRoomId,
+    createParentTenant,
+    createTenantAndToRoom, generatePaytmToken, getParentTenantList, getRecentAllTenantsRoomOrderDetails, getTenantList, getTenantRoomDetails, getTenantSettings, initTenantRoomPayment, listFloorsByBuildingsId, listRoomDetailsByRoomId,
     listRoomsByFloorId, listTenantBuildings, listTenantBuildingsById, updatePaymentDetails
 } from '../services/tenant/tenantService';
 import { uploadTenantAsset } from '../services/tenant/uploadService';
@@ -40,6 +41,7 @@ const initialLoginState = {
     tenantBuildingFloorRoomsDetails: [],
     txnToken: null,
     isAdmin: false,
+    isSuperAdmin: false,
     paytmTransactionResponse: [],
     tenantRoomOrderDetails: [],
     tenantRoomOrderDetailsAll: [],
@@ -57,7 +59,9 @@ const initialLoginState = {
     creatNewBuilding : [],
     createTenantFloorData : [],
     createTenantRoomFloorData: [],
-    transparentStatusBG : "#CDCDD2"
+    transparentStatusBG : "#CDCDD2",
+    parentTenantCreate : [],
+    parentTenantList : []
 };
 
 export const GlobalContext = createContext(initialLoginState);
@@ -99,8 +103,12 @@ export const GlobalProvider = ({ children }) => {
                     deviceStorage.saveKey("refresh_token", res.data.refreshtoken);
                     deviceStorage.saveKey("tenant_token", res.data.accessToken);
                     setTransparentStatus(true)
+                    console.log(res.data)
                     if (res.data.isAdmin) {
                         setIsAdmin(true)
+                    }  
+                    if (res.data.isSuperAdmin) {
+                        setIsSuperAdmin(true)
                     }      
                     dispatch({
                         type: 'SIGN_IN',
@@ -142,7 +150,10 @@ export const GlobalProvider = ({ children }) => {
                     const decode = 'user';            
                     if (res.data.isAdmin) {
                         setIsAdmin(true)
-                    }                    
+                    }      
+                    if (res.data.isSuperAdmin) {
+                        setIsSuperAdmin(true)
+                    }                 
                     dispatch({
                         type: 'SIGN_IN',
                         payload: res.data.accessToken
@@ -171,6 +182,7 @@ export const GlobalProvider = ({ children }) => {
             const res = await logout();
             console.log(res)
             setIsAdmin(false)
+            setIsSuperAdmin(false)
             dispatch({
                 type: 'LOGOUT',
                 payload: res
@@ -211,6 +223,7 @@ export const GlobalProvider = ({ children }) => {
                 }
                 if (auth !=null) {
                     setIsAdmin(result.data.isAdmin)
+                    setIsSuperAdmin(result.data.isSuperAdmin)
                     // const decode = JWT.decode(res, endpoints.jwtSecret);
                     
                     // if (decode.type == CONSTANTS.userTypeAdmin) {
@@ -263,6 +276,21 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
+    async function setIsSuperAdmin(value) {
+        try {
+            dispatch({
+                type: 'SET_USERTYPE_SUPER_ADMIN',
+                payload: value
+            });
+        } catch (error) {
+            showToast('error', 'Oops, Something went wrong ...')
+            dispatch({
+                type: 'SET_USERTYPE_SUPER_ADMIN_ERR',
+                payload: err
+            });
+        }
+    }
+
 
     async function getUserDetails() {
 
@@ -293,6 +321,7 @@ export const GlobalProvider = ({ children }) => {
 
             let userResponse = await updateUserDetailsFromToken(res, payload);
             let resJson = await userResponse.json();
+            console.log(resJson,"updateuser");
             setScreenLoading(false);
             dispatch({
                 type: 'PATCH_USER_DETAILS',
@@ -472,13 +501,13 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
-    async function getTenantBuildings() {
+    async function getTenantBuildings(tenantId) {
         try {
             setScreenLoading(true);
             const res = await deviceStorage.loadJWT();
             //await logout();
-
-            let tenantBuildingsDetails = await listTenantBuildings(res);
+            console.log(tenantId,"tenantiD")
+            let tenantBuildingsDetails = await listTenantBuildings(res, tenantId);
             let resJson = await tenantBuildingsDetails.json();
             setScreenLoading(false);
             dispatch({
@@ -842,6 +871,44 @@ export const GlobalProvider = ({ children }) => {
         }
     }
 
+    async function createParentTenantSuperAdmin(payload, fileFormData, navigation) {
+        try {
+            setScreenLoading(true)
+            const res = await deviceStorage.loadJWT();
+
+            let tenantDetails = await createParentTenant( payload);
+            
+            let resJson = await tenantDetails.json();
+            console.log(resJson)
+            if(resJson.status == 200) { 
+                if (fileFormData !=null || fileFormData != 'undefined ' || resJson.data.tenant_id) {
+                    let uploadDetails = await uploadTenantAsset( fileFormData, resJson.data.tenant_id, 'identity');
+                    let uploadJson = await uploadDetails.json();
+                }
+                navigation.goBack(); 
+                showToast('success', 'Tenant Added Successfully. ')
+            } else {
+                showToast('error', resJson.message ? resJson.message : 'Tenant creation failed .. ')
+            }
+            // const p = JSON.parse(payload);
+            // getTenantRoomsDetailsByRoomId(p.roomId, '')
+            // getTenantRoomOrderDetails('P,F', 1);
+            setScreenLoading(false);
+            dispatch({
+                type: 'PATCH_CREATE_PARENT_TENANT',
+                payload: resJson.data
+            });
+        } catch (error) {
+            setScreenLoading(false);
+            console.log(error)
+            showToast('error', 'Oops, Something went wrong ...')
+            dispatch({
+                type: 'PATCH_CREATE_PARENT_TENANT_ERR',
+                payload: error
+            });
+        }
+    }
+
 
     async function getTenantSettigsDetails() {
         try {
@@ -1072,7 +1139,31 @@ export const GlobalProvider = ({ children }) => {
                 payload: error
             });
         }
-    }        
+    }
+    
+    async function fetchAllParentTenantList() {
+        try {
+            
+            setScreenLoading(true);
+            let tenantDetails = await getParentTenantList();
+            
+            let resJson = await tenantDetails.json();
+            
+            setScreenLoading(false);
+
+            dispatch({
+                type: 'GET_PARENT_TENANT_LIST',
+                payload: resJson.data.tenants
+            });
+        } catch (error) {
+            console.log(error)
+            showToast('error', 'Oops, Something went wrong ...')
+            dispatch({
+                type: 'GET_PARENT_TENANT_LIST_ERR',
+                payload: error
+            });
+        }
+    }  
 
     return (<GlobalContext.Provider value={{
         error: state.error,
@@ -1110,6 +1201,8 @@ export const GlobalProvider = ({ children }) => {
         getPaytmToken,
         isAdmin : state.isAdmin,
         setIsAdmin,
+        isSuperAdmin : state.isSuperAdmin,
+        setIsSuperAdmin,
         paytmTransactionResponse: state.paytmTransactionResponse,
         startPaytmTransaction,
         tenantRoomOrderDetails: state.tenantRoomOrderDetails,
@@ -1146,7 +1239,11 @@ export const GlobalProvider = ({ children }) => {
         setTransparentStatusBG,
         transparentStatusBG : state.transparentStatusBG,
         setSuccessfullNavigate,
-        canNavigate : state.canNavigate
+        canNavigate : state.canNavigate,
+        parentTenantCreate : state.parentTenantCreate,
+        createParentTenantSuperAdmin,
+        parentTenantList : state.parentTenantList,
+        fetchAllParentTenantList
     }}>
         {children}
     </GlobalContext.Provider>);

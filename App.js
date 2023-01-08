@@ -8,7 +8,7 @@ import {
   Provider as PaperProvider
 } from 'react-native-paper';
 import Toast, { BaseToast } from 'react-native-toast-message';
-import Modals from './src/components/NetInfoModal';
+import OfflineNotice from "./src/components/OfflineNotice";
 import { GlobalProvider } from './src/context/GlobalState';
 import { theme } from './src/core/theme';
 import Router from './src/navigation/Router';
@@ -51,16 +51,12 @@ export default function App() {
   return (
     
     <PaperProvider theme={theme}>
-      {netInfo.isConnected ? (
+        <OfflineNotice/>
         <GlobalProvider>
         <ActionSheetProvider>
           <Router />
           </ActionSheetProvider>
         </GlobalProvider>
-      ) : <Modals
-        show={netInfo.isConnected}
-        isRetrying={false}
-      />}
       <Toast config={toastConfig}/>
       {/* <FlashMessage position="bottom" floating /> */}
     </PaperProvider>

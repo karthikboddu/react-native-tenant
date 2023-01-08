@@ -23,7 +23,11 @@ import CreateBuilding from "../screens/tenant/CreateBuilding";
 import Dashboard from '../screens/tenant/Dashboard';
 import EditOrderDetails from "../screens/tenant/order/EditOrderDetails";
 import PaymentDetails from '../screens/tenant/order/PaymentDetails';
+import ParentTenantSignUp from "../screens/tenant/ParentTenantSignUp";
 import Search from "../screens/tenant/Search";
+import ListTenantAdmins from "../screens/tenant/superadmin/ListTenantAdmins";
+import SuperAdminDashboard from "../screens/tenant/superadmin/SuperAdminDashboard";
+import TenantAdminDashboard from "../screens/tenant/superadmin/TenantAdminDashboard";
 import TenantRoomDetails from '../screens/tenant/TenantRoomDetails';
 import TenantRoomTransactionList from "../screens/tenant/TenantRoomTransactionList";
 import TenantSignUp from "../screens/tenant/TenantSignUp";
@@ -345,7 +349,7 @@ const TransactionsStackScreen = ({ navigation }) => {
 
 const HomeStackScreen = ({ navigation }) => {
     const { colors } = useTheme();
-    const { userDetails, isAdmin } = useContext(GlobalContext);
+    const { userDetails, isAdmin, isSuperAdmin } = useContext(GlobalContext);
 
     return (
         <HomeStack.Navigator
@@ -360,6 +364,15 @@ const HomeStackScreen = ({ navigation }) => {
                     fontWeight: 'bold',
                 },
             }}>
+            {isSuperAdmin ? (
+                <HomeStack.Screen
+                    name="SuperAdminDashboard"
+                    component={SuperAdminDashboard}
+                    options={{
+                        headerShown: false,
+                    }}
+                />
+            ) : ( <>
             {isAdmin ? (
                 <HomeStack.Screen
                     name="AdminDashboard"
@@ -376,8 +389,25 @@ const HomeStackScreen = ({ navigation }) => {
                     }}
                 />
             )}
+            </>
+            )}
+            {isSuperAdmin && (
+            <HomeStack.Screen
+                    name="AdminDashboard"
+                    component={AdminDashboard}
+                    options={{
+                        headerShown: true,
+                    }}
+                />)}
 
-
+            {isSuperAdmin && (
+            <HomeStack.Screen
+                    name="TenantAdminDashboard"
+                    component={TenantAdminDashboard}
+                    options={{
+                        headerShown: true,
+                    }}
+                />)}                
             <HomeStack.Screen
                 name="Dashboard"
                 component={Dashboard}
@@ -506,6 +536,29 @@ const HomeStackScreen = ({ navigation }) => {
                 })}
                 navigation = {navigation}
             />
+            <HomeStack.Screen
+                name="ParentTenantSignUp"
+                component={ParentTenantSignUp}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "ParentTenantSignUp",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+                navigation = {navigation}
+            />
+            <HomeStack.Screen
+                name="ListTenantAdmins"
+                component={ListTenantAdmins}
+                options={({ route }) => ({
+                    //title: route.params.title,
+                    title: "ListTenantAdmins",
+                    headerBackTitleVisible: false,
+                    headerShown: false,
+                })}
+                navigation = {navigation}
+            />
+            
             <HomeStack.Screen
                 name="ForgotPassword"
                 options={{

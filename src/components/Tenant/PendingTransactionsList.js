@@ -69,11 +69,16 @@ const PendingTransactionsList = () => {
     const closeAddEditPaymentModal = () => {
       setAddEditPaymentModall((prevState) => ({
         ...prevState,
-        visible: false
+        visible: false,
+        loading : false
       }));
     }
 
     const submitAddEditPayment = async () => {
+      setAddEditPaymentModall((prevState) => ({
+        ...prevState,
+        loading: true
+      }));
         await payNow(addEditPaymentModal.data.amount, addEditPaymentModal.data.orderId, addEditPaymentModal.data.roomContractId);
     };
   

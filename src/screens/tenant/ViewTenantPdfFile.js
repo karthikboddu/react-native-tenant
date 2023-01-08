@@ -30,7 +30,7 @@ const ViewTenantPdfFile = ({navigation,route}) => {
       
     <View  style={styles.container}>
         <BackButton goBack={navigation.goBack}/>
-        {Platform.OS != 'web' ? (<><Popup config={p}/></>) : (
+        {Platform.OS == 'web' ? (<><Popup config={p}/></>) : (
       <PdfViewer assetDetails={assetData}/>
       )}
     </View>
