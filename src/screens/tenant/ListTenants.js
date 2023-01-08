@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { StyleSheet, View } from 'react-native';
+import colors from '../../assets/colors/colors';
 import ViewTenants from '../../components/Tenant/ViewTenants';
 import { GlobalContext } from '../../context/GlobalState';
 
@@ -7,10 +8,11 @@ import { GlobalContext } from '../../context/GlobalState';
 
 const ListTenants = ({navigation}) => {
 
-    const { fetchAllTenantList, tenantDetailsList } = useContext(GlobalContext);
+    const { fetchAllTenantList, tenantDetailsList , setTransparentStatusBG} = useContext(GlobalContext);
 
     React.useEffect(() => {
         fetchAllTenantList()
+        setTransparentStatusBG(colors.danger);
     }, [])
     const listProps = {
         tenantDetailsList,

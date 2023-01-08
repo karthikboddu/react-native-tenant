@@ -13,7 +13,8 @@ const colors = {
   black: '#0C0D0E',
   white: '#FBFCFE',
   pending : '#ff8d05',
-  done : '#32c787'
+  done : '#32c787',
+  danger : '#FF0000'
 };
 
 export default colors;

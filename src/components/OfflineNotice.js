@@ -1,16 +1,34 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { DefaultTheme as NavigationDefaultTheme, NavigationContainer } from '@react-navigation/native';
+import React, { useContext } from 'react';
+import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import { DefaultTheme as PaperDefaultTheme } from 'react-native-paper';
 import colors from '../assets/colors/colors';
-import { COLORS } from '../constants';
+import { GlobalContext } from '../context/GlobalState';
 import ListTenants from '../screens/tenant/ListTenants';
-
 const OfflineNotice = ({navigation}) => {
-
+  const { isTransParentStatusBar, transparentStatusBG } = useContext(GlobalContext);
+  const CustomDefaultTheme = {
+    ...NavigationDefaultTheme,
+    ...PaperDefaultTheme,
+    colors: {
+      ...NavigationDefaultTheme.colors,
+      ...PaperDefaultTheme.colors,
+      background: '#ffffff',
+      text: '#333333'
+    }
+  }
     return (
+      <NavigationContainer theme={CustomDefaultTheme}>
+      {!isTransParentStatusBar ? (
+        <StatusBar translucent backgroundColor="transparent" />) 
+        : (
+      <StatusBar backgroundColor={transparentStatusBG} barStyle="light-content" />
+      )}
       <View style={styles.container}>
         <Text style={styles.text}>No Internet Connection</Text>
         <ListTenants/>
       </View>
+      </NavigationContainer>
     );
 };
 
@@ -25,7 +43,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 25,
     alignContent: 'center',
-    backgroundColor : COLORS.darkgray,
+    
     paddingLeft : 50
   },
   orderWrapper: {
