@@ -1,5 +1,5 @@
 import AllInOneSDKManager from 'paytm_allinone_react-native';
-import { Popup } from 'popup-ui';
+// import { Popup } from 'popup-ui';
 import React, { createContext, useReducer } from 'react';
 import { CONSTANTS } from '../constants';
 import endpoints from '../endpoints';
@@ -680,7 +680,7 @@ export const GlobalProvider = ({ children }) => {
                 )
                     .then((result) => {
                         setScreenLoading(false);
-                        successPopup();
+                        //successPopup();
                         if (result.RESPCODE = CONSTANTS.RESPCODE) {
                             updatePaytmPaymentDetails(orderId, "C", result, buildingId, oldBuildingAmount, amount)
                         } else {
@@ -694,7 +694,7 @@ export const GlobalProvider = ({ children }) => {
                     })
                     .catch((err) => {
                         setScreenLoading(false);
-                        failedPopup()
+                        //failedPopup()
                         getTenantRoomOrderDetails('P,F',1)
                         updatePaytmPaymentDetails(orderId, "F",'',buildingId, 0, 0)
                         console.log("gateway error", err);
@@ -702,7 +702,7 @@ export const GlobalProvider = ({ children }) => {
 
         } catch (error) {
             setScreenLoading(false);
-            failedPopup()
+            //failedPopup()
             console.log(error.message)
             updatePaytmPaymentDetails(orderId, "F", '',buildingId, 0, 0)
             getTenantRoomOrderDetails('P,F',1)

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Platform, StyleSheet, View } from 'react-native'
 import BackButton from '../../components/BackButton'
-import PdfViewer from '../../components/Tenant/PdfViewer'
+//import PdfViewer from '../../components/Tenant/PdfViewer'
 import Popup from '../../components/Tenant/Popup'
 import { getAssetUrl } from '../../services/tenant/uploadService'
 
